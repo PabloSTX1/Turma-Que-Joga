@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Turma Que Joga · Estatísticas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --verde: #1a7a3c;
+    --verde-claro: #25a352;
+    --verde-neon: #2ecc71;
+    --amarelo: #f4c430;
+    --amarelo-escuro: #d4a017;
+    --branco: #f8f9f0;
+    --cinza-escuro: #1a1e1a;
+    --cinza-medio: #2c3228;
+    --cinza-card: #232820;
+    --cinza-linha: #2e3429;
+    --texto-muted: #7a8a72;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Barlow', sans-serif;
+    background: var(--cinza-escuro);
+    color: var(--branco);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* FIELD PATTERN BACKGROUND */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 60px,
+      rgba(255,255,255,0.012) 60px,
+      rgba(255,255,255,0.012) 62px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 60px,
+      rgba(255,255,255,0.012) 60px,
+      rgba(255,255,255,0.012) 62px
+    );
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrap { position: relative; z-index: 1; max-width: 960px; margin: 0 auto; padding: 0 20px; }
+
+  /* HEADER */
+  header {
+    background: linear-gradient(180deg, #0d1409 0%, var(--cinza-medio) 100%);
+    border-bottom: 3px solid var(--amarelo);
+    padding: 0 20px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-inner {
+    max-width: 960px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 0;
+    gap: 16px;
+  }
+  .logo-area { display: flex; align-items: center; gap: 14px; }
+  .logo-badge {
+    width: 52px; height: 52px;
+    background: var(--amarelo);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    position: relative;
+  }
+  .logo-badge svg { width: 30px; height: 30px; }
+  .logo-text h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 1.5px;
+    color: var(--branco);
+    line-height: 1;
+  }
+  .logo-text p {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    color: var(--amarelo);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+  .btn-admin {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    background: transparent;
+    color: var(--texto-muted);
+    border: 1.5px solid #3a4035;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-admin:hover { border-color: var(--amarelo); color: var(--amarelo); }
+
+  /* NAV TABS */
+  .tabs {
+    background: var(--cinza-medio);
+    border-bottom: 1px solid #2e3429;
+    padding: 0 20px;
+  }
+  .tabs-inner {
+    max-width: 960px;
+    margin: 0 auto;
+    display: flex;
+    gap: 4px;
+  }
+  .tab-btn {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    background: transparent;
+    color: var(--texto-muted);
+    border: none;
+    padding: 14px 20px;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+    margin-bottom: -1px;
+  }
+  .tab-btn:hover { color: var(--branco); }
+  .tab-btn.active { color: var(--amarelo); border-bottom-color: var(--amarelo); }
+
+  /* PAGES */
+  .page { display: none; padding: 32px 0; }
+  .page.active { display: block; }
+
+  /* HERO STATS */
+  .hero-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+  .hero-card {
+    background: var(--cinza-card);
+    border: 1px solid #2e3429;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--amarelo);
+  }
+  .hero-card .number {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 48px;
+    color: var(--amarelo);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .hero-card .label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--texto-muted);
+  }
+
+  /* SECTION TITLES */
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 2px;
+    color: var(--branco);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #2e3429;
+  }
+
+  /* RANKING TABLE */
+  .ranking-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--cinza-card);
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid #2e3429;
+  }
+  .ranking-table thead tr {
+    background: var(--cinza-medio);
+    border-bottom: 2px solid var(--amarelo);
+  }
+  .ranking-table th {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--amarelo);
+    padding: 12px 16px;
+    text-align: left;
+  }
+  .ranking-table th.num { text-align: center; }
+  .ranking-table td {
+    padding: 13px 16px;
+    font-size: 15px;
+    border-bottom: 1px solid var(--cinza-linha);
+    color: var(--branco);
+  }
+  .ranking-table td.num { text-align: center; }
+  .ranking-table tbody tr:last-child td { border-bottom: none; }
+  .ranking-table tbody tr:hover { background: rgba(255,255,255,0.03); }
+
+  .pos-badge {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    width: 32px; height: 32px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+  }
+  .pos-1 { background: #d4a017; color: #1a1e1a; }
+  .pos-2 { background: #7a8a8a; color: #1a1e1a; }
+  .pos-3 { background: #7a5030; color: #f8f9f0; }
+  .pos-n { background: #2e3429; color: var(--texto-muted); font-size: 14px; }
+
+  .player-name {
+    font-family: 'Barlow', sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+  }
+  .stat-num {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--verde-neon);
+  }
+  .stat-total {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--amarelo);
+  }
+  .top-scorer td { background: rgba(212,160,23,0.06); }
+
+  /* RODADAS */
+  .rodada-card {
+    background: var(--cinza-card);
+    border: 1px solid #2e3429;
+    border-radius: 10px;
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+  .rodada-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    background: var(--cinza-medio);
+    border-bottom: 1px solid #2e3429;
+    cursor: pointer;
+    user-select: none;
+  }
+  .rodada-header:hover { background: #323829; }
+  .rodada-date {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 1px;
+    color: var(--amarelo);
+  }
+  .rodada-summary {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    color: var(--texto-muted);
+    letter-spacing: 0.5px;
+  }
+  .rodada-chevron {
+    color: var(--texto-muted);
+    transition: transform 0.2s;
+    font-size: 18px;
+  }
+  .rodada-chevron.open { transform: rotate(180deg); }
+  .rodada-body { padding: 16px 20px; display: none; }
+  .rodada-body.open { display: block; }
+  .rodada-mini-table {
+    width: 100%;
+    font-size: 14px;
+    border-collapse: collapse;
+  }
+  .rodada-mini-table th {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--texto-muted);
+    padding: 6px 8px;
+    text-align: left;
+    border-bottom: 1px solid #2e3429;
+  }
+  .rodada-mini-table th.num { text-align: center; }
+  .rodada-mini-table td {
+    padding: 8px 8px;
+    border-bottom: 1px solid rgba(46,52,41,0.5);
+    color: var(--branco);
+  }
+  .rodada-mini-table td.num { text-align: center; font-family: 'Barlow Condensed'; font-weight: 700; font-size: 16px; color: var(--verde-neon); }
+  .rodada-mini-table td.num-ast { text-align: center; font-family: 'Barlow Condensed'; font-weight: 700; font-size: 16px; color: #5bade8; }
+  .rodada-mini-table tbody tr:last-child td { border-bottom: none; }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.75);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--cinza-medio);
+    border: 1px solid #3a4035;
+    border-radius: 14px;
+    width: 100%;
+    max-width: 560px;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 28px;
+  }
+  .modal h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 24px;
+    letter-spacing: 1.5px;
+    margin-bottom: 20px;
+    color: var(--amarelo);
+  }
+  .modal-section-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--texto-muted);
+    margin: 20px 0 8px;
+  }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 8px; }
+  .form-group { display: flex; flex-direction: column; gap: 4px; }
+  .form-group label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--texto-muted);
+  }
+  .form-group input, .form-group select {
+    background: var(--cinza-escuro);
+    border: 1px solid #3a4035;
+    border-radius: 6px;
+    color: var(--branco);
+    font-family: 'Barlow', sans-serif;
+    font-size: 14px;
+    padding: 9px 12px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .form-group input:focus, .form-group select:focus { border-color: var(--amarelo); }
+  .form-group input[type="number"] { -moz-appearance: textfield; }
+  .form-group input[type="number"]::-webkit-outer-spin-button,
+  .form-group input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+  .form-group select option { background: var(--cinza-medio); }
+
+  .stat-entry-row {
+    display: grid;
+    grid-template-columns: 1fr 80px 80px 32px;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .btn-remove-row {
+    background: transparent;
+    border: 1px solid #3a4035;
+    color: var(--texto-muted);
+    border-radius: 6px;
+    width: 32px; height: 32px;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+  .btn-remove-row:hover { border-color: #c0392b; color: #c0392b; }
+
+  .btn-add-jogador {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    background: transparent;
+    color: var(--verde-neon);
+    border: 1.5px dashed rgba(46,204,113,0.4);
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 4px;
+    transition: all 0.2s;
+  }
+  .btn-add-jogador:hover { border-color: var(--verde-neon); background: rgba(46,204,113,0.05); }
+
+  .modal-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 24px;
+    justify-content: flex-end;
+  }
+  .btn-cancel {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    background: transparent;
+    color: var(--texto-muted);
+    border: 1.5px solid #3a4035;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-cancel:hover { color: var(--branco); border-color: #5a6455; }
+  .btn-save {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    background: var(--amarelo);
+    color: var(--cinza-escuro);
+    border: none;
+    padding: 10px 28px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-save:hover { background: #e6b820; }
+
+  /* DELETE RODADA */
+  .btn-del-rodada {
+    background: transparent;
+    border: 1px solid #3a4035;
+    color: var(--texto-muted);
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 12px;
+    font-family: 'Barlow Condensed', sans-serif;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+  .btn-del-rodada:hover { border-color: #c0392b; color: #c0392b; }
+
+  /* EMPTY STATE */
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--texto-muted);
+  }
+  .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
+  .empty-state p {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 16px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: var(--verde);
+    color: white;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 12px 20px;
+    border-radius: 8px;
+    z-index: 999;
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all 0.3s;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  /* RODADA ACTIONS */
+  .rodada-header-left { display: flex; flex-direction: column; gap: 2px; }
+
+  @media (max-width: 600px) {
+    .hero-stats { grid-template-columns: repeat(3, 1fr); }
+    .hero-card .number { font-size: 36px; }
+    .ranking-table th, .ranking-table td { padding: 10px 10px; }
+    .stat-entry-row { grid-template-columns: 1fr 68px 68px 32px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="logo-area">
+      <div class="logo-badge">
+        <svg viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="15" cy="15" r="13" stroke="#1a1e1a" stroke-width="2"/>
+          <path d="M15 4 L17.5 11 L25 11 L19 16 L21.5 23 L15 18.5 L8.5 23 L11 16 L5 11 L12.5 11 Z" fill="#1a1e1a"/>
+        </svg>
+      </div>
+      <div class="logo-text">
+        <h1>Turma Que Joga</h1>
+        <p>⚽ Domingos · 10h da manhã</p>
+      </div>
+    </div>
+    <button class="btn-admin" onclick="openModal()">+ Nova Rodada</button>
+  </div>
+</header>
+
+<div class="tabs">
+  <div class="tabs-inner">
+    <button class="tab-btn active" onclick="switchTab('ranking')">Ranking Geral</button>
+    <button class="tab-btn" onclick="switchTab('rodadas')">Rodadas</button>
+  </div>
+</div>
+
+<!-- RANKING PAGE -->
+<div class="page active" id="page-ranking">
+  <div class="wrap">
+    <div class="hero-stats" id="hero-stats">
+      <div class="hero-card"><div class="number" id="total-rodadas">0</div><div class="label">Rodadas</div></div>
+      <div class="hero-card"><div class="number" id="total-gols">0</div><div class="label">Gols Totais</div></div>
+      <div class="hero-card"><div class="number" id="total-jogadores">0</div><div class="label">Jogadores</div></div>
+    </div>
+
+    <div class="section-title">Artilharia Geral</div>
+    <div id="ranking-container">
+      <div class="empty-state"><div class="icon">⚽</div><p>Nenhuma rodada registrada ainda</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- RODADAS PAGE -->
+<div class="page" id="page-rodadas">
+  <div class="wrap">
+    <div id="rodadas-container">
+      <div class="empty-state"><div class="icon">📅</div><p>Nenhuma rodada registrada ainda</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <h2 id="modal-title">Nova Rodada</h2>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Data da Pelada</label>
+        <input type="date" id="input-data">
+      </div>
+    </div>
+
+    <div class="modal-section-title">Estatísticas dos Jogadores</div>
+    <div style="display:grid; grid-template-columns: 1fr 80px 80px 32px; gap: 8px; margin-bottom: 6px;">
+      <span style="font-family:'Barlow Condensed';font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--texto-muted);">Jogador</span>
+      <span style="font-family:'Barlow Condensed';font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--verde-neon);text-align:center;">⚽ Gols</span>
+      <span style="font-family:'Barlow Condensed';font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#5bade8;text-align:center;">🎯 Assist</span>
+      <span></span>
+    </div>
+    <div id="stat-rows"></div>
+    <button class="btn-add-jogador" onclick="addStatRow()">+ Adicionar Jogador</button>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+      <button class="btn-save" onclick="salvarRodada()">Salvar Rodada</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── DATA LAYER ───────────────────────────────────────────────
+let rodadas = [];
+let editingId = null;
+
+function loadData() {
+  const raw = localStorage.getItem('tqj_rodadas');
+  if (raw) {
+    try { rodadas = JSON.parse(raw); } catch(e) { rodadas = []; }
+  }
+}
+
+function saveData() {
+  localStorage.setItem('tqj_rodadas', JSON.stringify(rodadas));
+}
+
+// ─── HELPERS ──────────────────────────────────────────────────
+function formatDate(iso) {
+  if (!iso) return '';
+  const [y, m, d] = iso.split('-');
+  return `${d}/${m}/${y}`;
+}
+function todayISO() {
+  const now = new Date();
+  return now.toISOString().split('T')[0];
+}
+function uid() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+}
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ─── COMPUTE GLOBAL STATS ─────────────────────────────────────
+function computeRanking() {
+  const map = {};
+  rodadas.forEach(r => {
+    r.stats.forEach(s => {
+      if (!map[s.nome]) map[s.nome] = { nome: s.nome, gols: 0, assists: 0 };
+      map[s.nome].gols += (s.gols || 0);
+      map[s.nome].assists += (s.assists || 0);
+    });
+  });
+  return Object.values(map).sort((a, b) => {
+    if (b.gols !== a.gols) return b.gols - a.gols;
+    return (b.gols + b.assists) - (a.gols + a.assists);
+  });
+}
+
+// ─── RENDER ───────────────────────────────────────────────────
+function render() {
+  const ranking = computeRanking();
+  const totalGols = ranking.reduce((s, p) => s + p.gols, 0);
+
+  document.getElementById('total-rodadas').textContent = rodadas.length;
+  document.getElementById('total-gols').textContent = totalGols;
+  document.getElementById('total-jogadores').textContent = ranking.length;
+
+  // Ranking table
+  const rc = document.getElementById('ranking-container');
+  if (ranking.length === 0) {
+    rc.innerHTML = '<div class="empty-state"><div class="icon">⚽</div><p>Nenhuma rodada registrada ainda</p></div>';
+  } else {
+    let rows = '';
+    ranking.forEach((p, i) => {
+      const pos = i + 1;
+      let posClass = pos <= 3 ? `pos-${pos}` : 'pos-n';
+      const topClass = pos === 1 ? 'top-scorer' : '';
+      rows += `
+        <tr class="${topClass}">
+          <td class="num"><span class="pos-badge ${posClass}">${pos}</span></td>
+          <td><span class="player-name">${escHtml(p.nome)}</span></td>
+          <td class="num"><span class="stat-num">${p.gols}</span></td>
+          <td class="num"><span class="stat-num" style="color:#5bade8">${p.assists}</span></td>
+          <td class="num"><span class="stat-total">${p.gols + p.assists}</span></td>
+        </tr>`;
+    });
+    rc.innerHTML = `
+      <table class="ranking-table">
+        <thead>
+          <tr>
+            <th class="num" style="width:48px">#</th>
+            <th>Jogador</th>
+            <th class="num">⚽ Gols</th>
+            <th class="num">🎯 Assist</th>
+            <th class="num">🏅 Total</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+  }
+
+  // Rodadas
+  const rdContainer = document.getElementById('rodadas-container');
+  if (rodadas.length === 0) {
+    rdContainer.innerHTML = '<div class="empty-state"><div class="icon">📅</div><p>Nenhuma rodada registrada ainda</p></div>';
+  } else {
+    const sorted = [...rodadas].sort((a, b) => b.data.localeCompare(a.data));
+    rdContainer.innerHTML = sorted.map(r => {
+      const totalGR = r.stats.reduce((s, p) => s + (p.gols || 0), 0);
+      const totalAR = r.stats.reduce((s, p) => s + (p.assists || 0), 0);
+      const statsSorted = [...r.stats].sort((a, b) => {
+        if ((b.gols||0) !== (a.gols||0)) return (b.gols||0) - (a.gols||0);
+        return ((b.gols||0)+(b.assists||0)) - ((a.gols||0)+(a.assists||0));
+      });
+      const rows = statsSorted.map(s => `
+        <tr>
+          <td>${escHtml(s.nome)}</td>
+          <td class="num">${s.gols || 0}</td>
+          <td class="num-ast">${s.assists || 0}</td>
+          <td class="num" style="color:var(--amarelo)">${(s.gols||0)+(s.assists||0)}</td>
+        </tr>`).join('');
+
+      return `
+        <div class="rodada-card">
+          <div class="rodada-header" onclick="toggleRodada('${r.id}')">
+            <div class="rodada-header-left">
+              <span class="rodada-date">Domingo · ${formatDate(r.data)}</span>
+              <span class="rodada-summary">${r.stats.length} jogadores · ${totalGR} gols · ${totalAR} assists</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px">
+              <button class="btn-del-rodada" onclick="event.stopPropagation();deletarRodada('${r.id}')">Excluir</button>
+              <button class="btn-admin" style="padding:6px 14px;font-size:12px;" onclick="event.stopPropagation();editarRodada('${r.id}')">Editar</button>
+              <span class="rodada-chevron" id="chev-${r.id}">▼</span>
+            </div>
+          </div>
+          <div class="rodada-body" id="body-${r.id}">
+            <table class="rodada-mini-table">
+              <thead>
+                <tr>
+                  <th>Jogador</th>
+                  <th class="num">⚽ Gols</th>
+                  <th class="num">🎯 Assist</th>
+                  <th class="num">Total</th>
+                </tr>
+              </thead>
+              <tbody>${rows}</tbody>
+            </table>
+          </div>
+        </div>`;
+    }).join('');
+  }
+}
+
+function escHtml(t) {
+  return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function toggleRodada(id) {
+  const body = document.getElementById('body-' + id);
+  const chev = document.getElementById('chev-' + id);
+  body.classList.toggle('open');
+  chev.classList.toggle('open');
+}
+
+// ─── TABS ──────────────────────────────────────────────────────
+function switchTab(tab) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + tab).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ─── MODAL ────────────────────────────────────────────────────
+function openModal(edit = null) {
+  editingId = edit;
+  document.getElementById('modal-title').textContent = edit ? 'Editar Rodada' : 'Nova Rodada';
+  document.getElementById('stat-rows').innerHTML = '';
+
+  if (edit) {
+    const r = rodadas.find(x => x.id === edit);
+    if (r) {
+      document.getElementById('input-data').value = r.data;
+      r.stats.forEach(s => addStatRow(s.nome, s.gols, s.assists));
+    }
+  } else {
+    document.getElementById('input-data').value = todayISO();
+    addStatRow();
+    addStatRow();
+  }
+
+  document.getElementById('modal').classList.add('open');
+}
+
+function editarRodada(id) { openModal(id); }
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+  editingId = null;
+}
+
+function closeModalOutside(e) {
+  if (e.target === document.getElementById('modal')) closeModal();
+}
+
+function addStatRow(nome = '', gols = 0, assists = 0) {
+  const rowId = 'row-' + uid();
+  const div = document.createElement('div');
+  div.className = 'stat-entry-row';
+  div.id = rowId;
+  div.innerHTML = `
+    <input type="text" placeholder="Nome do jogador" value="${escHtml(nome)}" class="row-nome">
+    <input type="number" placeholder="0" min="0" value="${gols}" class="row-gols">
+    <input type="number" placeholder="0" min="0" value="${assists}" class="row-assists">
+    <button class="btn-remove-row" onclick="removeStatRow('${rowId}')" title="Remover">×</button>`;
+  document.getElementById('stat-rows').appendChild(div);
+}
+
+function removeStatRow(id) {
+  const el = document.getElementById(id);
+  if (el) el.remove();
+}
+
+function salvarRodada() {
+  const data = document.getElementById('input-data').value;
+  if (!data) { alert('Informe a data da pelada.'); return; }
+
+  const rows = document.querySelectorAll('#stat-rows .stat-entry-row');
+  const stats = [];
+  rows.forEach(row => {
+    const nome = row.querySelector('.row-nome').value.trim();
+    const gols = parseInt(row.querySelector('.row-gols').value) || 0;
+    const assists = parseInt(row.querySelector('.row-assists').value) || 0;
+    if (nome) stats.push({ nome, gols, assists });
+  });
+
+  if (stats.length === 0) { alert('Adicione ao menos um jogador com nome.'); return; }
+
+  if (editingId) {
+    const idx = rodadas.findIndex(r => r.id === editingId);
+    if (idx !== -1) rodadas[idx] = { ...rodadas[idx], data, stats };
+  } else {
+    rodadas.push({ id: uid(), data, stats });
+  }
+
+  saveData();
+  render();
+  closeModal();
+  showToast(editingId ? '✓ Rodada atualizada!' : '✓ Rodada salva!');
+}
+
+function deletarRodada(id) {
+  if (!confirm('Excluir esta rodada?')) return;
+  rodadas = rodadas.filter(r => r.id !== id);
+  saveData();
+  render();
+  showToast('Rodada excluída.');
+}
+
+// ─── INIT ─────────────────────────────────────────────────────
+loadData();
+render();
+</script>
+</body>
+</html>
