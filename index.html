@@ -170,6 +170,18 @@
   .btn-add-goleiro:hover{border-color:#7de87a;background:rgba(125,232,122,.08);}
   .btn-rem-goleiro{background:transparent;border:1px solid var(--azul-linha);color:var(--muted);border-radius:6px;width:32px;height:32px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0;}
   .btn-rem-goleiro:hover{border-color:#c0392b;color:#e74c3c;}
+
+  /* FILTRO DE MES */
+  .filtro-bar{display:flex;align-items:center;gap:12px;margin-bottom:28px;flex-wrap:wrap;}
+  .filtro-label{font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);flex-shrink:0;}
+  .filtro-pills{display:flex;gap:8px;flex-wrap:wrap;flex:1;}
+  .pill{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;background:transparent;color:var(--muted);border:1.5px solid var(--azul-linha);padding:6px 14px;border-radius:20px;cursor:pointer;transition:all .2s;white-space:nowrap;}
+  .pill:hover{border-color:var(--azul);color:var(--branco);}
+  .pill.active{background:var(--azul);color:#fff;border-color:var(--azul);box-shadow:0 0 10px rgba(26,79,189,.4);}
+  .filtro-select{background:var(--preto-medio);border:1.5px solid var(--azul-linha);border-radius:8px;color:var(--branco);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:.5px;padding:7px 12px;outline:none;cursor:pointer;transition:border-color .2s;}
+  .filtro-select:focus{border-color:var(--azul);}
+  .filtro-select option{background:var(--preto-medio);}
+  .periodo-label{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1.5px;color:var(--laranja);margin-left:4px;}
 </style>
 </head>
 <body>
@@ -200,6 +212,15 @@
 
 <div class="page active" id="page-ranking">
   <div class="wrap">
+    <div class="filtro-bar">
+      <span class="filtro-label">Periodo:</span>
+      <div class="filtro-pills">
+        <button class="pill active" onclick="setFiltro('geral',this)">Geral</button>
+      </div>
+      <select class="filtro-select" id="filtro-select" onchange="setFiltroSelect(this)">
+        <option value="">Selecionar mes...</option>
+      </select>
+    </div>
     <div class="hero-stats">
       <div class="hero-card"><div class="number" id="total-rodadas">-</div><div class="label">Rodadas</div></div>
       <div class="hero-card"><div class="number" id="total-gols">-</div><div class="label">Gols Totais</div></div>
@@ -213,6 +234,15 @@
 
 <div class="page" id="page-rodadas">
   <div class="wrap">
+    <div class="filtro-bar">
+      <span class="filtro-label">Periodo:</span>
+      <div class="filtro-pills">
+        <button class="pill active" onclick="setFiltroRodadas('geral',this)">Geral</button>
+      </div>
+      <select class="filtro-select" id="filtro-select-rodadas" onchange="setFiltroSelectRodadas(this)">
+        <option value="">Selecionar mes...</option>
+      </select>
+    </div>
     <div id="rodadas-container"><div class="loading"><div class="spinner"></div>Carregando...</div></div>
   </div>
 </div>
@@ -355,7 +385,8 @@ function sair() { setAdmin(false); toast('Sessao encerrada.'); render(); }
 
 function computeGoleiros() {
   var map = {};
-  rodadas.forEach(function(r) {
+  var lista = getRodadasFiltradas(filtroAtivo);
+  lista.forEach(function(r) {
     var gols = r.goleiros || [];
     gols.forEach(function(g) {
       if (!g) return;
@@ -390,7 +421,8 @@ function renderGoleiros() {
 
 function computeRanking() {
   var map = {};
-  rodadas.forEach(function(r) {
+  var lista = getRodadasFiltradas(filtroAtivo);
+  lista.forEach(function(r) {
     r.stats.forEach(function(s) {
       if (!map[s.nome]) map[s.nome] = { nome: s.nome, gols: 0, assists: 0 };
       map[s.nome].gols += (s.gols || 0);
@@ -405,7 +437,8 @@ function computeRanking() {
 function render() {
   var rank = computeRanking();
   var tG = rank.reduce(function(s,p){ return s+p.gols; }, 0);
-  document.getElementById('total-rodadas').textContent = rodadas.length;
+  var rodadasFiltradas = getRodadasFiltradas(filtroAtivo);
+  document.getElementById('total-rodadas').textContent = rodadasFiltradas.length;
   document.getElementById('total-gols').textContent = tG;
   document.getElementById('total-jogadores').textContent = rank.length;
   var grank = computeGoleiros();
@@ -439,12 +472,18 @@ function render() {
       +'</tr></thead><tbody>'+rows+'</tbody></table>';
   }
 
+  renderRodadas();
+  renderGoleiros();
+}
+
+function renderRodadas() {
   var rd = document.getElementById('rodadas-container');
-  if (!rodadas.length) {
-    rd.innerHTML = '<div class="empty-state"><div class="icon">&#128197;</div><p>Nenhuma rodada registrada ainda</p></div>';
+  var lista = getRodadasFiltradas(filtroRodasAtivo);
+  if (!lista.length) {
+    rd.innerHTML = '<div class="empty-state"><div class="icon">&#128197;</div><p>Nenhuma rodada para este periodo</p></div>';
     return;
   }
-  rd.innerHTML = rodadas.map(function(r) {
+  rd.innerHTML = lista.map(function(r) {
     var tGr = r.stats.reduce(function(s,p){ return s+(p.gols||0); },0);
     var tAr = r.stats.reduce(function(s,p){ return s+(p.assists||0); },0);
     var ss = r.stats.slice().sort(function(a,b){
@@ -494,7 +533,6 @@ function render() {
       +goleiroHTML
       +'</div></div>';
   }).join('');
-  renderGoleiros();
 }
 
 function toggleRodada(id) {
@@ -625,9 +663,98 @@ function deletarRodada(id) {
   });
 }
 
+var filtroAtivo = 'geral';      // 'geral' or 'YYYY-MM'
+var filtroRodasAtivo = 'geral';  // same for rodadas tab
+
+function getMesesDisponiveis() {
+  var meses = {};
+  rodadas.forEach(function(r) {
+    if (!r.data) return;
+    var ym = r.data.substring(0, 7); // 'YYYY-MM'
+    meses[ym] = true;
+  });
+  return Object.keys(meses).sort().reverse();
+}
+
+var MESES_PT = ['Janeiro','Fevereiro','Marco','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+function formatMesAno(ym) {
+  var parts = ym.split('-');
+  var mes = MESES_PT[parseInt(parts[1], 10) - 1];
+  return mes + ' ' + parts[0];
+}
+
+function buildPills(containerId, selectId, ativo, onClickAll, onClickMes) {
+  var meses = getMesesDisponiveis();
+  var pillsDiv = document.querySelector('#' + containerId + ' .filtro-pills');
+  var sel = document.getElementById(selectId);
+  if (!pillsDiv || !sel) return;
+
+  pillsDiv.innerHTML = '';
+
+  // Geral button
+  var btnGeral = document.createElement('button');
+  btnGeral.className = 'pill' + (ativo === 'geral' ? ' active' : '');
+  btnGeral.textContent = 'Geral';
+  btnGeral.onclick = function() { window[onClickAll]('geral', this); };
+  pillsDiv.appendChild(btnGeral);
+
+  // Last 4 months as pills
+  var recentes = meses.slice(0, 4);
+  recentes.forEach(function(ym) {
+    var btn = document.createElement('button');
+    btn.className = 'pill' + (ativo === ym ? ' active' : '');
+    btn.textContent = formatMesAno(ym);
+    btn.onclick = (function(y) { return function() { window[onClickMes](y, this); }; })(ym);
+    pillsDiv.appendChild(btn);
+  });
+
+  // Older months in select
+  sel.innerHTML = '<option value="">Outros meses...</option>';
+  meses.slice(4).forEach(function(ym) {
+    var opt = document.createElement('option');
+    opt.value = ym;
+    opt.textContent = formatMesAno(ym);
+    if (ativo === ym) opt.selected = true;
+    sel.appendChild(opt);
+  });
+  sel.style.display = meses.length > 4 ? '' : 'none';
+}
+
+function getRodadasFiltradas(filtro) {
+  if (filtro === 'geral') return rodadas;
+  return rodadas.filter(function(r) {
+    return r.data && r.data.substring(0, 7) === filtro;
+  });
+}
+
+function setFiltro(valor, btn) {
+  filtroAtivo = valor;
+  buildPills('page-ranking', 'filtro-select', filtroAtivo, 'setFiltro', 'setFiltro');
+  render();
+}
+function setFiltroSelect(sel) {
+  if (!sel.value) return;
+  filtroAtivo = sel.value;
+  buildPills('page-ranking', 'filtro-select', filtroAtivo, 'setFiltro', 'setFiltro');
+  render();
+}
+function setFiltroRodadas(valor, btn) {
+  filtroRodasAtivo = valor;
+  buildPills('page-rodadas', 'filtro-select-rodadas', filtroRodasAtivo, 'setFiltroRodadas', 'setFiltroRodadas');
+  renderRodadas();
+}
+function setFiltroSelectRodadas(sel) {
+  if (!sel.value) return;
+  filtroRodasAtivo = sel.value;
+  buildPills('page-rodadas', 'filtro-select-rodadas', filtroRodasAtivo, 'setFiltroRodadas', 'setFiltroRodadas');
+  renderRodadas();
+}
+
 function init() {
   dbCarregar().then(function(data) {
     rodadas = data;
+    buildPills('page-ranking', 'filtro-select', filtroAtivo, 'setFiltro', 'setFiltro');
+    buildPills('page-rodadas', 'filtro-select-rodadas', filtroRodasAtivo, 'setFiltroRodadas', 'setFiltroRodadas');
     render();
   }).catch(function(e) {
     var err = '<div class="empty-state"><div class="icon">&#9888;</div><p>Erro ao conectar. Tente recarregar.</p></div>';
