@@ -458,12 +458,25 @@ function render() {
     var gols = r.goleiros || [];
     var goleiroHTML = '';
     if (gols.length > 0) {
-      goleiroHTML = '<div class="goleiro-destaque">'
-        +'<div class="goleiro-destaque-label">&#129476; Goleiro(s) Vencedor(es)</div>'
-        +'<div class="goleiro-nomes">'+gols.map(function(g){ return esc(g); }).join(', ')+'</div>'
+      var gRows = gols.map(function(g) {
+        var nome = (typeof g === 'object' && g !== null) ? (g.nome || '') : String(g);
+        var vit  = (typeof g === 'object' && g !== null) ? (g.vitorias || 0) : 0;
+        return '<tr>'
+          +'<td style="padding:9px 8px;border-bottom:1px solid rgba(17,32,80,.6);color:var(--branco);">' + esc(nome) + '</td>'
+          +'<td style="padding:9px 8px;border-bottom:1px solid rgba(17,32,80,.6);text-align:center;font-family:Barlow Condensed,sans-serif;font-weight:700;font-size:16px;color:#7de87a;">' + vit + '</td>'
+          +'</tr>';
+      }).join('');
+      goleiroHTML = '<div style="margin-top:14px;border-top:1px solid var(--azul-linha);padding-top:12px;">'
+        +'<div style="font-family:Barlow Condensed,sans-serif;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#7de87a;margin-bottom:8px;">Goleiros da Rodada</div>'
+        +'<table style="width:100%;border-collapse:collapse;">'
+        +'<thead><tr>'
+        +'<th style="font-family:Barlow Condensed,sans-serif;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);padding:6px 8px;text-align:left;border-bottom:1px solid var(--azul-linha);">Goleiro</th>'
+        +'<th style="font-family:Barlow Condensed,sans-serif;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#7de87a;padding:6px 8px;text-align:center;border-bottom:1px solid var(--azul-linha);">Vitorias</th>'
+        +'</tr></thead>'
+        +'<tbody>' + gRows + '</tbody></table>'
         +'</div>';
     }
-    return '<div class="rodada-card">'
+        return '<div class="rodada-card">'
       +'<div class="rodada-header" onclick="toggleRodada(\''+r.id+'\')">'
       +'<div class="rodada-header-left">'
       +'<span class="rodada-date">Domingo - '+fmtDate(r.data)+'</span>'
