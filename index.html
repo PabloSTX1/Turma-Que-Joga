@@ -85,6 +85,7 @@
   .rodada-header-left{display:flex;flex-direction:column;gap:2px;}
   .admin-only{display:none !important;}
   .admin-logged .admin-only{display:flex !important;}
+  .admin-logged .tab-btn.admin-only{display:block !important;}
   .btn-editar,.btn-excluir{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;background:transparent;color:var(--muted);border:1px solid var(--azul-linha);padding:5px 12px;border-radius:6px;cursor:pointer;transition:all .2s;flex-shrink:0;}
   .btn-editar:hover{border-color:var(--azul);color:#4a80e8;}
   .btn-excluir:hover{border-color:#c0392b;color:#e74c3c;}
@@ -322,7 +323,7 @@
     <button class="tab-btn" onclick="switchTab('rodadas',this)">Rodadas</button>
     <button class="tab-btn" onclick="switchTab('goleiros',this)">Goleiros</button>
     <button class="tab-btn" onclick="switchTab('membros',this)">Membros</button>
-    <button class="tab-btn" onclick="switchTab('caixa',this)">Caixa</button>
+    <button class="tab-btn admin-only" style="display:none;" onclick="switchTab('caixa',this)">Caixa</button>
   </div>
 </div>
 
@@ -638,7 +639,17 @@ function fazerLogin() {
     document.getElementById('login-pass').focus();
   }
 }
-function sair() { setAdmin(false); toast('Sessao encerrada.'); render(); renderCaixa(); renderMembros(); }
+function sair() {
+  setAdmin(false);
+  toast('Sessao encerrada.');
+  // If on caixa tab, redirect to ranking
+  var caixaPage = document.getElementById('page-caixa');
+  if (caixaPage && caixaPage.classList.contains('active')) {
+    var rankBtn = document.querySelector('.tab-btn');
+    switchTab('ranking', rankBtn);
+  }
+  render(); renderMembros();
+}
 
 function computeGoleiros() {
   var map = {};
