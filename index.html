@@ -216,6 +216,86 @@
   /* MODAL MEMBRO */
   .modal-membro-box{background:var(--preto-medio);border:1px solid var(--azul-linha);border-top:3px solid var(--laranja);border-radius:14px;width:100%;max-width:400px;padding:28px;}
   .modal-membro-box h2{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1.5px;margin-bottom:20px;color:var(--laranja);}
+
+  /* CAIXA */
+  .caixa-mes-select{display:flex;align-items:center;gap:12px;margin-bottom:24px;flex-wrap:wrap;}
+  .caixa-resumo{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px;}
+  .caixa-card{background:var(--azul-card);border:1px solid var(--azul-linha);border-radius:12px;padding:18px 16px;text-align:center;position:relative;overflow:hidden;}
+  .caixa-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+  .caixa-card.total::before{background:var(--azul);}
+  .caixa-card.pago::before{background:#7de87a;}
+  .caixa-card.pendente::before{background:#e74c3c;}
+  .caixa-card .ck-num{font-family:'Bebas Neue',sans-serif;font-size:36px;line-height:1;margin-bottom:4px;}
+  .caixa-card.total .ck-num{color:var(--azul);filter:brightness(1.6);}
+  .caixa-card.pago .ck-num{color:#7de87a;}
+  .caixa-card.pendente .ck-num{color:#e74c3c;}
+  .caixa-card .ck-label{font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);}
+
+  .caixa-section-title{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:var(--branco);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+  .caixa-section-line{flex:1;height:1px;background:var(--azul-linha);}
+
+  .caixa-table{width:100%;border-collapse:collapse;background:var(--azul-card);border-radius:12px;overflow:hidden;border:1px solid var(--azul-linha);margin-bottom:24px;}
+  .caixa-table thead tr{background:var(--azul-escuro);border-bottom:2px solid var(--azul);}
+  .caixa-table th{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#4a80e8;padding:12px 16px;text-align:left;}
+  .caixa-table th.num{text-align:center;}
+  .caixa-table td{padding:12px 16px;font-size:14px;border-bottom:1px solid var(--azul-linha);color:var(--branco);vertical-align:middle;}
+  .caixa-table td.num{text-align:center;}
+  .caixa-table tbody tr:last-child td{border-bottom:none;}
+  .caixa-table tbody tr:hover{background:rgba(26,79,189,0.07);}
+
+  .status-badge{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;padding:4px 12px;border-radius:20px;display:inline-block;}
+  .status-pago{background:rgba(125,232,122,0.15);color:#7de87a;border:1px solid rgba(125,232,122,0.3);}
+  .status-pendente{background:rgba(231,76,60,0.15);color:#e74c3c;border:1px solid rgba(231,76,60,0.3);}
+
+  .forma-badge{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:.5px;padding:3px 10px;border-radius:12px;display:inline-block;}
+  .forma-pix{background:rgba(26,79,189,0.2);color:#5bc8ff;border:1px solid rgba(91,200,255,0.3);}
+  .forma-dinheiro{background:rgba(255,193,7,0.15);color:#ffc107;border:1px solid rgba(255,193,7,0.3);}
+  .forma-none{color:var(--muted);font-size:12px;}
+
+  .btn-status{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;background:transparent;border:1px solid var(--azul-linha);color:var(--muted);padding:4px 10px;border-radius:6px;cursor:pointer;transition:all .2s;margin-right:4px;}
+  .btn-status:hover{border-color:var(--azul);color:#4a80e8;}
+  .btn-add-avulso{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;background:transparent;color:var(--laranja);border:1.5px dashed rgba(232,100,26,.4);padding:6px 14px;border-radius:6px;cursor:pointer;transition:all .2s;}
+  .btn-add-avulso:hover{border-color:var(--laranja);background:rgba(232,100,26,.08);}
+
+  /* MODAL AVULSO */
+  .modal-avulso-box{background:var(--preto-medio);border:1px solid var(--azul-linha);border-top:3px solid var(--laranja);border-radius:14px;width:100%;max-width:420px;padding:28px;}
+  .modal-avulso-box h2{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1.5px;margin-bottom:20px;color:var(--laranja);}
+
+  /* MODAL PAGAMENTO */
+  .modal-pgto-box{background:var(--preto-medio);border:1px solid var(--azul-linha);border-top:3px solid #7de87a;border-radius:14px;width:100%;max-width:380px;padding:28px;}
+  .modal-pgto-box h2{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1.5px;margin-bottom:6px;color:#7de87a;}
+  .modal-pgto-box p{font-family:'Barlow Condensed',sans-serif;font-size:13px;color:var(--muted);margin-bottom:20px;}
+  .forma-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px;}
+  .forma-btn{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:1px;text-transform:uppercase;border:2px solid var(--azul-linha);background:transparent;color:var(--muted);padding:16px;border-radius:10px;cursor:pointer;transition:all .2s;text-align:center;}
+  .forma-btn:hover{border-color:var(--azul);color:var(--branco);}
+  .forma-btn.pix-btn:hover{border-color:#5bc8ff;color:#5bc8ff;background:rgba(91,200,255,0.08);}
+  .forma-btn.din-btn:hover{border-color:#ffc107;color:#ffc107;background:rgba(255,193,7,0.08);}
+  .btn-desfazer{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;background:transparent;color:#e74c3c;border:1px solid rgba(231,76,60,.3);padding:8px;border-radius:6px;cursor:pointer;width:100%;margin-top:8px;transition:all .2s;}
+  .btn-desfazer:hover{background:rgba(231,76,60,.08);border-color:#e74c3c;}
+
+  @media(max-width:600px){.caixa-resumo{grid-template-columns:repeat(3,1fr);} .caixa-card .ck-num{font-size:28px;}}
+
+  .valor-input{background:var(--preto);border:1px solid var(--azul-linha);border-radius:6px;color:#7de87a;font-family:'Barlow',sans-serif;font-size:14px;padding:9px 12px;outline:none;width:100%;transition:border-color .2s;}
+  .valor-input:focus{border-color:#7de87a;}
+  .caixa-total-box{background:linear-gradient(135deg,rgba(26,79,189,0.15),rgba(10,18,40,0.8));border:2px solid var(--azul);border-radius:14px;padding:22px 24px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+  .caixa-total-label{font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);}
+  .caixa-total-valor{font-family:'Bebas Neue',sans-serif;font-size:48px;color:#7de87a;line-height:1;}
+  .caixa-total-valor.negativo{color:#e74c3c;}
+  .caixa-total-detail{font-family:'Barlow Condensed',sans-serif;font-size:13px;color:var(--muted);margin-top:4px;}
+  .caixa-total-detail span{color:var(--branco);font-weight:700;}
+
+  .gasto-card{background:var(--azul-card);border:1px solid var(--azul-linha);border-radius:10px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px;}
+  .gasto-info{flex:1;}
+  .gasto-desc{font-family:'Barlow',sans-serif;font-weight:600;font-size:14px;color:var(--branco);}
+  .gasto-meta{font-family:'Barlow Condensed',sans-serif;font-size:12px;color:var(--muted);margin-top:2px;}
+  .gasto-valor{font-family:'Bebas Neue',sans-serif;font-size:22px;color:#e74c3c;flex-shrink:0;}
+  .btn-del-gasto{background:transparent;border:1px solid var(--azul-linha);color:var(--muted);border-radius:6px;width:28px;height:28px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0;}
+  .btn-del-gasto:hover{border-color:#c0392b;color:#e74c3c;}
+  .btn-add-gasto{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;background:transparent;color:#e74c3c;border:1.5px dashed rgba(231,76,60,.4);padding:6px 14px;border-radius:6px;cursor:pointer;transition:all .2s;}
+  .btn-add-gasto:hover{border-color:#e74c3c;background:rgba(231,76,60,.08);}
+
+  .modal-gasto-box{background:var(--preto-medio);border:1px solid var(--azul-linha);border-top:3px solid #e74c3c;border-radius:14px;width:100%;max-width:400px;padding:28px;}
+  .modal-gasto-box h2{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1.5px;margin-bottom:20px;color:#e74c3c;}
 </style>
 </head>
 <body>
@@ -242,6 +322,7 @@
     <button class="tab-btn" onclick="switchTab('rodadas',this)">Rodadas</button>
     <button class="tab-btn" onclick="switchTab('goleiros',this)">Goleiros</button>
     <button class="tab-btn" onclick="switchTab('membros',this)">Membros</button>
+    <button class="tab-btn" onclick="switchTab('caixa',this)">Caixa</button>
   </div>
 </div>
 
@@ -357,6 +438,116 @@
     <div class="modal-actions">
       <button class="btn-cancel" onclick="fecharModalMembro()">Cancelar</button>
       <button class="btn-save" onclick="salvarMembro()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<div class="page" id="page-caixa">
+  <div class="wrap">
+
+    <div class="caixa-mes-select">
+      <span class="filtro-label">Mes:</span>
+      <select class="filtro-select" id="caixa-mes-sel" onchange="renderCaixa()"></select>
+    </div>
+
+    <!-- TOTAL EM CAIXA -->
+    <div class="caixa-total-box">
+      <div>
+        <div class="caixa-total-label">Saldo em Caixa</div>
+        <div class="caixa-total-valor" id="ck-saldo">R$ 0</div>
+        <div class="caixa-total-detail">
+          Entradas: <span id="ck-entradas">R$ 0</span> &nbsp;|&nbsp; Gastos: <span id="ck-gastos-total">R$ 0</span>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;min-width:280px;">
+        <div class="caixa-card pago" style="margin:0;"><div class="ck-num" id="ck-pago">0</div><div class="ck-label">Pagaram</div></div>
+        <div class="caixa-card pendente" style="margin:0;"><div class="ck-num" id="ck-pendente">0</div><div class="ck-label">Pendentes</div></div>
+      </div>
+    </div>
+
+    <!-- MENSALISTAS -->
+    <div class="caixa-section-title">
+      Mensalistas
+      <div class="caixa-section-line"></div>
+    </div>
+    <table class="caixa-table">
+      <thead><tr>
+        <th>Nome</th>
+        <th class="num">Valor (R$)</th>
+        <th class="num">Status</th>
+        <th class="num">Forma</th>
+        <th class="num acao-col" style="display:none;">Acao</th>
+      </tr></thead>
+      <tbody id="caixa-mensalistas-body"></tbody>
+    </table>
+
+    <!-- AVULSOS -->
+    <div class="caixa-section-title" style="margin-top:8px;">
+      Avulsos
+      <div class="caixa-section-line"></div>
+      <button class="btn-add-avulso acao-col" style="display:none;" onclick="openModalAvulso()">+ Avulso</button>
+    </div>
+    <table class="caixa-table">
+      <thead><tr>
+        <th>Nome</th>
+        <th class="num">Valor (R$)</th>
+        <th class="num">Status</th>
+        <th class="num">Forma</th>
+        <th class="num acao-col" style="display:none;">Acao</th>
+      </tr></thead>
+      <tbody id="caixa-avulsos-body"></tbody>
+    </table>
+
+    <!-- GASTOS -->
+    <div class="caixa-section-title" style="margin-top:8px;">
+      Gastos do Mes
+      <div class="caixa-section-line"></div>
+      <button class="btn-add-gasto acao-col" style="display:none;" onclick="openModalGasto()">+ Gasto</button>
+    </div>
+    <div id="caixa-gastos-lista"></div>
+
+  </div>
+</div>
+
+<!-- MODAL AVULSO -->
+<div class="modal-overlay" id="modal-avulso" onclick="if(event.target===this)fecharModalAvulso()">
+  <div class="modal-avulso-box">
+    <h2>Adicionar Avulso</h2>
+    <div class="form-group"><label>Nome</label><input type="text" id="avulso-nome" placeholder="Nome completo"></div>
+    <div class="form-group"><label>Valor (R$)</label><input type="number" id="avulso-valor" placeholder="0.00" min="0" step="0.01" class="valor-input"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="fecharModalAvulso()">Cancelar</button>
+      <button class="btn-save" onclick="salvarAvulso()">Adicionar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL PAGAMENTO -->
+<div class="modal-overlay" id="modal-pgto" onclick="if(event.target===this)fecharModalPgto()">
+  <div class="modal-pgto-box">
+    <h2>Registrar Pagamento</h2>
+    <p id="modal-pgto-nome" style="font-family:Barlow Condensed,sans-serif;font-size:16px;color:var(--branco);font-weight:700;margin-bottom:4px;"></p>
+    <p style="font-family:Barlow Condensed,sans-serif;font-size:13px;color:var(--muted);margin-bottom:16px;">Como foi o pagamento?</p>
+    <div class="forma-btns">
+      <button class="forma-btn pix-btn" onclick="confirmarPgto('PIX')">PIX</button>
+      <button class="forma-btn din-btn" onclick="confirmarPgto('DINHEIRO')">Dinheiro</button>
+    </div>
+    <button class="btn-desfazer" id="btn-desfazer-pgto" style="display:none;" onclick="desfazerPgto()">Desfazer pagamento</button>
+    <div style="margin-top:12px;text-align:center;">
+      <button class="btn-cancel" onclick="fecharModalPgto()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL GASTO -->
+<div class="modal-overlay" id="modal-gasto" onclick="if(event.target===this)fecharModalGasto()">
+  <div class="modal-gasto-box">
+    <h2>Novo Gasto</h2>
+    <div class="form-group"><label>Descricao</label><input type="text" id="gasto-desc" placeholder="Ex: Compra de coletes"></div>
+    <div class="form-group"><label>Valor (R$)</label><input type="number" id="gasto-valor" placeholder="0.00" min="0" step="0.01" class="valor-input" style="color:#e74c3c;"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="fecharModalGasto()">Cancelar</button>
+      <button class="btn-save" onclick="salvarGasto()">Salvar</button>
     </div>
   </div>
 </div>
@@ -821,12 +1012,15 @@ function setFiltroSelectRodadas(sel) {
 function init() {
   dbCarregar().then(function(data) {
     rodadas = data;
-    loadMembros();
     buildPills('page-ranking', 'filtro-select', filtroAtivo, 'setFiltro', 'setFiltro');
     buildPills('page-rodadas', 'filtro-select-rodadas', filtroRodasAtivo, 'setFiltroRodadas', 'setFiltroRodadas');
     render();
-    renderMembros();
-    checkAniversarios();
+    loadMembros().then(function(){
+      renderMembros();
+      checkAniversarios();
+      buildCaixaMesSel();
+      renderCaixa();
+    });
   }).catch(function(e) {
     var err = '<div class="empty-state"><div class="icon">&#9888;</div><p>Erro ao conectar. Tente recarregar.</p></div>';
     document.getElementById('ranking-container').innerHTML = err;
@@ -1007,6 +1201,442 @@ function deletarMembro(id) {
   renderMembros();
   checkAniversarios();
   toast('Membro removido.');
+}
+
+
+// ── SUPABASE: MEMBROS ────────────────────────────────────────
+var API_MEMBROS = SB_URL + '/rest/v1/membros';
+var API_CAIXA   = SB_URL + '/rest/v1/caixa';
+var API_GASTOS  = SB_URL + '/rest/v1/gastos';
+
+function dbGetMembros() {
+  return fetch(API_MEMBROS + '?order=nome.asc', { headers: H_GET }).then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); });
+}
+function dbSaveMembro(m) {
+  return fetch(API_MEMBROS, { method:'POST', headers:H, body:JSON.stringify(m) }).then(function(r){ if(!r.ok) throw new Error(r.status); });
+}
+function dbUpdateMembro(m) {
+  return fetch(API_MEMBROS + '?id=eq.' + m.id, { method:'PATCH', headers:H, body:JSON.stringify({nome:m.nome,aniversario:m.aniversario}) }).then(function(r){ if(!r.ok) throw new Error(r.status); });
+}
+function dbDeleteMembro(id) {
+  return fetch(API_MEMBROS + '?id=eq.' + id, { method:'DELETE', headers:H_GET }).then(function(r){ if(!r.ok) throw new Error(r.status); });
+}
+
+// ── SUPABASE: CAIXA ───────────────────────────────────────────
+function dbGetCaixa(mes) {
+  return fetch(API_CAIXA + '?mes=eq.' + mes, { headers: H_GET }).then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); });
+}
+function dbUpsertCaixa(item) {
+  return fetch(API_CAIXA, { method:'POST', headers: Object.assign({}, H, {'Prefer':'resolution=merge-duplicates'}), body:JSON.stringify(item) }).then(function(r){ if(!r.ok) throw new Error(r.status); });
+}
+function dbDeleteCaixaItem(id) {
+  return fetch(API_CAIXA + '?id=eq.' + id, { method:'DELETE', headers:H_GET }).then(function(r){ if(!r.ok) throw new Error(r.status); });
+}
+
+// ── SUPABASE: GASTOS ──────────────────────────────────────────
+function dbGetGastos(mes) {
+  return fetch(API_GASTOS + '?mes=eq.' + mes + '&order=created_at.asc', { headers: H_GET }).then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); });
+}
+function dbSaveGasto(g) {
+  return fetch(API_GASTOS, { method:'POST', headers:H, body:JSON.stringify(g) }).then(function(r){ if(!r.ok) throw new Error(r.status); });
+}
+function dbDeleteGasto(id) {
+  return fetch(API_GASTOS + '?id=eq.' + id, { method:'DELETE', headers:H_GET }).then(function(r){ if(!r.ok) throw new Error(r.status); });
+}
+
+// ── MEMBROS ───────────────────────────────────────────────────
+function loadMembros() {
+  return dbGetMembros().then(function(data){ membros = data; }).catch(function(){ membros = []; });
+}
+function saveMembros() {} // no-op, now uses Supabase
+
+function getDiaMes() {
+  var d = new Date();
+  return String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+function getAniversariantesHoje() {
+  var hoje = getDiaMes();
+  return membros.filter(function(m) {
+    if (!m.aniversario) return false;
+    var parts = m.aniversario.split('-');
+    if (parts.length < 3) return false;
+    return parts[1] + '-' + parts[2] === hoje;
+  });
+}
+function checkAniversarios() {
+  var anivs = getAniversariantesHoje();
+  var banner = document.getElementById('aniversario-banner');
+  var nomes  = document.getElementById('aniversario-nomes');
+  if (anivs.length > 0) {
+    nomes.textContent = anivs.map(function(m){ return m.nome; }).join(', ');
+    banner.classList.add('show');
+  } else {
+    banner.classList.remove('show');
+  }
+}
+
+var MESES_NOME = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+function formatAniv(dateStr) {
+  if (!dateStr) return 'Sem data';
+  var p = dateStr.split('-');
+  if (p.length < 3) return dateStr;
+  return p[2] + ' de ' + MESES_NOME[parseInt(p[1],10)-1];
+}
+
+function renderMembros() {
+  var grid = document.getElementById('membros-grid');
+  if (!grid) return;
+  var hoje = getDiaMes();
+  grid.innerHTML = '';
+  if (!membros.length) {
+    var empty = document.createElement('div');
+    empty.className = 'empty-state';
+    empty.style.gridColumn = '1 / -1';
+    empty.innerHTML = '<div class="icon">&#128101;</div><p>Nenhum membro cadastrado</p>';
+    grid.appendChild(empty);
+    return;
+  }
+  var sorted = membros.slice().sort(function(a,b){ return a.nome.localeCompare(b.nome); });
+  sorted.forEach(function(m) {
+    var parts = (m.aniversario||'').split('-');
+    var mmdd = parts.length >= 3 ? parts[1]+'-'+parts[2] : '';
+    var isAniv = mmdd === hoje;
+    var card = document.createElement('div');
+    card.className = 'membro-card' + (isAniv ? ' aniversariante' : '');
+    if (isAniv) {
+      var badge = document.createElement('div');
+      badge.className = 'membro-badge-aniv';
+      badge.textContent = 'Aniversario!';
+      card.appendChild(badge);
+    }
+    var avatar = document.createElement('div');
+    avatar.className = 'membro-avatar';
+    avatar.textContent = m.nome.charAt(0).toUpperCase();
+    card.appendChild(avatar);
+    var info = document.createElement('div');
+    info.className = 'membro-info';
+    var nomeEl = document.createElement('div'); nomeEl.className = 'membro-nome'; nomeEl.textContent = m.nome;
+    var anivEl = document.createElement('div'); anivEl.className = 'membro-aniv'; anivEl.textContent = 'Aniversario: ' + formatAniv(m.aniversario);
+    info.appendChild(nomeEl); info.appendChild(anivEl);
+    card.appendChild(info);
+    if (adminLogado) {
+      var actions = document.createElement('div');
+      actions.className = 'membro-actions'; actions.style.display = 'flex'; actions.style.gap = '6px';
+      var btnEdit = document.createElement('button'); btnEdit.className = 'btn-membro-edit'; btnEdit.title = 'Editar'; btnEdit.innerHTML = '&#9998;';
+      btnEdit.onclick = (function(id){ return function(){ editarMembro(id); }; })(m.id);
+      var btnDel = document.createElement('button'); btnDel.className = 'btn-membro-del'; btnDel.title = 'Excluir'; btnDel.innerHTML = '&times;';
+      btnDel.onclick = (function(id){ return function(){ deletarMembro(id); }; })(m.id);
+      actions.appendChild(btnEdit); actions.appendChild(btnDel);
+      card.appendChild(actions);
+    }
+    grid.appendChild(card);
+  });
+}
+
+function openModalMembro(edit) {
+  edit = edit || null;
+  editingMembroId = edit;
+  document.getElementById('modal-membro-titulo').textContent = edit ? 'Editar Membro' : 'Novo Membro';
+  if (edit) {
+    var m = membros.find(function(x){ return x.id===edit; });
+    if (m) { document.getElementById('membro-nome').value = m.nome; document.getElementById('membro-aniv').value = m.aniversario || ''; }
+  } else {
+    document.getElementById('membro-nome').value = '';
+    document.getElementById('membro-aniv').value = '';
+  }
+  document.getElementById('modal-membro').classList.add('open');
+  setTimeout(function(){ document.getElementById('membro-nome').focus(); }, 100);
+}
+function editarMembro(id) { openModalMembro(id); }
+function fecharModalMembro() { document.getElementById('modal-membro').classList.remove('open'); editingMembroId = null; }
+function fecharMembroFora(e) { if(e.target===document.getElementById('modal-membro')) fecharModalMembro(); }
+
+function salvarMembro() {
+  var nome = document.getElementById('membro-nome').value.trim();
+  var aniv = document.getElementById('membro-aniv').value;
+  if (!nome) { alert('Informe o nome do membro.'); return; }
+  var btn = document.querySelector('#modal-membro .btn-save');
+  btn.textContent = 'Salvando...'; btn.disabled = true;
+  var promise;
+  if (editingMembroId) {
+    var obj = { id: editingMembroId, nome: nome, aniversario: aniv };
+    promise = dbUpdateMembro(obj).then(function(){
+      var idx = membros.findIndex(function(m){ return m.id===editingMembroId; });
+      if (idx !== -1) membros[idx] = obj;
+      toast('Membro atualizado!');
+    });
+  } else {
+    var obj = { id: uid(), nome: nome, aniversario: aniv };
+    promise = dbSaveMembro(obj).then(function(){
+      membros.push(obj);
+      toast('Membro cadastrado!');
+    });
+  }
+  promise.then(function(){
+    renderMembros(); checkAniversarios(); fecharModalMembro();
+  }).catch(function(e){ toast('Erro: ' + e.message, 'err'); })
+  .finally(function(){ btn.textContent = 'Salvar'; btn.disabled = false; });
+}
+
+function deletarMembro(id) {
+  if (!adminLogado) return;
+  if (!confirm('Remover este membro?')) return;
+  dbDeleteMembro(id).then(function(){
+    membros = membros.filter(function(m){ return m.id !== id; });
+    renderMembros(); checkAniversarios(); toast('Membro removido.');
+  }).catch(function(e){ toast('Erro: ' + e.message, 'err'); });
+}
+
+// ── CAIXA ─────────────────────────────────────────────────────
+var caixaItens = [];
+var gastosItens = [];
+var pgtoTarget = null;
+
+function buildCaixaMesSel() {
+  var sel = document.getElementById('caixa-mes-sel');
+  if (!sel) return;
+  var now = new Date();
+  sel.innerHTML = '';
+  for (var i = 0; i < 12; i++) {
+    var d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    var ym = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+    var opt = document.createElement('option');
+    opt.value = ym;
+    opt.textContent = MESES_PT[d.getMonth()] + ' ' + d.getFullYear();
+    if (i === 0) opt.selected = true;
+    sel.appendChild(opt);
+  }
+}
+
+function fmtValor(v) {
+  return 'R$ ' + parseFloat(v||0).toFixed(2).replace('.', ',');
+}
+
+function renderCaixa() {
+  var sel = document.getElementById('caixa-mes-sel');
+  if (!sel) return;
+  var mes = sel.value;
+
+  // Show admin cols
+  document.querySelectorAll('#page-caixa .acao-col').forEach(function(el){
+    el.style.display = adminLogado ? (el.tagName==='BUTTON'?'':'table-cell') : 'none';
+    if (adminLogado && el.tagName==='BUTTON') el.style.display = 'inline-block';
+  });
+
+  // Load from Supabase
+  Promise.all([dbGetCaixa(mes), dbGetGastos(mes)]).then(function(results) {
+    caixaItens  = results[0];
+    gastosItens = results[1];
+
+    // Ensure all membros have entries
+    var existingIds = caixaItens.filter(function(c){ return c.tipo==='mensalista'; }).map(function(c){ return c.membro_id; });
+    var toCreate = membros.filter(function(m){ return existingIds.indexOf(m.id) === -1; });
+    var createPromises = toCreate.map(function(m){
+      var item = { id: uid(), mes: mes, tipo: 'mensalista', membro_id: m.id, nome: m.nome, pago: false, forma: null, valor: 0 };
+      caixaItens.push(item);
+      return dbUpsertCaixa(item);
+    });
+    return Promise.all(createPromises);
+  }).then(function(){
+    _renderCaixaUI(mes);
+  }).catch(function(e){ toast('Erro ao carregar caixa: ' + e.message, 'err'); });
+}
+
+function _renderCaixaUI(mes) {
+  var mensalistas = caixaItens.filter(function(c){ return c.tipo==='mensalista'; });
+  var avulsos     = caixaItens.filter(function(c){ return c.tipo==='avulso'; });
+
+  // Totals
+  var totalEntradas = 0;
+  caixaItens.forEach(function(c){ if(c.pago) totalEntradas += parseFloat(c.valor||0); });
+  var totalGastos = 0;
+  gastosItens.forEach(function(g){ totalGastos += parseFloat(g.valor||0); });
+  var saldo = totalEntradas - totalGastos;
+
+  document.getElementById('ck-entradas').textContent = fmtValor(totalEntradas);
+  document.getElementById('ck-gastos-total').textContent = fmtValor(totalGastos);
+  var saldoEl = document.getElementById('ck-saldo');
+  saldoEl.textContent = fmtValor(saldo);
+  saldoEl.className = 'caixa-total-valor' + (saldo < 0 ? ' negativo' : '');
+
+  var pagos = caixaItens.filter(function(c){ return c.pago; }).length;
+  var pendentes = caixaItens.filter(function(c){ return !c.pago; }).length;
+  document.getElementById('ck-pago').textContent = pagos;
+  document.getElementById('ck-pendente').textContent = pendentes;
+
+  // Mensalistas table
+  var tbody = document.getElementById('caixa-mensalistas-body');
+  tbody.innerHTML = '';
+  var sortedM = mensalistas.slice().sort(function(a,b){ return (a.nome||'').localeCompare(b.nome||''); });
+  sortedM.forEach(function(item) {
+    tbody.appendChild(_buildCaixaRow(item, mes));
+  });
+
+  // Avulsos table
+  var tbodyAv = document.getElementById('caixa-avulsos-body');
+  tbodyAv.innerHTML = '';
+  if (!avulsos.length) {
+    var tr0 = document.createElement('tr');
+    var td0 = document.createElement('td'); td0.colSpan=5; td0.style.cssText='text-align:center;color:var(--muted);font-family:Barlow Condensed,sans-serif;padding:20px;letter-spacing:1px;text-transform:uppercase;';
+    td0.textContent = 'Nenhum avulso neste mes';
+    tr0.appendChild(td0); tbodyAv.appendChild(tr0);
+  } else {
+    avulsos.forEach(function(item){ tbodyAv.appendChild(_buildCaixaRow(item, mes)); });
+  }
+
+  // Gastos
+  var gastosDiv = document.getElementById('caixa-gastos-lista');
+  gastosDiv.innerHTML = '';
+  if (!gastosItens.length) {
+    var empty = document.createElement('div');
+    empty.style.cssText = 'text-align:center;color:var(--muted);font-family:Barlow Condensed,sans-serif;padding:24px;letter-spacing:1px;text-transform:uppercase;';
+    empty.textContent = 'Nenhum gasto registrado';
+    gastosDiv.appendChild(empty);
+  } else {
+    gastosItens.forEach(function(g) {
+      var card = document.createElement('div');
+      card.className = 'gasto-card';
+      var info = document.createElement('div'); info.className = 'gasto-info';
+      var desc = document.createElement('div'); desc.className = 'gasto-desc'; desc.textContent = g.descricao;
+      info.appendChild(desc);
+      card.appendChild(info);
+      var val = document.createElement('div'); val.className = 'gasto-valor'; val.textContent = fmtValor(g.valor);
+      card.appendChild(val);
+      if (adminLogado) {
+        var btnDel = document.createElement('button'); btnDel.className = 'btn-del-gasto'; btnDel.innerHTML = '&times;';
+        btnDel.onclick = (function(id){ return function(){ deletarGasto(id, mes); }; })(g.id);
+        card.appendChild(btnDel);
+      }
+      gastosDiv.appendChild(card);
+    });
+  }
+}
+
+function _buildCaixaRow(item, mes) {
+  var tr = document.createElement('tr');
+
+  var tdNome = document.createElement('td'); tdNome.style.fontWeight='600'; tdNome.textContent = item.nome || '';
+  
+  var tdValor = document.createElement('td'); tdValor.className = 'num';
+  if (adminLogado) {
+    var vinput = document.createElement('input');
+    vinput.type='number'; vinput.min='0'; vinput.step='0.01';
+    vinput.value = parseFloat(item.valor||0).toFixed(2);
+    vinput.style.cssText='background:var(--preto);border:1px solid var(--azul-linha);border-radius:6px;color:#7de87a;font-size:13px;padding:5px 8px;width:80px;text-align:center;outline:none;';
+    vinput.onchange = (function(id){ return function(){ atualizarValor(id, this.value, mes); }; })(item.id);
+    tdValor.appendChild(vinput);
+  } else {
+    tdValor.style.cssText='color:#7de87a;font-family:Barlow Condensed,sans-serif;font-weight:700;font-size:15px;';
+    tdValor.textContent = fmtValor(item.valor);
+  }
+
+  var tdStatus = document.createElement('td'); tdStatus.className='num';
+  var badge = document.createElement('span');
+  badge.className = 'status-badge ' + (item.pago ? 'status-pago' : 'status-pendente');
+  badge.textContent = item.pago ? 'Pago' : 'Pendente';
+  tdStatus.appendChild(badge);
+
+  var tdForma = document.createElement('td'); tdForma.className='num';
+  if (item.pago && item.forma) {
+    var fb = document.createElement('span');
+    fb.className = 'forma-badge ' + (item.forma==='PIX'?'forma-pix':'forma-dinheiro');
+    fb.textContent = item.forma;
+    tdForma.appendChild(fb);
+  } else { tdForma.innerHTML='<span class="forma-none">-</span>'; }
+
+  var tdAcao = document.createElement('td'); tdAcao.className='num acao-col'; tdAcao.style.display=adminLogado?'table-cell':'none';
+  var btnPgto = document.createElement('button'); btnPgto.className='btn-status'; btnPgto.textContent=item.pago?'Alterar':'Pagar';
+  btnPgto.onclick = (function(id,nome){ return function(){ openModalPgto(id,nome,mes); }; })(item.id, item.nome);
+  tdAcao.appendChild(btnPgto);
+  if (item.tipo === 'avulso') {
+    var btnDel = document.createElement('button'); btnDel.className='btn-status'; btnDel.style.color='#e74c3c'; btnDel.textContent='Remover';
+    btnDel.onclick = (function(id){ return function(){ removerAvulso(id, mes); }; })(item.id);
+    tdAcao.appendChild(btnDel);
+  }
+
+  tr.appendChild(tdNome); tr.appendChild(tdValor); tr.appendChild(tdStatus); tr.appendChild(tdForma); tr.appendChild(tdAcao);
+  return tr;
+}
+
+function atualizarValor(id, valor, mes) {
+  var v = parseFloat(valor) || 0;
+  fetch(API_CAIXA + '?id=eq.' + id, { method:'PATCH', headers:H, body:JSON.stringify({valor:v}) })
+    .then(function(r){ if(!r.ok) throw new Error(r.status); })
+    .catch(function(e){ toast('Erro ao salvar valor', 'err'); });
+}
+
+// Modal avulso
+function openModalAvulso() {
+  document.getElementById('avulso-nome').value = '';
+  document.getElementById('avulso-valor').value = '';
+  document.getElementById('modal-avulso').classList.add('open');
+  setTimeout(function(){ document.getElementById('avulso-nome').focus(); }, 100);
+}
+function fecharModalAvulso() { document.getElementById('modal-avulso').classList.remove('open'); }
+function salvarAvulso() {
+  var nome = document.getElementById('avulso-nome').value.trim();
+  var valor = parseFloat(document.getElementById('avulso-valor').value) || 0;
+  if (!nome) { alert('Informe o nome do avulso.'); return; }
+  var sel = document.getElementById('caixa-mes-sel');
+  var mes = sel.value;
+  var item = { id: uid(), mes: mes, tipo: 'avulso', membro_id: null, nome: nome, pago: false, forma: null, valor: valor };
+  dbUpsertCaixa(item).then(function(){
+    fecharModalAvulso(); renderCaixa(); toast('Avulso adicionado!');
+  }).catch(function(e){ toast('Erro: ' + e.message, 'err'); });
+}
+function removerAvulso(id, mes) {
+  if (!confirm('Remover este avulso?')) return;
+  dbDeleteCaixaItem(id).then(function(){ renderCaixa(); toast('Avulso removido.'); })
+    .catch(function(e){ toast('Erro: ' + e.message, 'err'); });
+}
+
+// Modal pagamento
+function openModalPgto(id, nome, mes) {
+  pgtoTarget = { id: id, nome: nome, mes: mes };
+  document.getElementById('modal-pgto-nome').textContent = nome;
+  var item = caixaItens.find(function(c){ return c.id===id; });
+  document.getElementById('btn-desfazer-pgto').style.display = (item && item.pago) ? 'block' : 'none';
+  document.getElementById('modal-pgto').classList.add('open');
+}
+function fecharModalPgto() { document.getElementById('modal-pgto').classList.remove('open'); pgtoTarget = null; }
+function confirmarPgto(forma) {
+  if (!pgtoTarget) return;
+  fetch(API_CAIXA + '?id=eq.' + pgtoTarget.id, { method:'PATCH', headers:H, body:JSON.stringify({pago:true, forma:forma}) })
+    .then(function(r){ if(!r.ok) throw new Error(r.status); })
+    .then(function(){ fecharModalPgto(); renderCaixa(); toast('Pagamento via ' + forma + ' registrado!'); })
+    .catch(function(e){ toast('Erro: ' + e.message, 'err'); });
+}
+function desfazerPgto() {
+  if (!pgtoTarget || !confirm('Desfazer pagamento?')) return;
+  fetch(API_CAIXA + '?id=eq.' + pgtoTarget.id, { method:'PATCH', headers:H, body:JSON.stringify({pago:false, forma:null}) })
+    .then(function(r){ if(!r.ok) throw new Error(r.status); })
+    .then(function(){ fecharModalPgto(); renderCaixa(); toast('Pagamento desfeito.'); })
+    .catch(function(e){ toast('Erro: ' + e.message, 'err'); });
+}
+
+// Gastos
+function openModalGasto() {
+  document.getElementById('gasto-desc').value = '';
+  document.getElementById('gasto-valor').value = '';
+  document.getElementById('modal-gasto').classList.add('open');
+  setTimeout(function(){ document.getElementById('gasto-desc').focus(); }, 100);
+}
+function fecharModalGasto() { document.getElementById('modal-gasto').classList.remove('open'); }
+function salvarGasto() {
+  var desc = document.getElementById('gasto-desc').value.trim();
+  var valor = parseFloat(document.getElementById('gasto-valor').value) || 0;
+  if (!desc) { alert('Informe a descricao.'); return; }
+  if (valor <= 0) { alert('Informe um valor valido.'); return; }
+  var sel = document.getElementById('caixa-mes-sel');
+  var gasto = { id: uid(), mes: sel.value, descricao: desc, valor: valor };
+  dbSaveGasto(gasto).then(function(){
+    fecharModalGasto(); renderCaixa(); toast('Gasto registrado!');
+  }).catch(function(e){ toast('Erro: ' + e.message, 'err'); });
+}
+function deletarGasto(id, mes) {
+  if (!confirm('Remover este gasto?')) return;
+  dbDeleteGasto(id).then(function(){ renderCaixa(); toast('Gasto removido.'); })
+    .catch(function(e){ toast('Erro: ' + e.message, 'err'); });
 }
 
 window.onload = init;
