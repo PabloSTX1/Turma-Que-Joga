@@ -249,7 +249,12 @@
     <div id="stat-rows"></div>
     <button class="btn-add-row" onclick="addStatRow()">+ Adicionar Jogador</button>
     <div class="goleiro-input-area">
-      <span class="goleiro-input-label">Goleiro(s) Vencedor(es) da Rodada</span>
+      <span class="goleiro-input-label">Goleiros da Rodada</span>
+      <div style="display:grid;grid-template-columns:1fr 90px 32px;gap:8px;margin-bottom:6px;">
+        <span style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);">Goleiro</span>
+        <span style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#7de87a;text-align:center;">Vitorias</span>
+        <span></span>
+      </div>
       <div id="goleiro-rows"></div>
       <button class="btn-add-goleiro" onclick="addGoleiroRow()">+ Adicionar Goleiro</button>
     </div>
@@ -354,8 +359,11 @@ function computeGoleiros() {
     var gols = r.goleiros || [];
     gols.forEach(function(g) {
       if (!g) return;
-      if (!map[g]) map[g] = { nome: g, vitorias: 0 };
-      map[g].vitorias++;
+      var nome = typeof g === 'object' ? g.nome : g;
+      var vit  = typeof g === 'object' ? (g.vitorias || 0) : 1;
+      if (!nome) return;
+      if (!map[nome]) map[nome] = { nome: nome, vitorias: 0 };
+      map[nome].vitorias += vit;
     });
   });
   return Object.values(map).sort(function(a,b){ return b.vitorias - a.vitorias; });
@@ -498,7 +506,10 @@ function openModalRodada(edit) {
     if (r) {
       document.getElementById('input-data').value = r.data;
       r.stats.forEach(function(s){ addStatRow(s.nome, s.gols, s.assists); });
-      (r.goleiros||[]).forEach(function(g){ addGoleiroRow(g); });
+      (r.goleiros||[]).forEach(function(g){
+        if (typeof g === 'object') addGoleiroRow(g.nome, g.vitorias);
+        else addGoleiroRow(g, 0);
+      });
     }
   } else {
     document.getElementById('input-data').value = todayISO();
@@ -510,18 +521,25 @@ function editarRodada(id) { openModalRodada(id); }
 function fecharModalRodada() { document.getElementById('modal-rodada').classList.remove('open'); editingId = null; }
 function fecharRodadaFora(e) { if (e.target === document.getElementById('modal-rodada')) fecharModalRodada(); }
 
-function addGoleiroRow(nome) {
-  nome = nome || '';
+function addGoleiroRow(nome, vitorias) {
+  nome = nome || ''; vitorias = vitorias || 0;
   var id = 'grow-' + uid();
   var div = document.createElement('div');
   div.className = 'goleiro-row'; div.id = id;
+  div.style.cssText = 'display:grid;grid-template-columns:1fr 90px 32px;gap:8px;align-items:center;margin-bottom:8px;';
   var inp = document.createElement('input');
   inp.type = 'text'; inp.placeholder = 'Nome do goleiro';
   inp.value = nome; inp.className = 'grow-nome';
+  inp.style.cssText = 'background:var(--preto);border:1px solid var(--azul-linha);border-radius:6px;color:var(--branco);font-family:Barlow,sans-serif;font-size:14px;padding:9px 12px;outline:none;width:100%;';
+  var vit = document.createElement('input');
+  vit.type = 'number'; vit.placeholder = '0'; vit.min = '0';
+  vit.value = vitorias; vit.className = 'grow-vitorias';
+  vit.style.cssText = 'background:var(--preto);border:1px solid var(--azul-linha);border-radius:6px;color:#7de87a;font-family:Barlow,sans-serif;font-size:14px;padding:9px 8px;outline:none;text-align:center;width:100%;-moz-appearance:textfield;';
   var btn = document.createElement('button');
   btn.className = 'btn-rem-goleiro'; btn.innerHTML = '&times;';
+  btn.style.cssText = 'background:transparent;border:1px solid var(--azul-linha);color:var(--muted);border-radius:6px;width:32px;height:32px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;';
   btn.onclick = function(){ div.parentNode.removeChild(div); };
-  div.appendChild(inp); div.appendChild(btn);
+  div.appendChild(inp); div.appendChild(vit); div.appendChild(btn);
   document.getElementById('goleiro-rows').appendChild(div);
 }
 
@@ -554,7 +572,8 @@ function salvarRodada() {
   var goleiros = [];
   document.querySelectorAll('#goleiro-rows .goleiro-row').forEach(function(row) {
     var g = row.querySelector('.grow-nome').value.trim();
-    if (g) goleiros.push(g);
+    var v = parseInt(row.querySelector('.grow-vitorias').value) || 0;
+    if (g) goleiros.push({nome: g, vitorias: v});
   });
   var btn = document.getElementById('btn-save');
   btn.textContent = 'Salvando...'; btn.disabled = true;
