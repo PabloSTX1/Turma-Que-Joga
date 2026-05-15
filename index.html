@@ -41,7 +41,7 @@
   .tab-btn.active{color:var(--laranja);border-bottom-color:var(--laranja);}
   .page{display:none;padding:32px 0;}
   .page.active{display:block;}
-  .hero-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:32px;}
+  .hero-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:32px;}
   .hero-card{background:var(--azul-card);border:1px solid var(--azul-linha);border-radius:12px;padding:22px 16px;text-align:center;position:relative;overflow:hidden;}
   .hero-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--azul),#3a6adf);}
   .hero-card .number{font-family:'Bebas Neue',sans-serif;font-size:52px;color:var(--laranja);line-height:1;margin-bottom:4px;}
@@ -135,11 +135,41 @@
   .toast.ok{background:var(--azul);color:#fff;box-shadow:0 4px 20px rgba(26,79,189,.4);}
   .toast.err{background:#c0392b;color:#fff;}
   @media(max-width:600px){
+    .hero-stats{grid-template-columns:repeat(2,1fr);}
     .hero-card .number{font-size:40px;}
     .ranking-table th,.ranking-table td{padding:10px;}
     .stat-entry-row,.col-labels{grid-template-columns:1fr 64px 64px 32px;}
     .logo-text h1{font-size:22px;}
   }
+
+  /* GOLEIRO */
+  .goleiro-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(26,79,189,0.18);border:1px solid var(--azul);border-radius:20px;padding:4px 12px;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:.5px;color:#7de87a;margin-top:8px;}
+  .goleiro-badge span{font-size:16px;}
+  .goleiro-destaque{background:rgba(125,232,122,0.07);border-left:3px solid #7de87a;padding:10px 16px;margin-top:10px;border-radius:0 8px 8px 0;}
+  .goleiro-destaque-label{font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#7de87a;margin-bottom:4px;}
+  .goleiro-nomes{font-family:'Barlow',sans-serif;font-size:14px;font-weight:600;color:var(--branco);}
+
+  /* RANKING GOLEIROS */
+  .goleiro-ranking-table{width:100%;border-collapse:collapse;background:var(--azul-card);border-radius:12px;overflow:hidden;border:1px solid var(--azul-linha);margin-top:4px;}
+  .goleiro-ranking-table thead tr{background:var(--azul-escuro);border-bottom:2px solid #7de87a;}
+  .goleiro-ranking-table th{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#7de87a;padding:13px 16px;text-align:left;}
+  .goleiro-ranking-table th.num{text-align:center;}
+  .goleiro-ranking-table td{padding:13px 16px;font-size:15px;border-bottom:1px solid var(--azul-linha);color:var(--branco);}
+  .goleiro-ranking-table td.num{text-align:center;}
+  .goleiro-ranking-table tbody tr:last-child td{border-bottom:none;}
+  .goleiro-ranking-table tbody tr:hover{background:rgba(125,232,122,0.05);}
+  .vitorias-num{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:19px;color:#7de87a;}
+
+  /* GOLEIRO INPUT */
+  .goleiro-input-area{margin-top:16px;background:rgba(125,232,122,0.05);border:1px dashed rgba(125,232,122,0.35);border-radius:8px;padding:14px;}
+  .goleiro-input-label{font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#7de87a;margin-bottom:10px;display:block;}
+  .goleiro-row{display:flex;gap:8px;align-items:center;margin-bottom:8px;}
+  .goleiro-row input{flex:1;background:var(--preto);border:1px solid var(--azul-linha);border-radius:6px;color:var(--branco);font-family:'Barlow',sans-serif;font-size:14px;padding:9px 12px;outline:none;transition:border-color .2s;}
+  .goleiro-row input:focus{border-color:#7de87a;}
+  .btn-add-goleiro{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;background:transparent;color:#7de87a;border:1.5px dashed rgba(125,232,122,.4);padding:7px 14px;border-radius:6px;cursor:pointer;transition:all .2s;margin-top:4px;}
+  .btn-add-goleiro:hover{border-color:#7de87a;background:rgba(125,232,122,.08);}
+  .btn-rem-goleiro{background:transparent;border:1px solid var(--azul-linha);color:var(--muted);border-radius:6px;width:32px;height:32px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0;}
+  .btn-rem-goleiro:hover{border-color:#c0392b;color:#e74c3c;}
 </style>
 </head>
 <body>
@@ -164,6 +194,7 @@
   <div class="tabs-inner">
     <button class="tab-btn active" onclick="switchTab('ranking',this)">Ranking Geral</button>
     <button class="tab-btn" onclick="switchTab('rodadas',this)">Rodadas</button>
+    <button class="tab-btn" onclick="switchTab('goleiros',this)">Goleiros</button>
   </div>
 </div>
 
@@ -173,6 +204,7 @@
       <div class="hero-card"><div class="number" id="total-rodadas">-</div><div class="label">Rodadas</div></div>
       <div class="hero-card"><div class="number" id="total-gols">-</div><div class="label">Gols Totais</div></div>
       <div class="hero-card"><div class="number" id="total-jogadores">-</div><div class="label">Jogadores</div></div>
+      <div class="hero-card" style="border-top-color:var(--laranja);"><div class="number" id="top-goleiro" style="font-size:28px;padding-top:4px;">-</div><div class="label">Goleiro Lider</div></div>
     </div>
     <div class="section-title">Artilharia Geral</div>
     <div id="ranking-container"><div class="loading"><div class="spinner"></div>Carregando...</div></div>
@@ -182,6 +214,13 @@
 <div class="page" id="page-rodadas">
   <div class="wrap">
     <div id="rodadas-container"><div class="loading"><div class="spinner"></div>Carregando...</div></div>
+  </div>
+</div>
+
+<div class="page" id="page-goleiros">
+  <div class="wrap">
+    <div class="section-title">Ranking de Goleiros</div>
+    <div id="goleiros-container"><div class="loading"><div class="spinner"></div>Carregando...</div></div>
   </div>
 </div>
 
@@ -209,6 +248,11 @@
     </div>
     <div id="stat-rows"></div>
     <button class="btn-add-row" onclick="addStatRow()">+ Adicionar Jogador</button>
+    <div class="goleiro-input-area">
+      <span class="goleiro-input-label">&#129476; Goleiro(s) Vencedor(es) da Rodada</span>
+      <div id="goleiro-rows"></div>
+      <button class="btn-add-goleiro" onclick="addGoleiroRow()">+ Adicionar Goleiro</button>
+    </div>
     <div class="modal-actions">
       <button class="btn-cancel" onclick="fecharModalRodada()">Cancelar</button>
       <button class="btn-save" id="btn-save" onclick="salvarRodada()">Salvar Rodada</button>
@@ -248,12 +292,12 @@ function dbCarregar() {
   });
 }
 function dbInserir(d) {
-  return fetch(API, { method: 'POST', headers: H, body: JSON.stringify(d) }).then(function(r) {
+  return fetch(API, { method: 'POST', headers: H, body: JSON.stringify({id:d.id, data:d.data, stats:d.stats, goleiros:d.goleiros||[]}) }).then(function(r) {
     if (!r.ok) throw new Error('HTTP ' + r.status);
   });
 }
 function dbAtualizar(d) {
-  return fetch(API + '?id=eq.' + d.id, { method: 'PATCH', headers: H, body: JSON.stringify({data: d.data, stats: d.stats}) }).then(function(r) {
+  return fetch(API + '?id=eq.' + d.id, { method: 'PATCH', headers: H, body: JSON.stringify({data:d.data, stats:d.stats, goleiros:d.goleiros||[]}) }).then(function(r) {
     if (!r.ok) throw new Error('HTTP ' + r.status);
   });
 }
@@ -266,6 +310,7 @@ function dbDeletar(id) {
 function fmtDate(iso) { if (!iso) return ''; var p = iso.split('-'); return p[2]+'/'+p[1]+'/'+p[0]; }
 function todayISO() { return new Date().toISOString().split('T')[0]; }
 function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+function removeEl(el) { if(el && el.parentNode) el.parentNode.removeChild(el); }
 function esc(t) { return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function toast(msg, tipo) {
   tipo = tipo || 'ok';
@@ -303,6 +348,38 @@ function fazerLogin() {
 }
 function sair() { setAdmin(false); toast('Sessao encerrada.'); render(); }
 
+function computeGoleiros() {
+  var map = {};
+  rodadas.forEach(function(r) {
+    var gols = r.goleiros || [];
+    gols.forEach(function(g) {
+      if (!g) return;
+      if (!map[g]) map[g] = { nome: g, vitorias: 0 };
+      map[g].vitorias++;
+    });
+  });
+  return Object.values(map).sort(function(a,b){ return b.vitorias - a.vitorias; });
+}
+
+function renderGoleiros() {
+  var rank = computeGoleiros();
+  var gc = document.getElementById('goleiros-container');
+  if (!rank.length) {
+    gc.innerHTML = '<div class="empty-state"><div class="icon">&#129476;</div><p>Nenhum goleiro registrado ainda</p></div>';
+    return;
+  }
+  var rows = '';
+  rank.forEach(function(g, i) {
+    var pos = i+1, pc = pos<=3?'pos-'+pos:'pos-n';
+    rows += '<tr><td class="num"><span class="pos-badge '+pc+'">'+pos+'</span></td>'
+      +'<td><span class="player-name">'+esc(g.nome)+'</span></td>'
+      +'<td class="num"><span class="vitorias-num">'+g.vitorias+'</span></td></tr>';
+  });
+  gc.innerHTML = '<table class="goleiro-ranking-table"><thead><tr>'
+    +'<th class="num" style="width:48px">#</th><th>Goleiro</th><th class="num">Vitorias</th>'
+    +'</tr></thead><tbody>'+rows+'</tbody></table>';
+}
+
 function computeRanking() {
   var map = {};
   rodadas.forEach(function(r) {
@@ -323,6 +400,16 @@ function render() {
   document.getElementById('total-rodadas').textContent = rodadas.length;
   document.getElementById('total-gols').textContent = tG;
   document.getElementById('total-jogadores').textContent = rank.length;
+  var grank = computeGoleiros();
+  var topGEl = document.getElementById('top-goleiro');
+  if (grank.length > 0) {
+    topGEl.textContent = grank[0].nome;
+    topGEl.style.fontSize = grank[0].nome.length > 8 ? '16px' : '22px';
+    topGEl.title = grank[0].vitorias + ' vitoria(s)';
+  } else {
+    topGEl.textContent = '-';
+    topGEl.style.fontSize = '28px';
+  }
 
   var rc = document.getElementById('ranking-container');
   if (!rank.length) {
@@ -360,6 +447,14 @@ function render() {
         +'<td class="num-ast">'+(s.assists||0)+'</td>'
         +'<td class="num" style="color:var(--laranja)">'+(( s.gols||0)+(s.assists||0))+'</td></tr>';
     }).join('');
+    var gols = r.goleiros || [];
+    var goleiroHTML = '';
+    if (gols.length > 0) {
+      goleiroHTML = '<div class="goleiro-destaque">'
+        +'<div class="goleiro-destaque-label">&#129476; Goleiro(s) Vencedor(es)</div>'
+        +'<div class="goleiro-nomes">'+gols.map(function(g){ return esc(g); }).join(', ')+'</div>'
+        +'</div>';
+    }
     return '<div class="rodada-card">'
       +'<div class="rodada-header" onclick="toggleRodada(\''+r.id+'\')">'
       +'<div class="rodada-header-left">'
@@ -377,6 +472,7 @@ function render() {
       +'</tr></thead><tbody>'+trs+'</tbody></table>'
       +'</div></div>';
   }).join('');
+  renderGoleiros();
 }
 
 function toggleRodada(id) {
@@ -396,11 +492,13 @@ function openModalRodada(edit) {
   editingId = edit;
   document.getElementById('modal-rodada-titulo').textContent = edit ? 'Editar Rodada' : 'Nova Rodada';
   document.getElementById('stat-rows').innerHTML = '';
+  document.getElementById('goleiro-rows').innerHTML = '';
   if (edit) {
     var r = rodadas.find(function(x){ return x.id===edit; });
     if (r) {
       document.getElementById('input-data').value = r.data;
       r.stats.forEach(function(s){ addStatRow(s.nome, s.gols, s.assists); });
+      (r.goleiros||[]).forEach(function(g){ addGoleiroRow(g); });
     }
   } else {
     document.getElementById('input-data').value = todayISO();
@@ -412,15 +510,32 @@ function editarRodada(id) { openModalRodada(id); }
 function fecharModalRodada() { document.getElementById('modal-rodada').classList.remove('open'); editingId = null; }
 function fecharRodadaFora(e) { if (e.target === document.getElementById('modal-rodada')) fecharModalRodada(); }
 
+function addGoleiroRow(nome) {
+  nome = nome || '';
+  var id = 'grow-' + uid();
+  var div = document.createElement('div');
+  div.className = 'goleiro-row'; div.id = id;
+  var inp = document.createElement('input');
+  inp.type = 'text'; inp.placeholder = 'Nome do goleiro';
+  inp.value = nome; inp.className = 'grow-nome';
+  var btn = document.createElement('button');
+  btn.className = 'btn-rem-goleiro'; btn.innerHTML = '&times;';
+  btn.onclick = function(){ div.parentNode.removeChild(div); };
+  div.appendChild(inp); div.appendChild(btn);
+  document.getElementById('goleiro-rows').appendChild(div);
+}
+
 function addStatRow(nome, gols, assists) {
   nome = nome || ''; gols = gols || 0; assists = assists || 0;
   var id = 'row-' + uid();
   var div = document.createElement('div');
   div.className = 'stat-entry-row'; div.id = id;
-  div.innerHTML = '<input type="text" placeholder="Nome do jogador" value="'+esc(nome)+'" class="row-nome">'
-    +'<input type="number" placeholder="0" min="0" value="'+gols+'" class="row-gols">'
-    +'<input type="number" placeholder="0" min="0" value="'+assists+'" class="row-assists">'
-    +'<button class="btn-remove-row" onclick="document.getElementById(\''+id+'\').remove()">&times;</button>';
+  var n = document.createElement('input'); n.type='text'; n.placeholder='Nome do jogador'; n.value=nome; n.className='row-nome';
+  var g = document.createElement('input'); g.type='number'; g.placeholder='0'; g.min='0'; g.value=gols; g.className='row-gols';
+  var a = document.createElement('input'); a.type='number'; a.placeholder='0'; a.min='0'; a.value=assists; a.className='row-assists';
+  var btn = document.createElement('button'); btn.className='btn-remove-row'; btn.innerHTML='&times;';
+  btn.onclick = function(){ div.parentNode.removeChild(div); };
+  div.appendChild(n); div.appendChild(g); div.appendChild(a); div.appendChild(btn);
   document.getElementById('stat-rows').appendChild(div);
 }
 
@@ -436,19 +551,24 @@ function salvarRodada() {
     if (nome) stats.push({ nome: nome, gols: gols, assists: assists });
   });
   if (!stats.length) { alert('Adicione ao menos um jogador com nome.'); return; }
+  var goleiros = [];
+  document.querySelectorAll('#goleiro-rows .goleiro-row').forEach(function(row) {
+    var g = row.querySelector('.grow-nome').value.trim();
+    if (g) goleiros.push(g);
+  });
   var btn = document.getElementById('btn-save');
   btn.textContent = 'Salvando...'; btn.disabled = true;
   var promise;
   if (editingId) {
-    promise = dbAtualizar({ id: editingId, data: data, stats: stats }).then(function() {
+    promise = dbAtualizar({ id: editingId, data: data, stats: stats, goleiros: goleiros }).then(function() {
       var idx = rodadas.findIndex(function(r){ return r.id===editingId; });
-      if (idx !== -1) rodadas[idx] = Object.assign({}, rodadas[idx], { data: data, stats: stats });
+      if (idx !== -1) rodadas[idx] = Object.assign({}, rodadas[idx], { data: data, stats: stats, goleiros: goleiros });
       toast('Rodada atualizada!');
     });
   } else {
     var novaId = uid();
-    promise = dbInserir({ id: novaId, data: data, stats: stats }).then(function() {
-      rodadas.unshift({ id: novaId, data: data, stats: stats });
+    promise = dbInserir({ id: novaId, data: data, stats: stats, goleiros: goleiros }).then(function() {
+      rodadas.unshift({ id: novaId, data: data, stats: stats, goleiros: goleiros });
       toast('Rodada salva!');
     });
   }
