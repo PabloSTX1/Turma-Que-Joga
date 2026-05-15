@@ -663,8 +663,10 @@ function deletarRodada(id) {
   });
 }
 
-var filtroAtivo = 'geral';      // 'geral' or 'YYYY-MM'
-var filtroRodasAtivo = 'geral';  // same for rodadas tab
+var _hoje = new Date();
+var _mesAtual = _hoje.getFullYear() + '-' + String(_hoje.getMonth()+1).padStart(2,'0');
+var filtroAtivo = _mesAtual;
+var filtroRodasAtivo = _mesAtual;
 
 function getMesesDisponiveis() {
   var meses = {};
