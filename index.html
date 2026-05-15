@@ -631,14 +631,14 @@ function fazerLogin() {
   var u = document.getElementById('login-user').value.trim();
   var p = document.getElementById('login-pass').value;
   if (u === ADMIN_USER && p === ADMIN_PASS) {
-    fecharLogin(); setAdmin(true); toast('Bem-vindo, Presidencia!'); render();
+    fecharLogin(); setAdmin(true); toast('Bem-vindo, Presidencia!'); render(); renderCaixa(); renderMembros();
   } else {
     document.getElementById('login-error').classList.add('show');
     document.getElementById('login-pass').value = '';
     document.getElementById('login-pass').focus();
   }
 }
-function sair() { setAdmin(false); toast('Sessao encerrada.'); render(); }
+function sair() { setAdmin(false); toast('Sessao encerrada.'); render(); renderCaixa(); renderMembros(); }
 
 function computeGoleiros() {
   var map = {};
@@ -1417,12 +1417,6 @@ function renderCaixa() {
   if (!sel) return;
   var mes = sel.value;
 
-  // Show admin cols
-  document.querySelectorAll('#page-caixa .acao-col').forEach(function(el){
-    el.style.display = adminLogado ? (el.tagName==='BUTTON'?'':'table-cell') : 'none';
-    if (adminLogado && el.tagName==='BUTTON') el.style.display = 'inline-block';
-  });
-
   // Load from Supabase
   Promise.all([dbGetCaixa(mes), dbGetGastos(mes)]).then(function(results) {
     caixaItens  = results[0];
@@ -1486,6 +1480,15 @@ function _renderCaixaUI(mes) {
 
   // Gastos
   var gastosDiv = document.getElementById('caixa-gastos-lista');
+  // Toggle admin controls
+  document.querySelectorAll('#page-caixa .acao-col').forEach(function(el){
+    if (adminLogado) {
+      el.style.display = el.tagName === 'BUTTON' ? 'inline-block' : 'table-cell';
+    } else {
+      el.style.display = 'none';
+    }
+  });
+
   gastosDiv.innerHTML = '';
   if (!gastosItens.length) {
     var empty = document.createElement('div');
