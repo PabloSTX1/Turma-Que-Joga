@@ -297,6 +297,22 @@
 
   .modal-gasto-box{background:var(--preto-medio);border:1px solid var(--azul-linha);border-top:3px solid #e74c3c;border-radius:14px;width:100%;max-width:400px;padding:28px;}
   .modal-gasto-box h2{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1.5px;margin-bottom:20px;color:#e74c3c;}
+
+  /* AVULSOS POR RODADA */
+  .rodada-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+  .rodada-tab{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;background:transparent;color:var(--muted);border:1.5px solid var(--azul-linha);padding:6px 14px;border-radius:20px;cursor:pointer;transition:all .2s;white-space:nowrap;}
+  .rodada-tab:hover{border-color:var(--azul);color:var(--branco);}
+  .rodada-tab.active{background:var(--azul);color:#fff;border-color:var(--azul);}
+  .sem-rodadas{font-family:'Barlow Condensed',sans-serif;font-size:13px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;padding:12px 0;}
+
+  /* ORDENACAO RANKING */
+  .ordenacao-bar{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
+  .ordenacao-label{font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);flex-shrink:0;}
+  .ord-btn{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;background:transparent;color:var(--muted);border:1.5px solid var(--azul-linha);padding:6px 16px;border-radius:20px;cursor:pointer;transition:all .2s;}
+  .ord-btn:hover{border-color:var(--azul);color:var(--branco);}
+  .ord-btn.active-gols{background:rgba(91,200,255,0.15);color:#5bc8ff;border-color:#5bc8ff;}
+  .ord-btn.active-assists{background:rgba(125,232,122,0.15);color:#7de87a;border-color:#7de87a;}
+  .ord-btn.active-total{background:rgba(232,100,26,0.15);color:var(--laranja);border-color:var(--laranja);}
 </style>
 </head>
 <body>
@@ -352,6 +368,12 @@
       <div class="hero-card" style="border-top-color:var(--laranja);"><div class="number" id="top-goleiro" style="font-size:28px;padding-top:4px;">-</div><div class="label">Goleiro Lider</div></div>
     </div>
     <div class="section-title">Artilharia Geral</div>
+    <div class="ordenacao-bar">
+      <span class="ordenacao-label">Ordenar por:</span>
+      <button class="ord-btn active-gols" id="ord-gols" onclick="setOrdenacao('gols',this)">⚽ Gols</button>
+      <button class="ord-btn" id="ord-assists" onclick="setOrdenacao('assists',this)">🎯 Assistências</button>
+      <button class="ord-btn" id="ord-total" onclick="setOrdenacao('total',this)">🏅 Participações</button>
+    </div>
     <div id="ranking-container"><div class="loading"><div class="spinner"></div>Carregando...</div></div>
   </div>
 </div>
@@ -484,10 +506,11 @@
 
     <!-- AVULSOS -->
     <div class="caixa-section-title" style="margin-top:8px;">
-      Avulsos
+      Avulsos por Rodada
       <div class="caixa-section-line"></div>
       <button class="btn-add-avulso acao-col" style="display:none;" onclick="openModalAvulso()">+ Avulso</button>
     </div>
+    <div id="avulsos-rodada-tabs" class="rodada-tabs"></div>
     <table class="caixa-table">
       <thead><tr>
         <th>Nome</th>
@@ -687,6 +710,17 @@ function renderGoleiros() {
     +'</tr></thead><tbody>'+rows+'</tbody></table>';
 }
 
+function setOrdenacao(tipo, btn) {
+  ordenacaoAtiva = tipo;
+  // Reset all buttons
+  ['gols','assists','total'].forEach(function(t) {
+    var b = document.getElementById('ord-' + t);
+    if (b) b.className = 'ord-btn';
+  });
+  if (btn) btn.className = 'ord-btn active-' + tipo;
+  render();
+}
+
 function computeRanking() {
   var map = {};
   var lista = getRodadasFiltradas(filtroAtivo);
@@ -734,9 +768,12 @@ function render() {
         +'<td class="num"><span class="stat-ast">'+p.assists+'</span></td>'
         +'<td class="num"><span class="stat-total">'+(p.gols+p.assists)+'</span></td></tr>';
     });
+    var thGols    = '<th class="num" style="'+(ordenacaoAtiva==='gols'?'color:#5bc8ff;':'')+'">Gols</th>';
+    var thAssists = '<th class="num" style="'+(ordenacaoAtiva==='assists'?'color:#7de87a;':'')+'">Assists</th>';
+    var thTotal   = '<th class="num" style="'+(ordenacaoAtiva==='total'?'color:var(--laranja);':'')+'">Participações</th>';
     rc.innerHTML = '<table class="ranking-table"><thead><tr>'
       +'<th class="num" style="width:48px">#</th><th>Jogador</th>'
-      +'<th class="num">Gols</th><th class="num">Assists</th><th class="num">Total</th>'
+      +thGols+thAssists+thTotal
       +'</tr></thead><tbody>'+rows+'</tbody></table>';
   }
 
@@ -796,7 +833,7 @@ function renderRodadas() {
       +'</div></div>'
       +'<div class="rodada-body" id="body-'+r.id+'">'
       +'<table class="rodada-mini-table"><thead><tr>'
-      +'<th>Jogador</th><th class="num">Gols</th><th class="num">Assist</th><th class="num">Total</th>'
+      +'<th>Jogador</th><th class="num">Gols</th><th class="num">Assist</th><th class="num">Participações</th>'
       +'</tr></thead><tbody>'+trs+'</tbody></table>'
       +goleiroHTML
       +'</div></div>';
@@ -934,6 +971,7 @@ function deletarRodada(id) {
 var _hoje = new Date();
 var _mesAtual = _hoje.getFullYear() + '-' + String(_hoje.getMonth()+1).padStart(2,'0');
 var filtroAtivo = _mesAtual;
+var ordenacaoAtiva = 'gols';
 var filtroRodasAtivo = _mesAtual;
 
 function getMesesDisponiveis() {
@@ -1400,6 +1438,7 @@ function deletarMembro(id) {
 
 // ── CAIXA ─────────────────────────────────────────────────────
 var caixaItens = [];
+var avulsoRodadaAtiva = null; // id da rodada selecionada nos avulsos
 var gastosItens = [];
 var pgtoTarget = null;
 
@@ -1477,17 +1516,39 @@ function _renderCaixaUI(mes) {
     tbody.appendChild(_buildCaixaRow(item, mes));
   });
 
-  // Avulsos table
-  var tbodyAv = document.getElementById('caixa-avulsos-body');
-  tbodyAv.innerHTML = '';
-  if (!avulsos.length) {
-    var tr0 = document.createElement('tr');
-    var td0 = document.createElement('td'); td0.colSpan=5; td0.style.cssText='text-align:center;color:var(--muted);font-family:Barlow Condensed,sans-serif;padding:20px;letter-spacing:1px;text-transform:uppercase;';
-    td0.textContent = 'Nenhum avulso neste mes';
-    tr0.appendChild(td0); tbodyAv.appendChild(tr0);
+  // Avulsos - build rodada tabs
+  var rodadasDoMes = rodadas.filter(function(r){ return r.data && r.data.substring(0,7) === mes; })
+    .sort(function(a,b){ return a.data.localeCompare(b.data); });
+
+  var tabsDiv = document.getElementById('avulsos-rodada-tabs');
+  tabsDiv.innerHTML = '';
+
+  if (!rodadasDoMes.length) {
+    var semR = document.createElement('div');
+    semR.className = 'sem-rodadas';
+    semR.textContent = 'Nenhuma rodada registrada neste mes';
+    tabsDiv.appendChild(semR);
+    avulsoRodadaAtiva = null;
   } else {
-    avulsos.forEach(function(item){ tbodyAv.appendChild(_buildCaixaRow(item, mes)); });
+    // Set default active rodada
+    if (!avulsoRodadaAtiva || !rodadasDoMes.find(function(r){ return r.id === avulsoRodadaAtiva; })) {
+      avulsoRodadaAtiva = rodadasDoMes[0].id;
+    }
+    rodadasDoMes.forEach(function(r, i) {
+      var btn = document.createElement('button');
+      btn.className = 'rodada-tab' + (r.id === avulsoRodadaAtiva ? ' active' : '');
+      btn.textContent = 'Rodada ' + (i+1) + ' - ' + fmtDate(r.data);
+      btn.onclick = (function(rid){ return function(){
+        avulsoRodadaAtiva = rid;
+        renderAvulsosTabela(mes, avulsos);
+        document.querySelectorAll('.rodada-tab').forEach(function(b){ b.classList.remove('active'); });
+        this.classList.add('active');
+      }; })(r.id);
+      tabsDiv.appendChild(btn);
+    });
   }
+
+  renderAvulsosTabela(mes, avulsos);
 
   // Gastos
   var gastosDiv = document.getElementById('caixa-gastos-lista');
@@ -1523,6 +1584,32 @@ function _renderCaixaUI(mes) {
       }
       gastosDiv.appendChild(card);
     });
+  }
+}
+
+function renderAvulsosTabela(mes, avulsos) {
+  var tbodyAv = document.getElementById('caixa-avulsos-body');
+  tbodyAv.innerHTML = '';
+
+  if (!avulsoRodadaAtiva) {
+    var tr0 = document.createElement('tr');
+    var td0 = document.createElement('td'); td0.colSpan=5;
+    td0.style.cssText='text-align:center;color:var(--muted);font-family:Barlow Condensed,sans-serif;padding:20px;letter-spacing:1px;text-transform:uppercase;';
+    td0.textContent = 'Selecione uma rodada acima';
+    tr0.appendChild(td0); tbodyAv.appendChild(tr0);
+    return;
+  }
+
+  var filtrados = avulsos.filter(function(a){ return a.rodada_id === avulsoRodadaAtiva; });
+
+  if (!filtrados.length) {
+    var tr0 = document.createElement('tr');
+    var td0 = document.createElement('td'); td0.colSpan=5;
+    td0.style.cssText='text-align:center;color:var(--muted);font-family:Barlow Condensed,sans-serif;padding:20px;letter-spacing:1px;text-transform:uppercase;';
+    td0.textContent = 'Nenhum avulso nesta rodada';
+    tr0.appendChild(td0); tbodyAv.appendChild(tr0);
+  } else {
+    filtrados.forEach(function(item){ tbodyAv.appendChild(_buildCaixaRow(item, mes)); });
   }
 }
 
@@ -1581,6 +1668,7 @@ function atualizarValor(id, valor, mes) {
 
 // Modal avulso
 function openModalAvulso() {
+  if (!avulsoRodadaAtiva) { toast('Selecione uma rodada primeiro.', 'err'); return; }
   document.getElementById('avulso-nome').value = '';
   document.getElementById('avulso-valor').value = '';
   document.getElementById('modal-avulso').classList.add('open');
@@ -1593,7 +1681,7 @@ function salvarAvulso() {
   if (!nome) { alert('Informe o nome do avulso.'); return; }
   var sel = document.getElementById('caixa-mes-sel');
   var mes = sel.value;
-  var item = { id: uid(), mes: mes, tipo: 'avulso', membro_id: null, nome: nome, pago: false, forma: null, valor: valor };
+  var item = { id: uid(), mes: mes, tipo: 'avulso', membro_id: null, nome: nome, pago: false, forma: null, valor: valor, rodada_id: avulsoRodadaAtiva };
   dbUpsertCaixa(item).then(function(){
     fecharModalAvulso(); renderCaixa(); toast('Avulso adicionado!');
   }).catch(function(e){ toast('Erro: ' + e.message, 'err'); });
