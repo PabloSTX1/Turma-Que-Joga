@@ -169,6 +169,27 @@
   .goleiro-row input:focus{border-color:#7de87a;}
   .btn-add-goleiro{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;background:transparent;color:#7de87a;border:1.5px dashed rgba(125,232,122,.4);padding:7px 14px;border-radius:6px;cursor:pointer;transition:all .2s;margin-top:4px;}
   .btn-add-goleiro:hover{border-color:#7de87a;background:rgba(125,232,122,.08);}
+  /* AVISOS */
+  .aviso-card{background:var(--preto-medio);border:1px solid var(--azul-linha);border-radius:12px;padding:18px 20px;margin-bottom:14px;position:relative;transition:border-color .2s;}
+  .aviso-card.fixado{border-left:3px solid #f0c040;border-radius:0 12px 12px 0;}
+  .aviso-card.urgente{border-left:3px solid #e74c3c;border-radius:0 12px 12px 0;}
+  .aviso-header{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;}
+  .aviso-badge{font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:1.5px;padding:3px 10px;border-radius:20px;}
+  .aviso-badge.cupula{background:rgba(240,192,64,0.15);color:#f0c040;border:1px solid rgba(240,192,64,0.35);}
+  .aviso-badge.urgente{background:rgba(231,76,60,0.12);color:#e74c3c;border:1px solid rgba(231,76,60,0.35);}
+  .aviso-badge.fixado{background:rgba(240,192,64,0.1);color:#f0c040;border:1px solid rgba(240,192,64,0.3);}
+  .aviso-data{font-size:12px;color:var(--muted);font-family:'Barlow Condensed',sans-serif;letter-spacing:.5px;}
+  .aviso-titulo-txt{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;color:var(--branco);margin-bottom:6px;}
+  .aviso-corpo-txt{font-size:14px;color:var(--cinza-texto,#a8b5cc);line-height:1.6;}
+  .aviso-footer{display:flex;align-items:center;gap:12px;margin-top:14px;padding-top:12px;border-top:1px solid var(--azul-linha);}
+  .aviso-acao{background:transparent;border:none;font-size:12px;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;color:var(--muted);cursor:pointer;text-transform:uppercase;padding:0;transition:color .2s;}
+  .aviso-acao:hover{color:var(--branco);}
+  .aviso-acao.del:hover{color:#e74c3c;}
+  .aviso-empty{text-align:center;padding:48px 24px;color:var(--muted);}
+  .aviso-empty .icon{font-size:40px;margin-bottom:12px;}
+  .tipo-btn.active[data-aviso-tipo="urgente"]{background:rgba(231,76,60,0.15);color:#e74c3c;border-color:#e74c3c;}
+  .tipo-btn.active[data-aviso-tipo="fixado"]{background:rgba(240,192,64,0.15);color:#f0c040;border-color:#f0c040;}
+  .tipo-btn.active[data-aviso-tipo="normal"]{background:rgba(26,79,189,0.2);color:#7ab3ff;border-color:#1a4fbd;}
   /* PRESENÇA */
   .presenca-btn{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;background:var(--preto);border:1.5px solid var(--azul-linha);color:var(--muted);padding:7px 8px;border-radius:8px;cursor:pointer;transition:all .15s;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;}
   .presenca-btn:hover{border-color:var(--azul);color:var(--branco);}
@@ -375,7 +396,8 @@
 
 <div class="tabs">
   <div class="tabs-inner">
-    <button class="tab-btn active" onclick="switchTab('ranking',this)">RANKING GERAL</button>
+    <button class="tab-btn active" onclick="switchTab('avisos',this)">AVISOS</button>
+    <button class="tab-btn" onclick="switchTab('ranking',this)">RANKING GERAL</button>
     <button class="tab-btn" onclick="switchTab('rodadas',this)">RODADAS</button>
     <button class="tab-btn" onclick="switchTab('goleiros',this)">GOLEIROS</button>
     <button class="tab-btn" onclick="switchTab('membros',this)">MEMBROS</button>
@@ -394,7 +416,19 @@
   </div>
 </div>
 
-<div class="page active" id="page-ranking">
+<div class="page active" id="page-avisos">
+  <div class="wrap">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
+      <div class="section-title" style="margin-bottom:0;">&#128227; AVISOS</div>
+      <button class="btn-add-membro admin-only" id="btn-novo-aviso" onclick="openModalAviso()" style="display:none;">+ Novo Aviso</button>
+    </div>
+    <div id="avisos-container">
+      <div class="loading"><div class="spinner"></div>CARREGANDO...</div>
+    </div>
+  </div>
+</div>
+
+<div class="page" id="page-ranking">
   <div class="wrap">
     <div class="aniversario-banner" id="aniversario-banner">
       <div class="aniversario-icon">&#127874;</div>
@@ -451,6 +485,28 @@
     <div class="membros-secao-titulo goleiro" style="color:#7de87a;">&#129508; Goleiros</div>
     <div class="membros-grid" id="membros-grid-goleiro">
       <div class="loading"><div class="spinner"></div>CARREGANDO...</div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL AVISO -->
+<div class="modal-overlay" id="modal-aviso-cupula" onclick="if(event.target===this)fecharModalAviso()">
+  <div class="modal-membro-box" style="max-width:500px;">
+    <h2 id="modal-aviso-titulo" style="color:var(--laranja);">NOVO AVISO</h2>
+    <div class="form-group"><label>TITULO</label><input type="text" id="aviso-titulo-input" placeholder="Ex: Pelada confirmada!"></div>
+    <div class="form-group"><label>MENSAGEM</label><textarea id="aviso-corpo-input" placeholder="Escreva o comunicado..." style="width:100%;min-height:100px;background:var(--preto);border:1px solid var(--azul-linha);border-radius:8px;color:var(--branco);font-family:'Barlow Condensed',sans-serif;font-size:15px;padding:10px 14px;resize:vertical;outline:none;"></textarea></div>
+    <div class="form-group">
+      <label>TIPO</label>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+        <button type="button" class="tipo-btn active" data-aviso-tipo="normal" onclick="setTipoAviso('normal')">&#128226; Normal</button>
+        <button type="button" class="tipo-btn" data-aviso-tipo="urgente" onclick="setTipoAviso('urgente')" style="">&#128680; Urgente</button>
+        <button type="button" class="tipo-btn" data-aviso-tipo="fixado" onclick="setTipoAviso('fixado')">&#128204; Fixado</button>
+      </div>
+    </div>
+    <input type="hidden" id="aviso-tipo-hidden" value="normal">
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="fecharModalAviso()">CANCELAR</button>
+      <button class="btn-save" onclick="salvarAviso()">PUBLICAR</button>
     </div>
   </div>
 </div>
@@ -1214,6 +1270,7 @@ function getRodadasFiltradas(filtro) {
 
 
 function init() {
+  loadAvisos().then(function(){ renderAvisos(); });
   dbCarregar().then(function(data) {
     rodadas = data;
     buildGlobalPills();
@@ -1233,14 +1290,159 @@ function init() {
 }
 
 
-// ── MEMBROS ───────────────────────────────────────────────────
-var membros = [];
-var editingMembroId = null;
+// ── AVISOS ────────────────────────────────────────────────────
+var avisos = [];
+var editingAvisoId = null;
+var API_AVISOS = SB_URL + '/rest/v1/avisos';
 
-function loadMembros() {
-  try { membros = JSON.parse(localStorage.getItem('tqj_membros') || '[]'); } catch(e) { membros = []; }
+function dbGetAvisos() {
+  return fetch(API_AVISOS + '?order=fixado.desc,created_at.desc', { headers: H_GET })
+    .then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); });
 }
-function saveMembros() { localStorage.setItem('tqj_membros', JSON.stringify(membros)); }
+function dbSaveAviso(a) {
+  return fetch(API_AVISOS, { method:'POST', headers:H, body:JSON.stringify(a) })
+    .then(function(r){ if(!r.ok) throw new Error(r.status); });
+}
+function dbUpdateAviso(a) {
+  return fetch(API_AVISOS + '?id=eq.' + a.id, { method:'PATCH', headers:H, body:JSON.stringify({titulo:a.titulo,corpo:a.corpo,tipo:a.tipo,fixado:a.tipo==='fixado'}) })
+    .then(function(r){ if(!r.ok) throw new Error(r.status); });
+}
+function dbDeleteAviso(id) {
+  return fetch(API_AVISOS + '?id=eq.' + id, { method:'DELETE', headers:H_GET })
+    .then(function(r){ if(!r.ok) throw new Error(r.status); });
+}
+
+function loadAvisos() {
+  return dbGetAvisos().then(function(data){ avisos = data || []; }).catch(function(){ avisos = []; });
+}
+
+function renderAvisos() {
+  var container = document.getElementById('avisos-container');
+  if (!container) return;
+  container.innerHTML = '';
+
+  // Sort: fixados primeiro, depois por data desc
+  var sorted = avisos.slice().sort(function(a,b){
+    if ((a.fixado||a.tipo==='fixado') && !(b.fixado||b.tipo==='fixado')) return -1;
+    if (!(a.fixado||a.tipo==='fixado') && (b.fixado||b.tipo==='fixado')) return 1;
+    return (b.created_at||'').localeCompare(a.created_at||'');
+  });
+
+  if (!sorted.length) {
+    container.innerHTML = '<div class="aviso-empty"><div class="icon">&#128227;</div><p>Nenhum aviso publicado ainda.</p></div>';
+    return;
+  }
+
+  sorted.forEach(function(a) {
+    var card = document.createElement('div');
+    var tipo = a.tipo || 'normal';
+    card.className = 'aviso-card' + (tipo === 'fixado' ? ' fixado' : tipo === 'urgente' ? ' urgente' : '');
+
+    var header = '<div class="aviso-header">';
+    header += '<span class="aviso-badge cupula">&#128081; CUPULA</span>';
+    if (tipo === 'urgente') header += '<span class="aviso-badge urgente">&#128680; URGENTE</span>';
+    if (tipo === 'fixado')  header += '<span class="aviso-badge fixado">&#128204; FIXADO</span>';
+    header += '<span class="aviso-data">' + fmtDataAviso(a.created_at) + '</span>';
+    header += '</div>';
+
+    var titulo = '<div class="aviso-titulo-txt">' + escHtml(a.titulo||'') + '</div>';
+    var corpo  = '<div class="aviso-corpo-txt">'  + escHtml(a.corpo||'').replace(/\n/g,'<br>') + '</div>';
+
+    var footer = '';
+    if (adminLogado) {
+      footer = '<div class="aviso-footer">'
+        + '<button class="aviso-acao" onclick="editarAviso(\'' + a.id + '\')">&#9998; Editar</button>'
+        + '<button class="aviso-acao del" onclick="deletarAviso(\'' + a.id + '\')">&#215; Excluir</button>'
+        + '</div>';
+    }
+
+    card.innerHTML = header + titulo + corpo + footer;
+    container.appendChild(card);
+  });
+}
+
+function escHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function fmtDataAviso(iso) {
+  if (!iso) return '';
+  var d = new Date(iso);
+  var dia = String(d.getDate()).padStart(2,'0');
+  var mes = MESES_NOME[d.getMonth()] || '';
+  return dia + ' ' + mes + ' ' + d.getFullYear();
+}
+
+function setTipoAviso(tipo) {
+  document.getElementById('aviso-tipo-hidden').value = tipo;
+  document.querySelectorAll('[data-aviso-tipo]').forEach(function(b){
+    b.classList.toggle('active', b.getAttribute('data-aviso-tipo') === tipo);
+  });
+}
+
+function openModalAviso(id) {
+  id = id || null;
+  editingAvisoId = id;
+  if (id) {
+    var a = avisos.find(function(x){ return x.id===id; });
+    document.getElementById('modal-aviso-titulo').textContent = 'EDITAR AVISO';
+    document.getElementById('aviso-titulo-input').value = a.titulo || '';
+    document.getElementById('aviso-corpo-input').value = a.corpo || '';
+    setTipoAviso(a.tipo || 'normal');
+  } else {
+    document.getElementById('modal-aviso-titulo').textContent = 'NOVO AVISO';
+    document.getElementById('aviso-titulo-input').value = '';
+    document.getElementById('aviso-corpo-input').value = '';
+    setTipoAviso('normal');
+  }
+  document.getElementById('modal-aviso-cupula').classList.add('open');
+  setTimeout(function(){ document.getElementById('aviso-titulo-input').focus(); }, 100);
+}
+
+function fecharModalAviso() {
+  document.getElementById('modal-aviso-cupula').classList.remove('open');
+  editingAvisoId = null;
+}
+
+function salvarAviso() {
+  var titulo = document.getElementById('aviso-titulo-input').value.trim();
+  var corpo  = document.getElementById('aviso-corpo-input').value.trim();
+  var tipo   = document.getElementById('aviso-tipo-hidden').value || 'normal';
+  if (!titulo) { alert('INFORME O TITULO DO AVISO.'); return; }
+  if (!corpo)  { alert('ESCREVA A MENSAGEM DO AVISO.'); return; }
+  var btn = document.querySelector('#modal-aviso-cupula .btn-save');
+  btn.textContent = 'PUBLICANDO...'; btn.disabled = true;
+  var promise;
+  if (editingAvisoId) {
+    var obj = { id: editingAvisoId, titulo: titulo, corpo: corpo, tipo: tipo, fixado: tipo==='fixado' };
+    promise = dbUpdateAviso(obj).then(function(){
+      var idx = avisos.findIndex(function(x){ return x.id===editingAvisoId; });
+      if (idx !== -1) Object.assign(avisos[idx], obj);
+      toast('AVISO ATUALIZADO!');
+    });
+  } else {
+    var obj = { id: uid(), titulo: titulo, corpo: corpo, tipo: tipo, fixado: tipo==='fixado', created_at: new Date().toISOString() };
+    promise = dbSaveAviso(obj).then(function(){
+      avisos.unshift(obj);
+      toast('AVISO PUBLICADO!');
+    });
+  }
+  promise.then(function(){ fecharModalAviso(); renderAvisos(); })
+    .catch(function(e){ toast('ERRO: ' + e.message, 'err'); })
+    .finally(function(){ btn.textContent = 'PUBLICAR'; btn.disabled = false; });
+}
+
+function editarAviso(id) { openModalAviso(id); }
+
+function deletarAviso(id) {
+  if (!confirm('EXCLUIR ESTE AVISO?')) return;
+  dbDeleteAviso(id).then(function(){
+    avisos = avisos.filter(function(a){ return a.id !== id; });
+    renderAvisos(); toast('AVISO EXCLUIDO.');
+  }).catch(function(e){ toast('ERRO: ' + e.message, 'err'); });
+}
+
+
 
 function getDiaMes() {
   var d = new Date();
