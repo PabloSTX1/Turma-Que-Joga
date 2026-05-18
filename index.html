@@ -209,6 +209,9 @@
   .tipo-btn.active[data-tipo="mensalista"]{background:rgba(26,79,189,0.2);color:#7ab3ff;border-color:#1a4fbd;}
   .tipo-btn.active[data-tipo="avulso"]{background:rgba(232,100,26,0.2);color:var(--laranja);border-color:var(--laranja);}
   .tipo-btn.active[data-tipo="goleiro"]{background:rgba(125,232,122,0.2);color:#7de87a;border-color:#7de87a;}
+  .membro-avatar.presidente{border-color:#f0c040;color:#f0c040;background:rgba(240,192,64,0.12);}
+  .membros-secao-titulo.presidente::after{background:rgba(240,192,64,0.3);}
+  .tipo-btn.active[data-tipo="presidente"]{background:rgba(240,192,64,0.2);color:#f0c040;border-color:#f0c040;}
   .membro-info{flex:1;min-width:0;}
   .membro-nome{font-family:'Barlow',sans-serif;font-weight:700;font-size:15px;color:var(--branco);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .membro-aniv{font-family:'Barlow Condensed',sans-serif;font-size:12px;color:var(--muted);letter-spacing:.5px;margin-top:2px;}
@@ -438,6 +441,10 @@
     <div class="membros-grid" id="membros-grid-goleiro">
       <div class="loading"><div class="spinner"></div>CARREGANDO...</div>
     </div>
+    <div class="membros-secao-titulo presidente" style="color:#f0c040;">&#128081; Presidentes</div>
+    <div class="membros-grid" id="membros-grid-presidente">
+      <div class="loading"><div class="spinner"></div>CARREGANDO...</div>
+    </div>
   </div>
 </div>
 
@@ -489,10 +496,11 @@
     <div class="form-group"><label>DATA DE ANIVERSARIO</label><input type="date" id="membro-aniv"></div>
     <div class="form-group">
       <label>CATEGORIA</label>
-      <div class="tipo-selector" id="tipo-selector">
+      <div class="tipo-selector" id="tipo-selector" style="grid-template-columns:repeat(4,1fr);">
         <button type="button" class="tipo-btn active" data-tipo="mensalista" onclick="setTipoMembro('mensalista')">&#128100; Mensalista</button>
         <button type="button" class="tipo-btn" data-tipo="avulso" onclick="setTipoMembro('avulso')">&#9889; Avulso</button>
         <button type="button" class="tipo-btn" data-tipo="goleiro" onclick="setTipoMembro('goleiro')">&#129508; Goleiro</button>
+        <button type="button" class="tipo-btn" data-tipo="presidente" onclick="setTipoMembro('presidente')">&#128081; Presidente</button>
       </div>
     </div>
     <input type="hidden" id="membro-tipo" value="mensalista">
@@ -1372,17 +1380,21 @@ function renderMembros() {
   var gridM = document.getElementById('membros-grid-mensalista');
   var gridA = document.getElementById('membros-grid-avulso');
   var gridG = document.getElementById('membros-grid-goleiro');
-  if (!gridM || !gridA || !gridG) return;
+  var gridP = document.getElementById('membros-grid-presidente');
+  if (!gridM || !gridA || !gridG || !gridP) return;
   var hoje = getDiaMes();
   gridM.innerHTML = '';
   gridA.innerHTML = '';
   gridG.innerHTML = '';
+  gridP.innerHTML = '';
 
   var mensalistas = membros.filter(function(m){ return (m.tipo || 'mensalista') === 'mensalista'; })
     .sort(function(a,b){ return a.nome.localeCompare(b.nome); });
   var avulsos = membros.filter(function(m){ return m.tipo === 'avulso'; })
     .sort(function(a,b){ return a.nome.localeCompare(b.nome); });
   var goleiros = membros.filter(function(m){ return m.tipo === 'goleiro'; })
+    .sort(function(a,b){ return a.nome.localeCompare(b.nome); });
+  var presidentes = membros.filter(function(m){ return m.tipo === 'presidente'; })
     .sort(function(a,b){ return a.nome.localeCompare(b.nome); });
 
   function buildCard(m, grid) {
@@ -1397,8 +1409,12 @@ function renderMembros() {
       badge.textContent = 'ANIVERSARIO!';
       card.appendChild(badge);
     }
+    var avatarClass = 'membro-avatar';
+    if (m.tipo === 'avulso') avatarClass += ' avulso';
+    else if (m.tipo === 'goleiro') avatarClass += ' goleiro';
+    else if (m.tipo === 'presidente') avatarClass += ' presidente';
     var avatar = document.createElement('div');
-    avatar.className = 'membro-avatar' + (m.tipo === 'avulso' ? ' avulso' : m.tipo === 'goleiro' ? ' goleiro' : '');
+    avatar.className = avatarClass;
     avatar.textContent = m.nome.charAt(0).toUpperCase();
     card.appendChild(avatar);
     var info = document.createElement('div');
@@ -1420,23 +1436,23 @@ function renderMembros() {
     grid.appendChild(card);
   }
 
-  if (!mensalistas.length) {
+  function emptyState(grid, icon, msg) {
     var e = document.createElement('div'); e.className = 'empty-state'; e.style.gridColumn = '1 / -1';
-    e.innerHTML = '<div class="icon">&#128100;</div><p>Nenhum mensalista cadastrado</p>';
-    gridM.appendChild(e);
-  } else { mensalistas.forEach(function(m){ buildCard(m, gridM); }); }
+    e.innerHTML = '<div class="icon">' + icon + '</div><p>' + msg + '</p>';
+    grid.appendChild(e);
+  }
 
-  if (!avulsos.length) {
-    var e2 = document.createElement('div'); e2.className = 'empty-state'; e2.style.gridColumn = '1 / -1';
-    e2.innerHTML = '<div class="icon">&#9889;</div><p>Nenhum avulso frequente cadastrado</p>';
-    gridA.appendChild(e2);
-  } else { avulsos.forEach(function(m){ buildCard(m, gridA); }); }
+  if (!mensalistas.length) emptyState(gridM, '&#128100;', 'Nenhum mensalista cadastrado');
+  else mensalistas.forEach(function(m){ buildCard(m, gridM); });
 
-  if (!goleiros.length) {
-    var e3 = document.createElement('div'); e3.className = 'empty-state'; e3.style.gridColumn = '1 / -1';
-    e3.innerHTML = '<div class="icon">&#129508;</div><p>Nenhum goleiro cadastrado</p>';
-    gridG.appendChild(e3);
-  } else { goleiros.forEach(function(m){ buildCard(m, gridG); }); }
+  if (!avulsos.length) emptyState(gridA, '&#9889;', 'Nenhum avulso frequente cadastrado');
+  else avulsos.forEach(function(m){ buildCard(m, gridA); });
+
+  if (!goleiros.length) emptyState(gridG, '&#129508;', 'Nenhum goleiro cadastrado');
+  else goleiros.forEach(function(m){ buildCard(m, gridG); });
+
+  if (!presidentes.length) emptyState(gridP, '&#128081;', 'Nenhum presidente cadastrado');
+  else presidentes.forEach(function(m){ buildCard(m, gridP); });
 }
 
 
