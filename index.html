@@ -302,7 +302,7 @@
   .membros-secao-titulo.presidente::after{background:rgba(240,192,64,0.3);}
   .tipo-btn.active[data-tipo="presidente"]{background:rgba(240,192,64,0.2);color:#f0c040;border-color:#f0c040;}
   .membro-info{flex:1;min-width:0;}
-  .membro-nome{font-family:'Barlow',sans-serif;font-weight:700;font-size:15px;color:var(--branco);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .membro-nome{font-family:'Barlow',sans-serif;font-weight:700;font-size:15px;color:var(--branco);white-space:normal;overflow-wrap:break-word;word-break:break-word;line-height:1.3;}
   .membro-aniv{font-family:'Barlow Condensed',sans-serif;font-size:12px;color:var(--muted);letter-spacing:.5px;margin-top:2px;}
   .membro-card.aniversariante .membro-aniv{color:var(--laranja);}
   .membro-badge-aniv{position:absolute;top:-8px;right:10px;background:var(--laranja);color:#fff;font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:1px;padding:2px 10px;border-radius:10px;}
@@ -1381,7 +1381,14 @@ function dbUpdateAviso(a) {
 }
 function dbToggleOculto(id, oculto) {
   return fetch(API_AVISOS + '?id=eq.' + id, { method:'PATCH', headers:H, body:JSON.stringify({oculto:oculto}) })
-    .then(function(r){ if(!r.ok) throw new Error(r.status); });
+    .then(function(r){
+      if (r.status === 400) {
+        // Coluna oculto ainda nao existe no Supabase - avisa o admin
+        toast('RODE O SQL: ALTER TABLE avisos ADD COLUMN IF NOT EXISTS oculto boolean DEFAULT false;', 'err');
+        throw new Error('coluna oculto inexistente');
+      }
+      if (!r.ok) throw new Error(r.status);
+    });
 }
 function dbDeleteAviso(id) {
   return fetch(API_AVISOS + '?id=eq.' + id, { method:'DELETE', headers:H_GET })
