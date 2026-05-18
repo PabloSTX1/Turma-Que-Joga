@@ -422,18 +422,19 @@
 
 <div class="page" id="page-membros">
   <div class="wrap">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:12px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
       <div class="section-title" style="margin-bottom:0;flex:1;">MEMBROS DA PELADA</div>
+      <button class="btn-add-membro admin-only" onclick="openModalMembro('mensalista')" style="display:none;">+ Adicionar Membro</button>
     </div>
-    <div class="membros-secao-titulo">&#128100; Mensalistas <button class="btn-add-membro admin-only" onclick="openModalMembro('mensalista')" style="font-size:12px;padding:6px 14px;margin-left:8px;display:none;">+ Mensalista</button></div>
+    <div class="membros-secao-titulo">&#128100; Mensalistas</div>
     <div class="membros-grid" id="membros-grid-mensalista">
       <div class="loading"><div class="spinner"></div>CARREGANDO...</div>
     </div>
-    <div class="membros-secao-titulo avulso" style="color:var(--laranja);">&#9889; Avulsos Frequentes <button class="btn-add-membro admin-only" onclick="openModalMembro('avulso')" style="font-size:12px;padding:6px 14px;margin-left:8px;background:var(--laranja2);display:none;">+ Avulso</button></div>
+    <div class="membros-secao-titulo avulso" style="color:var(--laranja);">&#9889; Avulsos Frequentes</div>
     <div class="membros-grid" id="membros-grid-avulso">
       <div class="loading"><div class="spinner"></div>CARREGANDO...</div>
     </div>
-    <div class="membros-secao-titulo goleiro" style="color:#7de87a;">&#129508; Goleiros <button class="btn-add-membro admin-only" onclick="openModalMembro('goleiro')" style="font-size:12px;padding:6px 14px;margin-left:8px;background:#2a6040;display:none;">+ Goleiro</button></div>
+    <div class="membros-secao-titulo goleiro" style="color:#7de87a;">&#129508; Goleiros</div>
     <div class="membros-grid" id="membros-grid-goleiro">
       <div class="loading"><div class="spinner"></div>CARREGANDO...</div>
     </div>
@@ -1452,7 +1453,7 @@ function openModalMembro(tipoOuEdit) {
   var isEdit = membros.find(function(x){ return x.id === tipoOuEdit; });
   editingMembroId = isEdit ? tipoOuEdit : null;
   var tipoDefault = isEdit ? (isEdit.tipo || 'mensalista') : tipoOuEdit;
-  document.getElementById('modal-membro-titulo').textContent = editingMembroId ? 'Editar Membro' : (tipoDefault === 'avulso' ? 'Novo Avulso Frequente' : tipoDefault === 'goleiro' ? 'Novo Goleiro' : 'Novo Mensalista');
+  document.getElementById('modal-membro-titulo').textContent = editingMembroId ? 'EDITAR MEMBRO' : 'NOVO MEMBRO';
   if (editingMembroId) {
     var m = isEdit;
     document.getElementById('membro-nome').value = m.nome;
