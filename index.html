@@ -200,6 +200,7 @@
   .membro-card.aniversariante{border-color:var(--laranja);background:linear-gradient(135deg,rgba(232,100,26,0.08),var(--azul-card));animation:pulse-border 2s infinite;}
   .membro-avatar{width:46px;height:46px;border-radius:50%;background:var(--azul-escuro);border:2px solid var(--azul-linha);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--azul);flex-shrink:0;text-transform:uppercase;}
   .membro-card.aniversariante .membro-avatar{border-color:var(--laranja);color:var(--laranja);}
+  .membro-avatar.avulso{border-color:var(--laranja);color:var(--laranja);background:rgba(232,100,26,0.12);}
   .membro-info{flex:1;min-width:0;}
   .membro-nome{font-family:'Barlow',sans-serif;font-weight:700;font-size:15px;color:var(--branco);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .membro-aniv{font-family:'Barlow Condensed',sans-serif;font-size:12px;color:var(--muted);letter-spacing:.5px;margin-top:2px;}
@@ -222,6 +223,7 @@
   .btn-add-membro{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;background:var(--laranja);color:#fff;border:none;padding:9px 18px;border-radius:7px;cursor:pointer;transition:background .2s;display:none;}
   .btn-add-membro:hover{background:var(--laranja2);}
   .admin-logged .btn-add-membro{display:block;}
+  .admin-logged .admin-only.btn-add-membro{display:inline-block;}
 
   /* MODAL MEMBRO */
   .modal-membro-box{background:var(--preto-medio);border:1px solid var(--azul-linha);border-top:3px solid var(--laranja);border-radius:14px;width:100%;max-width:400px;padding:28px;}
@@ -415,11 +417,11 @@
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:12px;">
       <div class="section-title" style="margin-bottom:0;flex:1;">MEMBROS DA PELADA</div>
     </div>
-    <div class="membros-secao-titulo">&#128100; Mensalistas <button class="btn-add-membro" onclick="openModalMembro('mensalista')" style="font-size:12px;padding:6px 14px;margin-left:8px;">+ Mensalista</button></div>
+    <div class="membros-secao-titulo">&#128100; Mensalistas <button class="btn-add-membro admin-only" onclick="openModalMembro('mensalista')" style="font-size:12px;padding:6px 14px;margin-left:8px;display:none;">+ Mensalista</button></div>
     <div class="membros-grid" id="membros-grid-mensalista">
       <div class="loading"><div class="spinner"></div>CARREGANDO...</div>
     </div>
-    <div class="membros-secao-titulo avulso" style="color:var(--laranja);">&#9889; Avulsos Frequentes <button class="btn-add-membro" onclick="openModalMembro('avulso')" style="font-size:12px;padding:6px 14px;margin-left:8px;background:var(--laranja2);">+ Avulso</button></div>
+    <div class="membros-secao-titulo avulso" style="color:var(--laranja);">&#9889; Avulsos Frequentes <button class="btn-add-membro admin-only" onclick="openModalMembro('avulso')" style="font-size:12px;padding:6px 14px;margin-left:8px;background:var(--laranja2);display:none;">+ Avulso</button></div>
     <div class="membros-grid" id="membros-grid-avulso">
       <div class="loading"><div class="spinner"></div>CARREGANDO...</div>
     </div>
@@ -1289,7 +1291,7 @@ function dbSaveMembro(m) {
   return fetch(API_MEMBROS, { method:'POST', headers:H, body:JSON.stringify(m) }).then(function(r){ if(!r.ok) throw new Error(r.status); });
 }
 function dbUpdateMembro(m) {
-  return fetch(API_MEMBROS + '?id=eq.' + m.id, { method:'PATCH', headers:H, body:JSON.stringify({nome:m.nome,aniversario:m.aniversario}) }).then(function(r){ if(!r.ok) throw new Error(r.status); });
+  return fetch(API_MEMBROS + '?id=eq.' + m.id, { method:'PATCH', headers:H, body:JSON.stringify({nome:m.nome,aniversario:m.aniversario,tipo:m.tipo||'mensalista'}) }).then(function(r){ if(!r.ok) throw new Error(r.status); });
 }
 function dbDeleteMembro(id) {
   return fetch(API_MEMBROS + '?id=eq.' + id, { method:'DELETE', headers:H_GET }).then(function(r){ if(!r.ok) throw new Error(r.status); });
@@ -1346,20 +1348,19 @@ function formatAniv(dateStr) {
 }
 
 function renderMembros() {
-  var grid = document.getElementById('membros-grid');
-  if (!grid) return;
+  var gridM = document.getElementById('membros-grid-mensalista');
+  var gridA = document.getElementById('membros-grid-avulso');
+  if (!gridM || !gridA) return;
   var hoje = getDiaMes();
-  grid.innerHTML = '';
-  if (!membros.length) {
-    var empty = document.createElement('div');
-    empty.className = 'empty-state';
-    empty.style.gridColumn = '1 / -1';
-    empty.innerHTML = '<div class="icon">&#128101;</div><p>Nenhum membro cadastrado</p>';
-    grid.appendChild(empty);
-    return;
-  }
-  var sorted = membros.slice().sort(function(a,b){ return a.nome.localeCompare(b.nome); });
-  sorted.forEach(function(m) {
+  gridM.innerHTML = '';
+  gridA.innerHTML = '';
+
+  var mensalistas = membros.filter(function(m){ return (m.tipo || 'mensalista') === 'mensalista'; })
+    .sort(function(a,b){ return a.nome.localeCompare(b.nome); });
+  var avulsos = membros.filter(function(m){ return m.tipo === 'avulso'; })
+    .sort(function(a,b){ return a.nome.localeCompare(b.nome); });
+
+  function buildCard(m, grid) {
     var parts = (m.aniversario||'').split('-');
     var mmdd = parts.length >= 3 ? parts[1]+'-'+parts[2] : '';
     var isAniv = mmdd === hoje;
@@ -1372,7 +1373,7 @@ function renderMembros() {
       card.appendChild(badge);
     }
     var avatar = document.createElement('div');
-    avatar.className = 'membro-avatar';
+    avatar.className = 'membro-avatar' + (m.tipo === 'avulso' ? ' avulso' : '');
     avatar.textContent = m.nome.charAt(0).toUpperCase();
     card.appendChild(avatar);
     var info = document.createElement('div');
@@ -1392,7 +1393,23 @@ function renderMembros() {
       card.appendChild(actions);
     }
     grid.appendChild(card);
-  });
+  }
+
+  if (!mensalistas.length) {
+    var e = document.createElement('div'); e.className = 'empty-state'; e.style.gridColumn = '1 / -1';
+    e.innerHTML = '<div class="icon">&#128100;</div><p>Nenhum mensalista cadastrado</p>';
+    gridM.appendChild(e);
+  } else {
+    mensalistas.forEach(function(m){ buildCard(m, gridM); });
+  }
+
+  if (!avulsos.length) {
+    var e2 = document.createElement('div'); e2.className = 'empty-state'; e2.style.gridColumn = '1 / -1';
+    e2.innerHTML = '<div class="icon">&#9889;</div><p>Nenhum avulso frequente cadastrado</p>';
+    gridA.appendChild(e2);
+  } else {
+    avulsos.forEach(function(m){ buildCard(m, gridA); });
+  }
 }
 
 function openModalMembro(tipoOuEdit) {
