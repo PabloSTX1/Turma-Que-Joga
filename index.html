@@ -374,17 +374,19 @@
   </div>
 </div>
 
-
+<!-- FILTRO GLOBAL UNIFICADO -->
+<div class="tabs" style="border-top:none;border-bottom:2px solid var(--azul-linha);padding:10px 20px;">
+  <div style="max-width:960px;margin:0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+    <span class="filtro-label">PERIODO:</span>
+    <div class="filtro-pills" id="filtro-pills-global"></div>
+    <select class="filtro-select" id="filtro-select-global" onchange="setFiltroGlobal(this.value)" style="display:none;">
+      <option value="">Outros meses...</option>
+    </select>
+  </div>
+</div>
 
 <div class="page active" id="page-ranking">
   <div class="wrap">
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
-      <span class="filtro-label">PERIODO:</span>
-      <div class="filtro-pills" id="filtro-pills-global"></div>
-      <select class="filtro-select" id="filtro-select-global" onchange="setFiltroGlobal(this.value)" style="display:none;">
-        <option value="">OUTROS MESES...</option>
-      </select>
-    </div>
     <div class="aniversario-banner" id="aniversario-banner">
       <div class="aniversario-icon">&#127874;</div>
       <div class="aniversario-texto">
@@ -427,13 +429,7 @@
   <div class="wrap">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
       <div class="section-title" style="margin-bottom:0;flex:1;">MEMBROS DA PELADA</div>
-      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-        <span class="filtro-label">MÊS:</span>
-        <select class="filtro-select" id="membros-mes-sel" onchange="renderMembros()">
-          <option value="">Todos os meses</option>
-        </select>
-        <button class="btn-add-membro admin-only" onclick="openModalMembro('mensalista')" style="display:none;">+ Adicionar Membro</button>
-      </div>
+      <button class="btn-add-membro admin-only" onclick="openModalMembro('mensalista')" style="display:none;">+ Adicionar Membro</button>
     </div>
     <div class="membros-secao-titulo presidente" style="color:#f0c040;">&#128081; Presidentes</div>
     <div class="membros-grid" id="membros-grid-presidente">
@@ -523,11 +519,6 @@
 
 <div class="page" id="page-caixa">
   <div class="wrap">
-
-    <div class="caixa-mes-select">
-      <span class="filtro-label">MES:</span>
-      <select class="filtro-select" id="caixa-mes-sel" onchange="renderCaixa()"></select>
-    </div>
 
     <!-- TOTAL EM CAIXA -->
     <div class="caixa-total-box">
@@ -1067,7 +1058,7 @@ var _hoje = new Date();
 var _mesAtual = _hoje.getFullYear() + '-' + String(_hoje.getMonth()+1).padStart(2,'0');
 var filtroAtivo = _mesAtual;
 var ordenacaoAtiva = 'gols';
-var filtroAtivo = _mesAtual;
+
 
 function getMesesDisponiveis() {
   var meses = {};
@@ -1121,6 +1112,11 @@ function buildGlobalPills() {
   sel.style.display = meses.length > 4 ? '' : 'none';
 }
 
+function mesAtualYM() {
+  var d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+}
+
 function setFiltroGlobal(valor) {
   if (!valor) return;
   filtroAtivo = valor;
@@ -1128,6 +1124,8 @@ function setFiltroGlobal(valor) {
   render();
   renderRodadas();
   renderGoleiros();
+  renderMembros();
+  renderCaixa();
 }
 
 function getRodadasFiltradas(filtro) {
@@ -1402,20 +1400,7 @@ function formatAniv(dateStr) {
 }
 
 function buildMembrosmesSel() {
-  var sel = document.getElementById('membros-mes-sel');
-  if (!sel) return;
-  var meses = {};
-  membros.forEach(function(m){ if (m.mes_entrada) meses[m.mes_entrada] = true; });
-  var lista = Object.keys(meses).sort().reverse();
-  var cur = sel.value;
-  sel.innerHTML = '<option value="">Todos os meses</option>';
-  lista.forEach(function(ym) {
-    var opt = document.createElement('option');
-    opt.value = ym;
-    opt.textContent = formatMesAno(ym);
-    if (ym === cur) opt.selected = true;
-    sel.appendChild(opt);
-  });
+  // Sincronizado com filtro global - sem seletor próprio
 }
 
 function membroAtivoNoMes(m, mes) {
@@ -1434,7 +1419,7 @@ function renderMembros() {
   var gridP = document.getElementById('membros-grid-presidente');
   if (!gridM || !gridA || !gridG || !gridP) return;
   var hoje = getDiaMes();
-  var mesFiltro = (document.getElementById('membros-mes-sel') || {}).value || '';
+  var mesFiltro = (filtroAtivo === 'geral') ? '' : filtroAtivo;
   gridM.innerHTML = '';
   gridA.innerHTML = '';
   gridG.innerHTML = '';
@@ -1602,19 +1587,7 @@ var gastosItens = [];
 var pgtoTarget = null;
 
 function buildCaixaMesSel() {
-  var sel = document.getElementById('caixa-mes-sel');
-  if (!sel) return;
-  var now = new Date();
-  sel.innerHTML = '';
-  for (var i = 0; i < 12; i++) {
-    var d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    var ym = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
-    var opt = document.createElement('option');
-    opt.value = ym;
-    opt.textContent = MESES_PT[d.getMonth()] + ' ' + d.getFullYear();
-    if (i === 0) opt.selected = true;
-    sel.appendChild(opt);
-  }
+  // Sincronizado com filtro global - sem seletor próprio
 }
 
 function fmtValor(v) {
@@ -1622,9 +1595,7 @@ function fmtValor(v) {
 }
 
 function renderCaixa() {
-  var sel = document.getElementById('caixa-mes-sel');
-  if (!sel) return;
-  var mes = sel.value;
+  var mes = (filtroAtivo === 'geral' || !filtroAtivo) ? mesAtualYM() : filtroAtivo;
 
   // Load from Supabase
   Promise.all([dbGetCaixa(mes), dbGetGastos(mes)]).then(function(results) {
@@ -1861,8 +1832,7 @@ function salvarMensalistaManual() {
   var nome = document.getElementById('mens-manual-nome').value.trim();
   var valor = parseFloat(document.getElementById('mens-manual-valor').value) || 0;
   if (!nome) { alert('INFORME O NOME.'); return; }
-  var sel = document.getElementById('caixa-mes-sel');
-  var mes = sel.value;
+  var mes = (filtroAtivo === 'geral' || !filtroAtivo) ? mesAtualYM() : filtroAtivo;
   var item = { id: uid(), mes: mes, tipo: 'mensalista', membro_id: null, nome: nome, pago: false, forma: null, valor: valor };
   dbUpsertCaixa(item).then(function(){
     fecharModalMensalistaManual(); renderCaixa(); toast('ADICIONADO!');
@@ -1881,8 +1851,7 @@ function salvarAvulso() {
   var nome = document.getElementById('avulso-nome').value.trim();
   var valor = parseFloat(document.getElementById('avulso-valor').value) || 0;
   if (!nome) { alert('INFORME O NOME DO AVULSO.'); return; }
-  var sel = document.getElementById('caixa-mes-sel');
-  var mes = sel.value;
+  var mes = (filtroAtivo === 'geral' || !filtroAtivo) ? mesAtualYM() : filtroAtivo;
   var item = { id: uid(), mes: mes, tipo: 'avulso', membro_id: null, nome: nome, pago: false, forma: null, valor: valor, rodada_id: avulsoRodadaAtiva };
   dbUpsertCaixa(item).then(function(){
     fecharModalAvulso(); renderCaixa(); toast('AVULSO ADICIONADO!');
@@ -1931,8 +1900,8 @@ function salvarGasto() {
   var valor = parseFloat(document.getElementById('gasto-valor').value) || 0;
   if (!desc) { alert('INFORME A DESCRICAO.'); return; }
   if (valor <= 0) { alert('INFORME UM VALOR VALIDO.'); return; }
-  var sel = document.getElementById('caixa-mes-sel');
-  var gasto = { id: uid(), mes: sel.value, descricao: desc, valor: valor };
+   var mes = (filtroAtivo === 'geral' || !filtroAtivo) ? mesAtualYM() : filtroAtivo;
+   var gasto = { id: uid(), mes: mes, descricao: desc, valor: valor };
   dbSaveGasto(gasto).then(function(){
     fecharModalGasto(); renderCaixa(); toast('GASTO REGISTRADO!');
   }).catch(function(e){ toast('ERRO: ' + e.message, 'err'); });
