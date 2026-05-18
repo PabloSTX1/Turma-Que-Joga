@@ -136,14 +136,69 @@
   .toast.ok{background:var(--azul);color:#fff;box-shadow:0 4px 20px rgba(26,79,189,.4);}
   .toast.err{background:#c0392b;color:#fff;}
   @media(max-width:600px){
-    .hero-stats{grid-template-columns:repeat(2,1fr);}
-    .hero-card .number{font-size:40px;}
-    .ranking-table th,.ranking-table td{padding:10px;}
-    .stat-entry-row,.col-labels{grid-template-columns:1fr 64px 64px 32px;}
-    .logo-text h1{font-size:22px;}
-  }
-
-  /* GOLEIRO */
+    /* HEADER */
+    .header{padding:0 12px;}
+    .header-inner{padding:8px 0;gap:8px;}
+    .logo-wrap{width:36px;height:36px;background-size:36px 36px;}
+    .logo-text h1{font-size:18px;}
+    .logo-text p{font-size:9px;}
+    .header-actions{gap:6px;}
+    .btn-nova-rodada{font-size:11px;padding:7px 10px;}
+    .admin-badge{font-size:10px;gap:4px;}
+    .btn-sair{font-size:10px;padding:4px 8px;}
+    /* TABS */
+    .tabs-inner{gap:0;overflow-x:auto;padding:0 8px;}
+    .tab-btn{font-size:11px;padding:12px 10px;white-space:nowrap;}
+    /* FILTRO */
+    #filtro-global-bar{padding:8px 12px;}
+    .filtro-label{font-size:11px;}
+    .pill{font-size:11px;padding:5px 10px;}
+    /* PAGES */
+    .page{padding:16px 0;}
+    .wrap{padding:0 12px;}
+    .section-title{font-size:20px;}
+    /* HERO STATS */
+    .hero-stats{grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px;}
+    .hero-card .number{font-size:32px;}
+    .hero-card .label{font-size:10px;}
+    /* RANKING TABLE */
+    .ranking-table th,.ranking-table td{padding:8px 6px;font-size:12px;}
+    .rank-num{width:28px;font-size:13px;}
+    .rank-avatar{width:30px;height:30px;font-size:14px;}
+    /* MEMBROS */
+    .membros-grid{grid-template-columns:1fr;gap:10px;}
+    .membro-card{padding:12px 14px;}
+    .membro-avatar{width:38px;height:38px;font-size:16px;}
+    .membro-nome{font-size:14px;}
+    /* RODADAS */
+    .rodada-card{padding:14px;}
+    .rodada-header{flex-wrap:wrap;gap:6px;}
+    /* GOLEIROS */
+    .goleiros-grid{grid-template-columns:repeat(2,1fr);}
+    /* CAIXA */
+    .caixa-total-box{flex-direction:column;gap:14px;}
+    .caixa-total-box > div:last-child{min-width:unset;width:100%;}
+    .caixa-total-valor{font-size:32px;}
+    .caixa-table th,.caixa-table td{font-size:12px;padding:8px 6px;}
+    .caixa-resumo{grid-template-columns:repeat(3,1fr);}
+    .caixa-card .ck-num{font-size:26px;}
+    /* MODAL */
+    .modal-rodada-box,.modal-membro-box,.modal-avulso-box,.modal-pgto-box,.modal-gasto-box{padding:20px 16px;margin:8px;}
+    .tipo-selector{grid-template-columns:repeat(2,1fr) !important;}
+    .tipo-btn{font-size:11px;padding:8px 4px;}
+    .stat-entry-row,.col-labels{grid-template-columns:1fr 56px 56px 28px;}
+    /* ORDENACAO */
+    .ord-btns{gap:6px;flex-wrap:wrap;}
+    .ord-btn{font-size:12px;padding:6px 10px;}
+    /* AVISOS */
+    .aviso-card{padding:14px 14px;}
+    .aviso-titulo-txt{font-size:17px;}
+    .aviso-corpo-txt{font-size:13px;}
+    /* PRESENCA GRID */
+    .presenca-btn{font-size:11px;}
+    /* MES ENTRADA LADO A LADO */
+    .form-group [style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr !important;}
+  }  /* GOLEIRO */
   .goleiro-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(26,79,189,0.18);border:1px solid var(--azul);border-radius:20px;padding:4px 12px;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:.5px;color:#7de87a;margin-top:8px;}
   .goleiro-badge span{font-size:16px;}
   .goleiro-destaque{background:rgba(125,232,122,0.07);border-left:3px solid #7de87a;padding:10px 16px;margin-top:10px;border-radius:0 8px 8px 0;}
@@ -187,6 +242,10 @@
   .aviso-acao.del:hover{color:#e74c3c;}
   .aviso-empty{text-align:center;padding:48px 24px;color:var(--muted);}
   .aviso-empty .icon{font-size:40px;margin-bottom:12px;}
+  .aviso-oculto{opacity:0.55;border-style:dashed;}
+  .aviso-badge.oculto-badge{background:rgba(150,150,150,0.12);color:var(--muted);border:1px solid rgba(150,150,150,0.3);}
+  .ocultar-btn{color:var(--muted);}
+  .ocultar-btn:hover{color:#f0c040;}
   .tipo-btn.active[data-aviso-tipo="urgente"]{background:rgba(231,76,60,0.15);color:#e74c3c;border-color:#e74c3c;}
   .tipo-btn.active[data-aviso-tipo="fixado"]{background:rgba(240,192,64,0.15);color:#f0c040;border-color:#f0c040;}
   .tipo-btn.active[data-aviso-tipo="normal"]{background:rgba(26,79,189,0.2);color:#7ab3ff;border-color:#1a4fbd;}
@@ -326,7 +385,7 @@
   .btn-desfazer{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;background:transparent;color:#e74c3c;border:1px solid rgba(231,76,60,.3);padding:8px;border-radius:6px;cursor:pointer;width:100%;margin-top:8px;transition:all .2s;}
   .btn-desfazer:hover{background:rgba(231,76,60,.08);border-color:#e74c3c;}
 
-  @media(max-width:600px){.caixa-resumo{grid-template-columns:repeat(3,1fr);} .caixa-card .ck-num{font-size:28px;}}
+  
 
   .valor-input{background:var(--preto);border:1px solid var(--azul-linha);border-radius:6px;color:#7de87a;font-family:'Barlow',sans-serif;font-size:14px;padding:9px 12px;outline:none;width:100%;transition:border-color .2s;}
   .valor-input:focus{border-color:#7de87a;}
@@ -406,7 +465,7 @@
 </div>
 
 <!-- FILTRO GLOBAL UNIFICADO -->
-<div class="tabs" style="border-top:none;border-bottom:2px solid var(--azul-linha);padding:10px 20px;">
+<div class="tabs" id="filtro-global-bar" style="border-top:none;border-bottom:2px solid var(--azul-linha);padding:10px 20px;display:none;">
   <div style="max-width:960px;margin:0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
     <span class="filtro-label">PERIODO:</span>
     <div class="filtro-pills" id="filtro-pills-global"></div>
@@ -596,7 +655,7 @@
           ENTRADAS: <span id="ck-entradas">R$ 0</span> &nbsp;|&nbsp; GASTOS: <span id="ck-gastos-total">R$ 0</span>
         </div>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;min-width:280px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;min-width:0;width:100%;">
         <div class="caixa-card pago" style="margin:0;"><div class="ck-num" id="ck-pago">0</div><div class="ck-label">PAGARAM</div></div>
         <div class="caixa-card pendente" style="margin:0;"><div class="ck-num" id="ck-pendente">0</div><div class="ck-label">PENDENTES</div></div>
       </div>
@@ -984,11 +1043,13 @@ function toggleRodada(id) {
   document.getElementById('body-'+id).classList.toggle('open');
   document.getElementById('chev-'+id).classList.toggle('open');
 }
-function switchTab(tab, btn) {
+ function switchTab(tab, btn) {
   document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
   document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
   document.getElementById('page-'+tab).classList.add('active');
   btn.classList.add('active');
+  var filtroBar = document.getElementById('filtro-global-bar');
+  if (filtroBar) filtroBar.style.display = tab === 'avisos' ? 'none' : '';
 }
 
 function openModalRodada(edit) {
@@ -1305,7 +1366,13 @@ function dbSaveAviso(a) {
     .then(function(r){ if(!r.ok) throw new Error(r.status); });
 }
 function dbUpdateAviso(a) {
-  return fetch(API_AVISOS + '?id=eq.' + a.id, { method:'PATCH', headers:H, body:JSON.stringify({titulo:a.titulo,corpo:a.corpo,tipo:a.tipo,fixado:a.tipo==='fixado'}) })
+  var payload = {titulo:a.titulo,corpo:a.corpo,tipo:a.tipo,fixado:a.tipo==='fixado'};
+  if (a.oculto !== undefined) payload.oculto = a.oculto;
+  return fetch(API_AVISOS + '?id=eq.' + a.id, { method:'PATCH', headers:H, body:JSON.stringify(payload) })
+    .then(function(r){ if(!r.ok) throw new Error(r.status); });
+}
+function dbToggleOculto(id, oculto) {
+  return fetch(API_AVISOS + '?id=eq.' + id, { method:'PATCH', headers:H, body:JSON.stringify({oculto:oculto}) })
     .then(function(r){ if(!r.ok) throw new Error(r.status); });
 }
 function dbDeleteAviso(id) {
@@ -1322,27 +1389,31 @@ function renderAvisos() {
   if (!container) return;
   container.innerHTML = '';
 
-  // Sort: fixados primeiro, depois por data desc
   var sorted = avisos.slice().sort(function(a,b){
     if ((a.fixado||a.tipo==='fixado') && !(b.fixado||b.tipo==='fixado')) return -1;
     if (!(a.fixado||a.tipo==='fixado') && (b.fixado||b.tipo==='fixado')) return 1;
     return (b.created_at||'').localeCompare(a.created_at||'');
   });
 
-  if (!sorted.length) {
+  // Visitantes não veem ocultos
+  var visiveis = adminLogado ? sorted : sorted.filter(function(a){ return !a.oculto; });
+
+  if (!visiveis.length) {
     container.innerHTML = '<div class="aviso-empty"><div class="icon">&#128227;</div><p>Nenhum aviso publicado ainda.</p></div>';
     return;
   }
 
-  sorted.forEach(function(a) {
+  visiveis.forEach(function(a) {
     var card = document.createElement('div');
     var tipo = a.tipo || 'normal';
-    card.className = 'aviso-card' + (tipo === 'fixado' ? ' fixado' : tipo === 'urgente' ? ' urgente' : '');
+    var isOculto = !!a.oculto;
+    card.className = 'aviso-card' + (tipo==='fixado' ? ' fixado' : tipo==='urgente' ? ' urgente' : '') + (isOculto ? ' aviso-oculto' : '');
 
     var header = '<div class="aviso-header">';
     header += '<span class="aviso-badge cupula">&#128081; CUPULA</span>';
     if (tipo === 'urgente') header += '<span class="aviso-badge urgente">&#128680; URGENTE</span>';
     if (tipo === 'fixado')  header += '<span class="aviso-badge fixado">&#128204; FIXADO</span>';
+    if (isOculto)           header += '<span class="aviso-badge oculto-badge">&#128065; OCULTO</span>';
     header += '<span class="aviso-data">' + fmtDataAviso(a.created_at) + '</span>';
     header += '</div>';
 
@@ -1351,8 +1422,10 @@ function renderAvisos() {
 
     var footer = '';
     if (adminLogado) {
+      var labelOculto = isOculto ? '&#128065; Mostrar' : '&#128683; Ocultar';
       footer = '<div class="aviso-footer">'
         + '<button class="aviso-acao" onclick="editarAviso(\'' + a.id + '\')">&#9998; Editar</button>'
+        + '<button class="aviso-acao ocultar-btn" onclick="toggleOcultarAviso(\'' + a.id + '\',' + isOculto + ')">' + labelOculto + '</button>'
         + '<button class="aviso-acao del" onclick="deletarAviso(\'' + a.id + '\')">&#215; Excluir</button>'
         + '</div>';
     }
@@ -1431,6 +1504,16 @@ function salvarAviso() {
   promise.then(function(){ fecharModalAviso(); renderAvisos(); })
     .catch(function(e){ toast('ERRO: ' + e.message, 'err'); })
     .finally(function(){ btn.textContent = 'PUBLICAR'; btn.disabled = false; });
+}
+
+function toggleOcultarAviso(id, atualOculto) {
+  var novoOculto = !atualOculto;
+  dbToggleOculto(id, novoOculto).then(function(){
+    var a = avisos.find(function(x){ return x.id===id; });
+    if (a) a.oculto = novoOculto;
+    renderAvisos();
+    toast(novoOculto ? 'AVISO OCULTADO DOS VISITANTES.' : 'AVISO VISIVEL PARA TODOS.');
+  }).catch(function(e){ toast('ERRO: ' + e.message, 'err'); });
 }
 
 function editarAviso(id) { openModalAviso(id); }
