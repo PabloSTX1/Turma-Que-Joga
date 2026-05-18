@@ -383,12 +383,7 @@
       <button class="ord-btn" id="ord-total" onclick="setOrdenacao('total')">🏅 Participações</button>
     </div>
     <div class="section-title" id="ranking-titulo">Artilharia Geral</div>
-    <div class="ordenacao-bar">
-      <span class="ordenacao-label">Ordenar por:</span>
-      <button class="ord-btn active-gols" id="ord-gols" onclick="setOrdenacao('gols',this)">⚽ Gols</button>
-      <button class="ord-btn" id="ord-assists" onclick="setOrdenacao('assists',this)">🎯 Assistências</button>
-      <button class="ord-btn" id="ord-total" onclick="setOrdenacao('total',this)">🏅 Participações</button>
-    </div>
+    
     <div id="ranking-container"><div class="loading"><div class="spinner"></div>Carregando...</div></div>
   </div>
 </div>
@@ -747,7 +742,18 @@ function computeRanking() {
     });
   });
   return Object.values(map).sort(function(a,b) {
-    return b.gols !== a.gols ? b.gols - a.gols : (b.gols+b.assists) - (a.gols+a.assists);
+    if (ordenacaoAtiva === 'assists') {
+      if (b.assists !== a.assists) return b.assists - a.assists;
+      return (b.gols+b.assists) - (a.gols+a.assists);
+    } else if (ordenacaoAtiva === 'total') {
+      var totalB = b.gols + b.assists;
+      var totalA = a.gols + a.assists;
+      if (totalB !== totalA) return totalB - totalA;
+      return b.gols - a.gols;
+    } else {
+      if (b.gols !== a.gols) return b.gols - a.gols;
+      return (b.gols+b.assists) - (a.gols+a.assists);
+    }
   });
 }
 
