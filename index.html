@@ -313,6 +313,15 @@
   .ord-btn.active-gols{background:rgba(91,200,255,0.15);color:#5bc8ff;border-color:#5bc8ff;}
   .ord-btn.active-assists{background:rgba(125,232,122,0.15);color:#7de87a;border-color:#7de87a;}
   .ord-btn.active-total{background:rgba(232,100,26,0.15);color:var(--laranja);border-color:var(--laranja);}
+
+  /* ORDENACAO RANKING */
+  .ordenacao-bar{display:flex;align-items:center;gap:8px;margin-bottom:20px;flex-wrap:wrap;}
+  .ordenacao-label{font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);flex-shrink:0;}
+  .ord-btn{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;background:transparent;color:var(--muted);border:1.5px solid var(--azul-linha);padding:6px 16px;border-radius:20px;cursor:pointer;transition:all .2s;white-space:nowrap;}
+  .ord-btn:hover{border-color:var(--azul);color:var(--branco);}
+  .ord-btn.active-gols{background:#1a4fbd;color:#fff;border-color:#1a4fbd;}
+  .ord-btn.active-assists{background:#2a6040;color:#7de87a;border-color:#7de87a;}
+  .ord-btn.active-total{background:#5a2a00;color:var(--laranja);border-color:var(--laranja);}
 </style>
 </head>
 <body>
@@ -367,7 +376,13 @@
       <div class="hero-card"><div class="number" id="total-jogadores">-</div><div class="label">Jogadores</div></div>
       <div class="hero-card" style="border-top-color:var(--laranja);"><div class="number" id="top-goleiro" style="font-size:28px;padding-top:4px;">-</div><div class="label">Goleiro Lider</div></div>
     </div>
-    <div class="section-title">Artilharia Geral</div>
+    <div class="ordenacao-bar">
+      <span class="ordenacao-label">Ordenar por:</span>
+      <button class="ord-btn active-gols" id="ord-gols" onclick="setOrdenacao('gols')">⚽ Gols</button>
+      <button class="ord-btn" id="ord-assists" onclick="setOrdenacao('assists')">🎯 Assistências</button>
+      <button class="ord-btn" id="ord-total" onclick="setOrdenacao('total')">🏅 Participações</button>
+    </div>
+    <div class="section-title" id="ranking-titulo">Artilharia Geral</div>
     <div class="ordenacao-bar">
       <span class="ordenacao-label">Ordenar por:</span>
       <button class="ord-btn active-gols" id="ord-gols" onclick="setOrdenacao('gols',this)">⚽ Gols</button>
@@ -966,6 +981,20 @@ function deletarRodada(id) {
   }).catch(function(e) {
     toast('Erro ao excluir.', 'err');
   });
+}
+
+var ordenacaoAtiva = 'gols'; // 'gols' | 'assists' | 'total'
+
+function setOrdenacao(tipo) {
+  ordenacaoAtiva = tipo;
+  // Update button styles
+  document.getElementById('ord-gols').className    = 'ord-btn' + (tipo==='gols'    ? ' active-gols'    : '');
+  document.getElementById('ord-assists').className = 'ord-btn' + (tipo==='assists' ? ' active-assists'  : '');
+  document.getElementById('ord-total').className   = 'ord-btn' + (tipo==='total'   ? ' active-total'   : '');
+  // Update section title
+  var titles = { gols: 'Artilharia Geral', assists: 'Ranking de Assistências', total: 'Ranking de Participações' };
+  document.getElementById('ranking-titulo').textContent = titles[tipo];
+  render();
 }
 
 var _hoje = new Date();
