@@ -427,7 +427,13 @@
   <div class="wrap">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
       <div class="section-title" style="margin-bottom:0;flex:1;">MEMBROS DA PELADA</div>
-      <button class="btn-add-membro admin-only" onclick="openModalMembro('mensalista')" style="display:none;">+ Adicionar Membro</button>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <span class="filtro-label">MÊS:</span>
+        <select class="filtro-select" id="membros-mes-sel" onchange="renderMembros()">
+          <option value="">Todos os meses</option>
+        </select>
+        <button class="btn-add-membro admin-only" onclick="openModalMembro('mensalista')" style="display:none;">+ Adicionar Membro</button>
+      </div>
     </div>
     <div class="membros-secao-titulo presidente" style="color:#f0c040;">&#128081; Presidentes</div>
     <div class="membros-grid" id="membros-grid-presidente">
@@ -494,6 +500,10 @@
     <h2 id="modal-membro-titulo">NOVO MEMBRO</h2>
     <div class="form-group"><label>NOME COMPLETO</label><input type="text" id="membro-nome" placeholder="Nome do membro"></div>
     <div class="form-group"><label>DATA DE ANIVERSARIO</label><input type="date" id="membro-aniv"></div>
+    <div class="form-group" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <div><label>MÊS DE ENTRADA</label><input type="month" id="membro-mes-entrada" placeholder="YYYY-MM"></div>
+      <div><label>MÊS DE SAÍDA (opcional)</label><input type="month" id="membro-mes-saida" placeholder="YYYY-MM"></div>
+    </div>
     <div class="form-group">
       <label>CATEGORIA</label>
       <div class="tipo-selector" id="tipo-selector" style="grid-template-columns:repeat(4,1fr);">
@@ -1320,7 +1330,7 @@ function dbSaveMembro(m) {
   return fetch(API_MEMBROS, { method:'POST', headers:H, body:JSON.stringify(m) }).then(function(r){ if(!r.ok) throw new Error(r.status); });
 }
 function dbUpdateMembro(m) {
-  return fetch(API_MEMBROS + '?id=eq.' + m.id, { method:'PATCH', headers:H, body:JSON.stringify({nome:m.nome,aniversario:m.aniversario,tipo:m.tipo||'mensalista'}) }).then(function(r){ if(!r.ok) throw new Error(r.status); });
+  return fetch(API_MEMBROS + '?id=eq.' + m.id, { method:'PATCH', headers:H, body:JSON.stringify({nome:m.nome,aniversario:m.aniversario,tipo:m.tipo||'mensalista',mes_entrada:m.mes_entrada||null,mes_saida:m.mes_saida||null}) }).then(function(r){ if(!r.ok) throw new Error(r.status); });
 }
 function dbDeleteMembro(id) {
   return fetch(API_MEMBROS + '?id=eq.' + id, { method:'DELETE', headers:H_GET }).then(function(r){ if(!r.ok) throw new Error(r.status); });
@@ -1493,25 +1503,28 @@ function salvarMembro() {
   var nome = document.getElementById('membro-nome').value.trim();
   var aniv = document.getElementById('membro-aniv').value;
   var tipo = document.getElementById('membro-tipo').value || 'mensalista';
+  var mesEntrada = document.getElementById('membro-mes-entrada').value || null;
+  var mesSaida   = document.getElementById('membro-mes-saida').value || null;
   if (!nome) { alert('INFORME O NOME DO MEMBRO.'); return; }
   var btn = document.querySelector('#modal-membro .btn-save');
   btn.textContent = 'SALVANDO...'; btn.disabled = true;
   var promise;
   if (editingMembroId) {
-    var obj = { id: editingMembroId, nome: nome, aniversario: aniv, tipo: tipo };
+    var obj = { id: editingMembroId, nome: nome, aniversario: aniv, tipo: tipo, mes_entrada: mesEntrada, mes_saida: mesSaida };
     promise = dbUpdateMembro(obj).then(function(){
       var idx = membros.findIndex(function(m){ return m.id===editingMembroId; });
       if (idx !== -1) membros[idx] = obj;
       toast('MEMBRO ATUALIZADO!');
     });
   } else {
-    var obj = { id: uid(), nome: nome, aniversario: aniv, tipo: tipo };
+    var obj = { id: uid(), nome: nome, aniversario: aniv, tipo: tipo, mes_entrada: mesEntrada, mes_saida: mesSaida };
     promise = dbSaveMembro(obj).then(function(){
       membros.push(obj);
-      toast(tipo === 'avulso' ? 'AVULSO ADICIONADO!' : 'MENSALISTA ADICIONADO!');
+      toast('MEMBRO ADICIONADO!');
     });
   }
   promise.then(function(){
+    buildMembrosmesSel();
     renderMembros(); checkAniversarios(); fecharModalMembro();
   }).catch(function(e){ toast('ERRO: ' + e.message, 'err'); })
   .finally(function(){ btn.textContent = 'SALVAR'; btn.disabled = false; });
