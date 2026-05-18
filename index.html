@@ -367,7 +367,7 @@
       </div>
     </div>
     <div style="display:flex;align-items:center;gap:12px;">
-      <div class="admin-badge">&#128273; PRESIDENCIA <button class="btn-sair" onclick="sair()">SAIR</button></div>
+      <div class="admin-badge">&#128273; CUPULA <button class="btn-sair" onclick="sair()">SAIR</button></div>
       <button class="btn-nova" onclick="openModalRodada()">+ NOVA RODADA</button>
     </div>
   </div>
@@ -457,7 +457,7 @@
 
 <div class="modal-overlay" id="modal-login" onclick="fecharLoginFora(event)">
   <div class="modal-login-box">
-    <h2>AREA DA PRESIDENCIA</h2>
+    <h2>AREA DA CUPULA</h2>
     <p class="modal-sub">ACESSO EXCLUSIVO PARA GERENCIAR AS RODADAS</p>
     <div class="form-group"><label>USUARIO</label><input type="text" id="login-user" placeholder="USUARIO" autocomplete="off"></div>
     <div class="form-group"><label>SENHA</label><input type="password" id="login-pass" placeholder="SENHA" onkeydown="if(event.key==='Enter')fazerLogin()"></div>
@@ -727,7 +727,7 @@ function fazerLogin() {
   var u = document.getElementById('login-user').value.trim();
   var p = document.getElementById('login-pass').value;
   if (u === ADMIN_USER && p === ADMIN_PASS) {
-    fecharLogin(); setAdmin(true); toast('BEM-VINDO, PRESIDENCIA!'); render(); renderCaixa(); renderMembros();
+    fecharLogin(); setAdmin(true); toast('BEM-VINDO, CUPULA!'); render(); renderCaixa(); renderMembros();
   } else {
     document.getElementById('login-error').classList.add('show');
     document.getElementById('login-pass').value = '';
