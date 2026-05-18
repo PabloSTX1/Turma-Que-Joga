@@ -548,6 +548,7 @@
     <div class="caixa-section-title">
       MENSALISTAS
       <div class="caixa-section-line"></div>
+      <button class="btn-add-avulso acao-col" style="display:none;white-space:nowrap;" onclick="openModalMensalistaManual()">+ Adicionar</button>
     </div>
     <table class="caixa-table">
       <thead><tr>
@@ -598,6 +599,19 @@
     <div class="modal-actions">
       <button class="btn-cancel" onclick="fecharModalAvulso()">CANCELAR</button>
       <button class="btn-save" onclick="salvarAvulso()">ADICIONAR</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL MENSALISTA MANUAL -->
+<div class="modal-overlay" id="modal-mensalista-manual" onclick="if(event.target===this)fecharModalMensalistaManual()">
+  <div class="modal-avulso-box">
+    <h2>Adicionar Manualmente</h2>
+    <div class="form-group"><label>Nome</label><input type="text" id="mens-manual-nome" placeholder="Nome completo"></div>
+    <div class="form-group"><label>Valor (R$)</label><input type="number" id="mens-manual-valor" placeholder="0.00" min="0" step="0.01" class="valor-input"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="fecharModalMensalistaManual()">CANCELAR</button>
+      <button class="btn-save" onclick="salvarMensalistaManual()">ADICIONAR</button>
     </div>
   </div>
 </div>
@@ -1130,6 +1144,7 @@ function init() {
     buildGlobalPills();
     render();
     loadMembros().then(function(){
+      buildMembrosmesSel();
       renderMembros();
       checkAniversarios();
       buildCaixaMesSel();
@@ -1386,6 +1401,32 @@ function formatAniv(dateStr) {
   return p[2] + ' de ' + MESES_NOME[parseInt(p[1],10)-1];
 }
 
+function buildMembrosmesSel() {
+  var sel = document.getElementById('membros-mes-sel');
+  if (!sel) return;
+  var meses = {};
+  membros.forEach(function(m){ if (m.mes_entrada) meses[m.mes_entrada] = true; });
+  var lista = Object.keys(meses).sort().reverse();
+  var cur = sel.value;
+  sel.innerHTML = '<option value="">Todos os meses</option>';
+  lista.forEach(function(ym) {
+    var opt = document.createElement('option');
+    opt.value = ym;
+    opt.textContent = formatMesAno(ym);
+    if (ym === cur) opt.selected = true;
+    sel.appendChild(opt);
+  });
+}
+
+function membroAtivoNoMes(m, mes) {
+  if (!mes) return true; // sem filtro = todos
+  var entrada = m.mes_entrada || null;
+  var saida   = m.mes_saida   || null;
+  if (entrada && mes < entrada) return false;
+  if (saida   && mes > saida)   return false;
+  return true;
+}
+
 function renderMembros() {
   var gridM = document.getElementById('membros-grid-mensalista');
   var gridA = document.getElementById('membros-grid-avulso');
@@ -1393,19 +1434,21 @@ function renderMembros() {
   var gridP = document.getElementById('membros-grid-presidente');
   if (!gridM || !gridA || !gridG || !gridP) return;
   var hoje = getDiaMes();
+  var mesFiltro = (document.getElementById('membros-mes-sel') || {}).value || '';
   gridM.innerHTML = '';
   gridA.innerHTML = '';
   gridG.innerHTML = '';
   gridP.innerHTML = '';
 
-  var mensalistas = membros.filter(function(m){ return (m.tipo || 'mensalista') === 'mensalista'; })
-    .sort(function(a,b){ return a.nome.localeCompare(b.nome); });
-  var avulsos = membros.filter(function(m){ return m.tipo === 'avulso'; })
-    .sort(function(a,b){ return a.nome.localeCompare(b.nome); });
-  var goleiros = membros.filter(function(m){ return m.tipo === 'goleiro'; })
-    .sort(function(a,b){ return a.nome.localeCompare(b.nome); });
-  var presidentes = membros.filter(function(m){ return m.tipo === 'presidente'; })
-    .sort(function(a,b){ return a.nome.localeCompare(b.nome); });
+  function filtrar(tipo) {
+    return membros.filter(function(m){
+      return m.tipo === tipo && membroAtivoNoMes(m, mesFiltro);
+    }).sort(function(a,b){ return a.nome.localeCompare(b.nome); });
+  }
+  var mensalistas  = membros.filter(function(m){ return (m.tipo==='mensalista'||!m.tipo) && membroAtivoNoMes(m,mesFiltro); }).sort(function(a,b){return a.nome.localeCompare(b.nome);});
+  var avulsos      = filtrar('avulso');
+  var goleiros     = filtrar('goleiro');
+  var presidentes  = filtrar('presidente');
 
   function buildCard(m, grid) {
     var parts = (m.aniversario||'').split('-');
@@ -1432,6 +1475,14 @@ function renderMembros() {
     var nomeEl = document.createElement('div'); nomeEl.className = 'membro-nome'; nomeEl.textContent = m.nome;
     var anivEl = document.createElement('div'); anivEl.className = 'membro-aniv'; anivEl.textContent = 'ANIVERSARIO: ' + formatAniv(m.aniversario);
     info.appendChild(nomeEl); info.appendChild(anivEl);
+    // Mês entrada/saída
+    if (m.mes_entrada) {
+      var mesEl = document.createElement('div');
+      mesEl.className = 'membro-aniv';
+      mesEl.style.marginTop = '2px';
+      mesEl.textContent = 'DESDE: ' + formatMesAno(m.mes_entrada) + (m.mes_saida ? ' • ATÉ: ' + formatMesAno(m.mes_saida) : '');
+      info.appendChild(mesEl);
+    }
     card.appendChild(info);
     if (adminLogado) {
       var actions = document.createElement('div');
@@ -1452,17 +1503,17 @@ function renderMembros() {
     grid.appendChild(e);
   }
 
-  if (!mensalistas.length) emptyState(gridM, '&#128100;', 'Nenhum mensalista cadastrado');
+  if (!presidentes.length) emptyState(gridP, '&#128081;', 'Nenhum presidente' + (mesFiltro ? ' neste mês' : ' cadastrado'));
+  else presidentes.forEach(function(m){ buildCard(m, gridP); });
+
+  if (!mensalistas.length) emptyState(gridM, '&#128100;', 'Nenhum mensalista' + (mesFiltro ? ' neste mês' : ' cadastrado'));
   else mensalistas.forEach(function(m){ buildCard(m, gridM); });
 
-  if (!avulsos.length) emptyState(gridA, '&#9889;', 'Nenhum avulso frequente cadastrado');
+  if (!avulsos.length) emptyState(gridA, '&#9889;', 'Nenhum avulso' + (mesFiltro ? ' neste mês' : ' cadastrado'));
   else avulsos.forEach(function(m){ buildCard(m, gridA); });
 
-  if (!goleiros.length) emptyState(gridG, '&#129508;', 'Nenhum goleiro cadastrado');
+  if (!goleiros.length) emptyState(gridG, '&#129508;', 'Nenhum goleiro' + (mesFiltro ? ' neste mês' : ' cadastrado'));
   else goleiros.forEach(function(m){ buildCard(m, gridG); });
-
-  if (!presidentes.length) emptyState(gridP, '&#128081;', 'Nenhum presidente cadastrado');
-  else presidentes.forEach(function(m){ buildCard(m, gridP); });
 }
 
 
@@ -1475,7 +1526,6 @@ function setTipoMembro(tipo) {
 
 function openModalMembro(tipoOuEdit) {
   tipoOuEdit = tipoOuEdit || 'mensalista';
-  // If it's an ID (editing), find the member; otherwise it's a tipo string
   var isEdit = membros.find(function(x){ return x.id === tipoOuEdit; });
   editingMembroId = isEdit ? tipoOuEdit : null;
   var tipoDefault = isEdit ? (isEdit.tipo || 'mensalista') : tipoOuEdit;
@@ -1484,11 +1534,17 @@ function openModalMembro(tipoOuEdit) {
     var m = isEdit;
     document.getElementById('membro-nome').value = m.nome;
     document.getElementById('membro-aniv').value = m.aniversario || '';
+    document.getElementById('membro-mes-entrada').value = m.mes_entrada || '';
+    document.getElementById('membro-mes-saida').value = m.mes_saida || '';
     document.getElementById('membro-tipo').value = m.tipo || 'mensalista';
     setTipoMembro(m.tipo || 'mensalista');
   } else {
+    var agora = new Date();
+    var mesAtual = agora.getFullYear() + '-' + String(agora.getMonth()+1).padStart(2,'0');
     document.getElementById('membro-nome').value = '';
     document.getElementById('membro-aniv').value = '';
+    document.getElementById('membro-mes-entrada').value = mesAtual;
+    document.getElementById('membro-mes-saida').value = '';
     document.getElementById('membro-tipo').value = tipoDefault;
     setTipoMembro(tipoDefault);
   }
@@ -1575,11 +1631,12 @@ function renderCaixa() {
     caixaItens  = results[0];
     gastosItens = results[1];
 
-    // Ensure only mensalistas and presidentes have caixa entries
-    var existingIds = caixaItens.filter(function(c){ return c.tipo==='mensalista'; }).map(function(c){ return c.membro_id; });
-    var toCreate = membros.filter(function(m){
-      return (m.tipo === 'mensalista' || m.tipo === 'presidente' || !m.tipo) && existingIds.indexOf(m.id) === -1;
+    // Ensure only membros ativos neste mês (mensalistas e presidentes) têm entradas na caixa
+    var membrosAtivos = membros.filter(function(m){
+      return (m.tipo === 'mensalista' || m.tipo === 'presidente' || !m.tipo) && membroAtivoNoMes(m, mes);
     });
+    var existingIds = caixaItens.filter(function(c){ return c.tipo==='mensalista'; }).map(function(c){ return c.membro_id; });
+    var toCreate = membrosAtivos.filter(function(m){ return existingIds.indexOf(m.id) === -1; });
     var createPromises = toCreate.map(function(m){
       var item = { id: uid(), mes: mes, tipo: 'mensalista', membro_id: m.id, nome: m.nome, pago: false, forma: null, valor: 0 };
       caixaItens.push(item);
@@ -1793,6 +1850,25 @@ function atualizarValor(id, valor, mes) {
 }
 
 // Modal avulso
+function openModalMensalistaManual() {
+  document.getElementById('mens-manual-nome').value = '';
+  document.getElementById('mens-manual-valor').value = '';
+  document.getElementById('modal-mensalista-manual').classList.add('open');
+  setTimeout(function(){ document.getElementById('mens-manual-nome').focus(); }, 100);
+}
+function fecharModalMensalistaManual() { document.getElementById('modal-mensalista-manual').classList.remove('open'); }
+function salvarMensalistaManual() {
+  var nome = document.getElementById('mens-manual-nome').value.trim();
+  var valor = parseFloat(document.getElementById('mens-manual-valor').value) || 0;
+  if (!nome) { alert('INFORME O NOME.'); return; }
+  var sel = document.getElementById('caixa-mes-sel');
+  var mes = sel.value;
+  var item = { id: uid(), mes: mes, tipo: 'mensalista', membro_id: null, nome: nome, pago: false, forma: null, valor: valor };
+  dbUpsertCaixa(item).then(function(){
+    fecharModalMensalistaManual(); renderCaixa(); toast('ADICIONADO!');
+  }).catch(function(e){ toast('ERRO: ' + e.message, 'err'); });
+}
+
 function openModalAvulso() {
   if (!avulsoRodadaAtiva) { toast('SELECIONE UMA RODADA PRIMEIRO.', 'err'); return; }
   document.getElementById('avulso-nome').value = '';
