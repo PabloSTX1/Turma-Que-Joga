@@ -759,7 +759,7 @@ function render() {
   var topGEl = document.getElementById('top-goleiro');
   if (grank.length > 0) {
     topGEl.textContent = grank[0].nome;
-    topGEl.style.fontSize = grank[0].nome.length > 8 ? '16px' : '22px';
+    topGEl.style.fontSize = grank[0].nome.length > 12 ? '20px' : grank[0].nome.length > 8 ? '24px' : '30px';
     topGEl.title = grank[0].vitorias + ' vitoria(s)';
   } else {
     topGEl.textContent = '-';
