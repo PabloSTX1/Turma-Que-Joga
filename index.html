@@ -332,7 +332,7 @@
       <div class="logo-wrap" onclick="abrirLogin()"></div>
       <div class="logo-text">
         <h1>Turma Que Joga <span>FC</span></h1>
-        <p>&#9917; Domingos &middot; 10h da manhã</p>
+        <p>&#9917; Domingos &middot; 10h da manh&#227;</p>
       </div>
     </div>
     <div style="display:flex;align-items:center;gap:12px;">
@@ -366,10 +366,10 @@
 <div class="page active" id="page-ranking">
   <div class="wrap">
     <div class="aniversário-banner" id="aniversario-banner">
-      <div class="aniversário-icon">&#127874;</div>
-      <div class="aniversário-texto">
+      <div class="aniversario-icon">&#127874;</div>
+      <div class="aniversario-texto">
         <h3>Feliz Aniversário!</h3>
-        <p>Hoje é aniversário de <span class="aniversário-nomes" id="aniversario-nomes"></span>!</p>
+        <p>Hoje é aniversário de <span class="aniversario-nomes" id="aniversario-nomes"></span>!</p>
       </div>
     </div>
     <div class="filtro-bar">
@@ -1125,7 +1125,7 @@ function getAniversariantesHoje() {
   });
 }
 
-function checkAniversários() {
+function checkAniversarios() {
   var anivs = getAniversariantesHoje();
   var banner = document.getElementById('aniversario-banner');
   var nomes  = document.getElementById('aniversario-nomes');
@@ -1332,17 +1332,6 @@ function getAniversariantesHoje() {
     if (parts.length < 3) return false;
     return parts[1] + '-' + parts[2] === hoje;
   });
-}
-function checkAniversários() {
-  var anivs = getAniversariantesHoje();
-  var banner = document.getElementById('aniversario-banner');
-  var nomes  = document.getElementById('aniversario-nomes');
-  if (anivs.length > 0) {
-    nomes.textContent = anivs.map(function(m){ return m.nome; }).join(', ');
-    banner.classList.add('show');
-  } else {
-    banner.classList.remove('show');
-  }
 }
 
 var MESES_NOME = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
