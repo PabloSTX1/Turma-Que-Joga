@@ -783,7 +783,7 @@ function fazerLogin() {
   var u = document.getElementById('login-user').value.trim();
   var p = document.getElementById('login-pass').value;
   if (u === ADMIN_USER && p === ADMIN_PASS) {
-    fecharLogin(); setAdmin(true); toast('BEM-VINDO, CUPULA!'); render(); renderCaixa(); renderMembros();
+    fecharLogin(); setAdmin(true); toast('BEM-VINDO, CUPULA!'); render(); renderCaixa(); renderMembros(); renderAvisos();
   } else {
     document.getElementById('login-error').classList.add('show');
     document.getElementById('login-pass').value = '';
@@ -793,6 +793,7 @@ function fazerLogin() {
 function sair() {
   setAdmin(false);
   toast('SESSAO ENCERRADA.');
+  renderAvisos();
   // If on caixa tab, redirect to ranking
   var caixaPage = document.getElementById('page-caixa');
   if (caixaPage && caixaPage.classList.contains('active')) {
