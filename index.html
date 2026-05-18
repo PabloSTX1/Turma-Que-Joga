@@ -217,8 +217,8 @@
   .tipo-btn.active[data-tipo="avulso"]{background:rgba(232,100,26,0.2);color:var(--laranja);border-color:var(--laranja);}
   .tipo-btn.active[data-tipo="goleiro"]{background:rgba(125,232,122,0.2);color:#7de87a;border-color:#7de87a;}
   .membro-avatar.presidente{border-color:#f0c040;color:#f0c040;background:rgba(240,192,64,0.12);}
-  .presidente-card{border-color:rgba(240,192,64,0.4);background:linear-gradient(135deg,rgba(240,192,64,0.06) 0%,transparent 60%);}
-  .membro-badge-presidente{font-family:'Bebas Neue',sans-serif;font-size:10px;letter-spacing:1.5px;color:#f0c040;background:rgba(240,192,64,0.15);border:1px solid rgba(240,192,64,0.35);border-radius:4px;padding:2px 7px;display:inline-block;margin-bottom:6px;align-self:flex-start;}
+  .presidente-card{border-color:rgba(240,192,64,0.4);background:linear-gradient(135deg,rgba(240,192,64,0.06) 0%,transparent 60%);position:relative;}
+  .membro-badge-presidente{position:absolute;top:8px;right:10px;font-family:'Bebas Neue',sans-serif;font-size:10px;letter-spacing:1.5px;color:#f0c040;background:rgba(240,192,64,0.15);border:1px solid rgba(240,192,64,0.35);border-radius:4px;padding:2px 7px;}
   .membros-secao-titulo.presidente::after{background:rgba(240,192,64,0.3);}
   .tipo-btn.active[data-tipo="presidente"]{background:rgba(240,192,64,0.2);color:#f0c040;border-color:#f0c040;}
   .membro-info{flex:1;min-width:0;}
@@ -517,7 +517,7 @@
         <button type="button" class="tipo-btn active" data-tipo="mensalista" onclick="setTipoMembro('mensalista')">&#128100; Mensalista</button>
         <button type="button" class="tipo-btn" data-tipo="avulso" onclick="setTipoMembro('avulso')">&#9889; Avulso</button>
         <button type="button" class="tipo-btn" data-tipo="goleiro" onclick="setTipoMembro('goleiro')">&#129508; Goleiro</button>
-        <button type="button" class="tipo-btn" data-tipo="presidente" onclick="setTipoMembro('presidente')">&#128081; Presidente</button>
+        <button type="button" class="tipo-btn" data-tipo="presidente" onclick="setTipoMembro('presidente')">&#128081; Cupula</button>
       </div>
     </div>
     <input type="hidden" id="membro-tipo" value="mensalista">
@@ -1012,7 +1012,7 @@ function buildPresencaGrid(jaAdicionados) {
       btn.classList.add((m.tipo || 'mensalista') + '-tipo');
     }
     // Icon by tipo
-    var icones = { presidente: '👑 ', mensalista: '', avulso: '⚡ ', goleiro: '🧤 ' };
+    var icones = { cupula: '👑 ', mensalista: '', avulso: '⚡ ', goleiro: '🧤 ' };
     btn.textContent = (icones[m.tipo || 'mensalista'] || '') + m.nome;
     btn.onclick = function() { togglePresenca(btn, m.nome, m.tipo || 'mensalista'); };
     grid.appendChild(btn);
@@ -1279,86 +1279,7 @@ function formatAniv(dateStr) {
   return p[2] + ' de ' + MESES_NOME[parseInt(p[1],10)-1];
 }
 
-function renderMembros() {
-  var grid = document.getElementById('membros-grid');
-  if (!grid) return;
-  var hoje = getDiaMes();
 
-  grid.innerHTML = '';
-
-  if (!membros.length) {
-    var empty = document.createElement('div');
-    empty.className = 'empty-state';
-    empty.style.gridColumn = '1 / -1';
-    empty.innerHTML = '<div class="icon">&#128101;</div><p>Nenhum membro cadastrado</p>';
-    grid.appendChild(empty);
-    return;
-  }
-
-  var sorted = membros.slice().sort(function(a,b){ return a.nome.localeCompare(b.nome); });
-
-  sorted.forEach(function(m) {
-    var parts = (m.aniversario||'').split('-');
-    var mmdd = parts.length >= 3 ? parts[1]+'-'+parts[2] : '';
-    var isAniv = mmdd === hoje;
-
-    var card = document.createElement('div');
-    card.className = 'membro-card' + (isAniv ? ' aniversariante' : '');
-
-    // Badge aniversario
-    if (isAniv) {
-      var badge = document.createElement('div');
-      badge.className = 'membro-badge-aniv';
-      badge.textContent = 'ANIVERSARIO!';
-      card.appendChild(badge);
-    }
-
-    // Avatar
-    var avatar = document.createElement('div');
-    avatar.className = 'membro-avatar';
-    avatar.textContent = m.nome.charAt(0).toUpperCase();
-    card.appendChild(avatar);
-
-    // Info
-    var info = document.createElement('div');
-    info.className = 'membro-info';
-    var nomeEl = document.createElement('div');
-    nomeEl.className = 'membro-nome';
-    nomeEl.textContent = m.nome;
-    var anivEl = document.createElement('div');
-    anivEl.className = 'membro-aniv';
-    anivEl.textContent = 'ANIVERSARIO: ' + formatAniv(m.aniversario);
-    info.appendChild(nomeEl);
-    info.appendChild(anivEl);
-    card.appendChild(info);
-
-    // Actions (admin only)
-    if (adminLogado) {
-      var actions = document.createElement('div');
-      actions.className = 'membro-actions';
-      actions.style.display = 'flex';
-      actions.style.gap = '6px';
-
-      var btnEdit = document.createElement('button');
-      btnEdit.className = 'btn-membro-edit';
-      btnEdit.title = 'Editar';
-      btnEdit.innerHTML = '&#9998;';
-      btnEdit.onclick = (function(id){ return function(){ editarMembro(id); }; })(m.id);
-
-      var btnDel = document.createElement('button');
-      btnDel.className = 'btn-membro-del';
-      btnDel.title = 'Excluir';
-      btnDel.innerHTML = '&times;';
-      btnDel.onclick = (function(id){ return function(){ deletarMembro(id); }; })(m.id);
-
-      actions.appendChild(btnEdit);
-      actions.appendChild(btnDel);
-      card.appendChild(actions);
-    }
-
-    grid.appendChild(card);
-  });
-}
 function openModalMembro(edit) {
   edit = edit || null;
   editingMembroId = edit;
@@ -1537,17 +1458,17 @@ function renderMembros() {
     var isPresidente = m.tipo === 'presidente';
     var card = document.createElement('div');
     card.className = 'membro-card' + (isAniv ? ' aniversariante' : '') + (isPresidente ? ' presidente-card' : '');
-    if (isPresidente) {
-      var pbadge = document.createElement('div');
-      pbadge.className = 'membro-badge-presidente';
-      pbadge.innerHTML = '&#128081; PRESIDENTE';
-      card.appendChild(pbadge);
-    }
     if (isAniv) {
       var badge = document.createElement('div');
       badge.className = 'membro-badge-aniv';
       badge.textContent = 'ANIVERSARIO!';
       card.appendChild(badge);
+    }
+    if (isPresidente) {
+      var pbadge = document.createElement('div');
+      pbadge.className = 'membro-badge-presidente';
+      pbadge.innerHTML = '&#128081; CUPULA';
+      card.appendChild(pbadge);
     }
     var avatarClass = 'membro-avatar' + (isPresidente ? ' presidente' : m.tipo === 'avulso' ? ' avulso' : m.tipo === 'goleiro' ? ' goleiro' : '');
     var avatar = document.createElement('div');
@@ -1696,7 +1617,7 @@ function renderCaixa() {
     caixaItens  = results[0];
     gastosItens = results[1];
 
-    // Ensure only membros ativos neste mês (mensalistas e presidentes) têm entradas na caixa
+    // Ensure only membros ativos neste mes (mensalistas e cupula) tem entradas na caixa
     var membrosAtivos = membros.filter(function(m){
       return (m.tipo === 'mensalista' || m.tipo === 'presidente' || !m.tipo) && membroAtivoNoMes(m, mes);
     });
@@ -1749,7 +1670,7 @@ function _renderCaixaUI(mes) {
 
   if (presidentes.length) {
     var trh1 = document.createElement('tr');
-    trh1.innerHTML = '<td colspan="5" style="padding:10px 16px 4px;font-family:Bebas Neue,sans-serif;font-size:14px;letter-spacing:2px;color:#f0c040;border-bottom:1px solid rgba(240,192,64,0.3);">&#128081; PRESIDENTES</td>';
+    trh1.innerHTML = '<td colspan="5" style="padding:10px 16px 4px;font-family:Bebas Neue,sans-serif;font-size:14px;letter-spacing:2px;color:#f0c040;border-bottom:1px solid rgba(240,192,64,0.3);">&#128081; CUPULAS</td>';
     tbody.appendChild(trh1);
     presidentes.forEach(function(item){ tbody.appendChild(_buildCaixaRow(item, mes, true)); });
   }
