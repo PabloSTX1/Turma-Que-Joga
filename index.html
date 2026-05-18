@@ -1562,9 +1562,11 @@ function renderCaixa() {
     caixaItens  = results[0];
     gastosItens = results[1];
 
-    // Ensure all membros have entries
+    // Ensure only mensalistas and presidentes have caixa entries
     var existingIds = caixaItens.filter(function(c){ return c.tipo==='mensalista'; }).map(function(c){ return c.membro_id; });
-    var toCreate = membros.filter(function(m){ return existingIds.indexOf(m.id) === -1; });
+    var toCreate = membros.filter(function(m){
+      return (m.tipo === 'mensalista' || m.tipo === 'presidente' || !m.tipo) && existingIds.indexOf(m.id) === -1;
+    });
     var createPromises = toCreate.map(function(m){
       var item = { id: uid(), mes: mes, tipo: 'mensalista', membro_id: m.id, nome: m.nome, pago: false, forma: null, valor: 0 };
       caixaItens.push(item);
@@ -1601,10 +1603,25 @@ function _renderCaixaUI(mes) {
   // Mensalistas table
   var tbody = document.getElementById('caixa-mensalistas-body');
   tbody.innerHTML = '';
-  var sortedM = mensalistas.slice().sort(function(a,b){ return (a.nome||'').localeCompare(b.nome||''); });
-  sortedM.forEach(function(item) {
-    tbody.appendChild(_buildCaixaRow(item, mes));
-  });
+  var presidentes = caixaItens.filter(function(c){
+    return c.tipo==='mensalista' && membros.find(function(m){ return m.id===c.membro_id && m.tipo==='presidente'; });
+  }).sort(function(a,b){ return (a.nome||'').localeCompare(b.nome||''); });
+  var mensalistas = caixaItens.filter(function(c){
+    return c.tipo==='mensalista' && !membros.find(function(m){ return m.id===c.membro_id && m.tipo==='presidente'; });
+  }).sort(function(a,b){ return (a.nome||'').localeCompare(b.nome||''); });
+
+  if (presidentes.length) {
+    var trh1 = document.createElement('tr');
+    trh1.innerHTML = '<td colspan="5" style="padding:10px 16px 4px;font-family:Bebas Neue,sans-serif;font-size:14px;letter-spacing:2px;color:#f0c040;border-bottom:1px solid rgba(240,192,64,0.3);">&#128081; PRESIDENTES</td>';
+    tbody.appendChild(trh1);
+    presidentes.forEach(function(item){ tbody.appendChild(_buildCaixaRow(item, mes, true)); });
+  }
+  if (mensalistas.length) {
+    var trh2 = document.createElement('tr');
+    trh2.innerHTML = '<td colspan="5" style="padding:10px 16px 4px;font-family:Bebas Neue,sans-serif;font-size:14px;letter-spacing:2px;color:#4a80e8;border-bottom:1px solid rgba(26,79,189,0.3);">&#128100; MENSALISTAS</td>';
+    tbody.appendChild(trh2);
+    mensalistas.forEach(function(item){ tbody.appendChild(_buildCaixaRow(item, mes, true)); });
+  }
 
   // Avulsos - build rodada tabs
   var rodadasDoMes = rodadas.filter(function(r){ return r.data && r.data.substring(0,7) === mes; })
@@ -1703,7 +1720,7 @@ function renderAvulsosTabela(mes, avulsos) {
   }
 }
 
-function _buildCaixaRow(item, mes) {
+function _buildCaixaRow(item, mes, showDelete) {
   var tr = document.createElement('tr');
 
   var tdNome = document.createElement('td'); tdNome.style.fontWeight='600'; tdNome.textContent = item.nome || '';
@@ -1739,9 +1756,13 @@ function _buildCaixaRow(item, mes) {
   var btnPgto = document.createElement('button'); btnPgto.className='btn-status'; btnPgto.textContent=item.pago?'Alterar':'Pagar';
   btnPgto.onclick = (function(id,nome){ return function(){ openModalPgto(id,nome,mes); }; })(item.id, item.nome);
   tdAcao.appendChild(btnPgto);
-  if (item.tipo === 'avulso') {
-    var btnDel = document.createElement('button'); btnDel.className='btn-status'; btnDel.style.color='#e74c3c'; btnDel.textContent='REMOVER';
-    btnDel.onclick = (function(id){ return function(){ removerAvulso(id, mes); }; })(item.id);
+  if (item.tipo === 'avulso' || showDelete) {
+    var btnDel = document.createElement('button'); btnDel.className='btn-status'; btnDel.style.color='#e74c3c'; btnDel.textContent='EXCLUIR';
+    btnDel.onclick = (function(id){ return function(){
+      if (!confirm('EXCLUIR ESTE REGISTRO DO CAIXA?')) return;
+      dbDeleteCaixaItem(id).then(function(){ renderCaixa(); toast('REGISTRO EXCLUIDO.'); })
+        .catch(function(e){ toast('ERRO: ' + e.message, 'err'); });
+    }; })(item.id);
     tdAcao.appendChild(btnDel);
   }
 
