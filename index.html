@@ -169,6 +169,13 @@
   .goleiro-row input:focus{border-color:#7de87a;}
   .btn-add-goleiro{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;background:transparent;color:#7de87a;border:1.5px dashed rgba(125,232,122,.4);padding:7px 14px;border-radius:6px;cursor:pointer;transition:all .2s;margin-top:4px;}
   .btn-add-goleiro:hover{border-color:#7de87a;background:rgba(125,232,122,.08);}
+  /* PRESENÇA */
+  .presenca-btn{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;background:var(--preto);border:1.5px solid var(--azul-linha);color:var(--muted);padding:7px 8px;border-radius:8px;cursor:pointer;transition:all .15s;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;}
+  .presenca-btn:hover{border-color:var(--azul);color:var(--branco);}
+  .presenca-btn.selecionado{background:rgba(26,79,189,0.25);border-color:var(--azul);color:#7ab3ff;}
+  .presenca-btn.selecionado.goleiro-tipo{background:rgba(125,232,122,0.15);border-color:#7de87a;color:#7de87a;}
+  .presenca-btn.selecionado.presidente-tipo{background:rgba(240,192,64,0.15);border-color:#f0c040;color:#f0c040;}
+  .presenca-btn.selecionado.avulso-tipo{background:rgba(232,100,26,0.15);border-color:var(--laranja);color:var(--laranja);}
   .btn-rem-goleiro{background:transparent;border:1px solid var(--azul-linha);color:var(--muted);border-radius:6px;width:32px;height:32px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0;}
   .btn-rem-goleiro:hover{border-color:#c0392b;color:#e74c3c;}
 
@@ -468,12 +475,18 @@
   <div class="modal-rodada-box">
     <h2 id="modal-rodada-titulo">NOVA RODADA</h2>
     <div class="form-group"><label>DATA DA PELADA</label><input type="date" id="input-data"></div>
+
+    <!-- SELEÇÃO RÁPIDA DE JOGADORES -->
+    <div class="modal-section-title" style="margin-top:8px;">QUEM FOI NA PELADA?</div>
+    <div id="presenca-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:7px;margin-bottom:14px;max-height:200px;overflow-y:auto;padding-right:4px;"></div>
+    <button class="btn-add-row" style="margin-bottom:16px;" onclick="adicionarSelecionados()">✔ Adicionar Selecionados</button>
+
     <div class="modal-section-title">ESTATISTICAS DOS JOGADORES</div>
     <div class="col-labels">
       <span>JOGADOR</span><span class="c-gol">GOLS</span><span class="c-ast">ASSIST</span><span></span>
     </div>
     <div id="stat-rows"></div>
-    <button class="btn-add-row" onclick="addStatRow()">+ ADICIONAR JOGADOR</button>
+    <button class="btn-add-row" onclick="addStatRow()">+ ADICIONAR JOGADOR MANUAL</button>
     <div class="goleiro-input-area">
       <span class="goleiro-input-label">GOLEIROS DA RODADA</span>
       <div style="display:grid;grid-template-columns:1fr 90px 32px;gap:8px;margin-bottom:6px;">
@@ -942,8 +955,13 @@ function openModalRodada(edit) {
     }
   } else {
     document.getElementById('input-data').value = todayISO();
-    addStatRow(); addStatRow();
   }
+  // Build presenca grid with already-added names pre-selected
+  var jaAdicionados = [];
+  document.querySelectorAll('#stat-rows .row-nome').forEach(function(inp){
+    if (inp.value.trim()) jaAdicionados.push(inp.value.trim());
+  });
+  buildPresencaGrid(jaAdicionados);
   document.getElementById('modal-rodada').classList.add('open');
 }
 function editarRodada(id) { openModalRodada(id); }
@@ -971,6 +989,67 @@ function addGoleiroRow(nome, vitorias) {
   div.appendChild(inp); div.appendChild(vit); div.appendChild(btn);
   document.getElementById('goleiro-rows').appendChild(div);
 }
+
+function buildPresencaGrid(jaAdicionados) {
+  var grid = document.getElementById('presenca-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  // Sort: presidentes e mensalistas primeiro, depois avulsos, depois goleiros
+  var ordem = { presidente: 0, mensalista: 1, avulso: 2, goleiro: 3 };
+  var lista = membros.slice().sort(function(a, b) {
+    var oa = ordem[a.tipo || 'mensalista'] || 1;
+    var ob = ordem[b.tipo || 'mensalista'] || 1;
+    if (oa !== ob) return oa - ob;
+    return a.nome.localeCompare(b.nome);
+  });
+  lista.forEach(function(m) {
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'presenca-btn';
+    btn.setAttribute('data-nome', m.nome);
+    btn.setAttribute('data-tipo', m.tipo || 'mensalista');
+    // Pre-select if already in stat-rows
+    if (jaAdicionados.indexOf(m.nome) !== -1) {
+      btn.classList.add('selecionado');
+      btn.classList.add((m.tipo || 'mensalista') + '-tipo');
+    }
+    // Icon by tipo
+    var icones = { presidente: '👑 ', mensalista: '', avulso: '⚡ ', goleiro: '🧤 ' };
+    btn.textContent = (icones[m.tipo || 'mensalista'] || '') + m.nome;
+    btn.onclick = function() { togglePresenca(btn, m.nome, m.tipo || 'mensalista'); };
+    grid.appendChild(btn);
+  });
+}
+
+function togglePresenca(btn, nome, tipo) {
+  var sel = btn.classList.contains('selecionado');
+  if (sel) {
+    btn.classList.remove('selecionado', 'mensalista-tipo', 'avulso-tipo', 'goleiro-tipo', 'presidente-tipo');
+  } else {
+    btn.classList.add('selecionado', tipo + '-tipo');
+  }
+}
+
+function adicionarSelecionados() {
+  var selecionados = document.querySelectorAll('#presenca-grid .presenca-btn.selecionado');
+  // Get names already in stat-rows
+  var jaExistem = [];
+  document.querySelectorAll('#stat-rows .row-nome').forEach(function(inp) {
+    if (inp.value.trim()) jaExistem.push(inp.value.trim());
+  });
+  selecionados.forEach(function(btn) {
+    var nome = btn.getAttribute('data-nome');
+    if (jaExistem.indexOf(nome) === -1) {
+      addStatRow(nome, 0, 0);
+      jaExistem.push(nome);
+    }
+  });
+  // Scroll to stat-rows
+  var statDiv = document.getElementById('stat-rows');
+  if (statDiv) statDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  toast(selecionados.length + ' JOGADOR(ES) ADICIONADO(S)!');
+}
+
 
 function addStatRow(nome, gols, assists) {
   nome = nome || ''; gols = gols || 0; assists = assists || 0;
