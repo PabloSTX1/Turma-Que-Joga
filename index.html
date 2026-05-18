@@ -352,6 +352,17 @@
   </div>
 </div>
 
+<!-- FILTRO GLOBAL -->
+<div class="tabs" style="border-top:none;border-bottom:1px solid #152050;padding:10px 20px;">
+  <div style="max-width:960px;margin:0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+    <span class="filtro-label">Periodo:</span>
+    <div class="filtro-pills" id="filtro-pills-global"></div>
+    <select class="filtro-select" id="filtro-select-global" onchange="setFiltroGlobal(this.value)">
+      <option value="">Outros meses...</option>
+    </select>
+  </div>
+</div>
+
 <div class="page active" id="page-ranking">
   <div class="wrap">
     <div class="aniversario-banner" id="aniversario-banner">
@@ -390,15 +401,6 @@
 
 <div class="page" id="page-rodadas">
   <div class="wrap">
-    <div class="filtro-bar">
-      <span class="filtro-label">Periodo:</span>
-      <div class="filtro-pills">
-        <button class="pill active" onclick="setFiltroRodadas('geral',this)">Geral</button>
-      </div>
-      <select class="filtro-select" id="filtro-select-rodadas" onchange="setFiltroSelectRodadas(this)">
-        <option value="">Selecionar mes...</option>
-      </select>
-    </div>
     <div id="rodadas-container"><div class="loading"><div class="spinner"></div>Carregando...</div></div>
   </div>
 </div>
@@ -804,7 +806,7 @@ function render() {
 
 function renderRodadas() {
   var rd = document.getElementById('rodadas-container');
-  var lista = getRodadasFiltradas(filtroRodasAtivo);
+  var lista = getRodadasFiltradas(filtroAtivo);
   if (!lista.length) {
     rd.innerHTML = '<div class="empty-state"><div class="icon">&#128197;</div><p>Nenhuma rodada para este periodo</p></div>';
     return;
@@ -1007,13 +1009,13 @@ var _hoje = new Date();
 var _mesAtual = _hoje.getFullYear() + '-' + String(_hoje.getMonth()+1).padStart(2,'0');
 var filtroAtivo = _mesAtual;
 var ordenacaoAtiva = 'gols';
-var filtroRodasAtivo = _mesAtual;
+var filtroAtivo = _mesAtual;
 
 function getMesesDisponiveis() {
   var meses = {};
   rodadas.forEach(function(r) {
     if (!r.data) return;
-    var ym = r.data.substring(0, 7); // 'YYYY-MM'
+    var ym = r.data.substring(0, 7);
     meses[ym] = true;
   });
   return Object.keys(meses).sort().reverse();
@@ -1022,32 +1024,30 @@ function getMesesDisponiveis() {
 var MESES_PT = ['Janeiro','Fevereiro','Marco','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 function formatMesAno(ym) {
   var parts = ym.split('-');
-  var mes = MESES_PT[parseInt(parts[1], 10) - 1];
-  return mes + ' ' + parts[0];
+  return MESES_PT[parseInt(parts[1], 10) - 1] + ' ' + parts[0];
 }
 
-function buildPills(containerId, selectId, ativo, onClickAll, onClickMes) {
+function buildGlobalPills() {
   var meses = getMesesDisponiveis();
-  var pillsDiv = document.querySelector('#' + containerId + ' .filtro-pills');
-  var sel = document.getElementById(selectId);
+  var pillsDiv = document.getElementById('filtro-pills-global');
+  var sel = document.getElementById('filtro-select-global');
   if (!pillsDiv || !sel) return;
 
   pillsDiv.innerHTML = '';
 
   // Geral button
   var btnGeral = document.createElement('button');
-  btnGeral.className = 'pill' + (ativo === 'geral' ? ' active' : '');
+  btnGeral.className = 'pill' + (filtroAtivo === 'geral' ? ' active' : '');
   btnGeral.textContent = 'Geral';
-  btnGeral.onclick = function() { window[onClickAll]('geral', this); };
+  btnGeral.onclick = function() { setFiltroGlobal('geral'); };
   pillsDiv.appendChild(btnGeral);
 
-  // Last 4 months as pills
-  var recentes = meses.slice(0, 4);
-  recentes.forEach(function(ym) {
+  // Last 4 months
+  meses.slice(0, 4).forEach(function(ym) {
     var btn = document.createElement('button');
-    btn.className = 'pill' + (ativo === ym ? ' active' : '');
+    btn.className = 'pill' + (filtroAtivo === ym ? ' active' : '');
     btn.textContent = formatMesAno(ym);
-    btn.onclick = (function(y) { return function() { window[onClickMes](y, this); }; })(ym);
+    btn.onclick = (function(y){ return function(){ setFiltroGlobal(y); }; })(ym);
     pillsDiv.appendChild(btn);
   });
 
@@ -1057,47 +1057,33 @@ function buildPills(containerId, selectId, ativo, onClickAll, onClickMes) {
     var opt = document.createElement('option');
     opt.value = ym;
     opt.textContent = formatMesAno(ym);
-    if (ativo === ym) opt.selected = true;
+    if (filtroAtivo === ym) opt.selected = true;
     sel.appendChild(opt);
   });
   sel.style.display = meses.length > 4 ? '' : 'none';
 }
 
+function setFiltroGlobal(valor) {
+  if (!valor) return;
+  filtroAtivo = valor;
+  buildGlobalPills();
+  render();
+  renderRodadas();
+  renderGoleiros();
+}
+
 function getRodadasFiltradas(filtro) {
-  if (filtro === 'geral') return rodadas;
+  if (!filtro || filtro === 'geral') return rodadas;
   return rodadas.filter(function(r) {
     return r.data && r.data.substring(0, 7) === filtro;
   });
 }
 
-function setFiltro(valor, btn) {
-  filtroAtivo = valor;
-  buildPills('page-ranking', 'filtro-select', filtroAtivo, 'setFiltro', 'setFiltro');
-  render();
-}
-function setFiltroSelect(sel) {
-  if (!sel.value) return;
-  filtroAtivo = sel.value;
-  buildPills('page-ranking', 'filtro-select', filtroAtivo, 'setFiltro', 'setFiltro');
-  render();
-}
-function setFiltroRodadas(valor, btn) {
-  filtroRodasAtivo = valor;
-  buildPills('page-rodadas', 'filtro-select-rodadas', filtroRodasAtivo, 'setFiltroRodadas', 'setFiltroRodadas');
-  renderRodadas();
-}
-function setFiltroSelectRodadas(sel) {
-  if (!sel.value) return;
-  filtroRodasAtivo = sel.value;
-  buildPills('page-rodadas', 'filtro-select-rodadas', filtroRodasAtivo, 'setFiltroRodadas', 'setFiltroRodadas');
-  renderRodadas();
-}
 
 function init() {
   dbCarregar().then(function(data) {
     rodadas = data;
-    buildPills('page-ranking', 'filtro-select', filtroAtivo, 'setFiltro', 'setFiltro');
-    buildPills('page-rodadas', 'filtro-select-rodadas', filtroRodasAtivo, 'setFiltroRodadas', 'setFiltroRodadas');
+    buildGlobalPills();
     render();
     loadMembros().then(function(){
       renderMembros();
