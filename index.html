@@ -185,13 +185,13 @@
   .periodo-label{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1.5px;color:var(--laranja);margin-left:4px;}
 
   /* ANIVERSÁRIO BANNER */
-  .aniversário-banner{display:none;background:linear-gradient(135deg,#1a1200,#2d1f00);border:2px solid var(--laranja);border-radius:12px;padding:16px 20px;margin-bottom:20px;animation:pulse-border 2s infinite;}
-  .aniversário-banner.show{display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+  .aniversario-banner{display:none;background:linear-gradient(135deg,#1a1200,#2d1f00);border:2px solid var(--laranja);border-radius:12px;padding:16px 20px;margin-bottom:20px;animation:pulse-border 2s infinite;}
+  .aniversario-banner.show{display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
   @keyframes pulse-border{0%,100%{box-shadow:0 0 8px rgba(232,100,26,.4);}50%{box-shadow:0 0 20px rgba(232,100,26,.8);}}
-  .aniversário-icon{font-size:36px;flex-shrink:0;}
-  .aniversário-texto h3{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1.5px;color:var(--laranja);margin-bottom:2px;}
-  .aniversário-texto p{font-family:'Barlow Condensed',sans-serif;font-size:14px;color:var(--branco);letter-spacing:.5px;}
-  .aniversário-nomes{font-weight:700;color:var(--laranja);}
+  .aniversario-icon{font-size:36px;flex-shrink:0;}
+  .aniversario-texto h3{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1.5px;color:var(--laranja);margin-bottom:2px;}
+  .aniversario-texto p{font-family:'Barlow Condensed',sans-serif;font-size:14px;color:var(--branco);letter-spacing:.5px;}
+  .aniversario-nomes{font-weight:700;color:var(--laranja);}
 
   /* MEMBROS */
   .membros-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-top:4px;}
@@ -365,11 +365,11 @@
 
 <div class="page active" id="page-ranking">
   <div class="wrap">
-    <div class="aniversário-banner" id="aniversário-banner">
+    <div class="aniversário-banner" id="aniversario-banner">
       <div class="aniversário-icon">&#127874;</div>
       <div class="aniversário-texto">
         <h3>Feliz Aniversário!</h3>
-        <p>Hoje é aniversário de <span class="aniversário-nomes" id="aniversário-nomes"></span>!</p>
+        <p>Hoje é aniversário de <span class="aniversário-nomes" id="aniversario-nomes"></span>!</p>
       </div>
     </div>
     <div class="filtro-bar">
@@ -1116,9 +1116,9 @@ function getDiaMes() {
 function getAniversariantesHoje() {
   var hoje = getDiaMes(); // MM-DD
   return membros.filter(function(m) {
-    if (!m.aniversário) return false;
+    if (!m.aniversario) return false;
     // aniversário format: YYYY-MM-DD, we compare MM-DD
-    var parts = m.aniversário.split('-');
+    var parts = m.aniversario.split('-');
     if (parts.length < 3) return false;
     var mmdd = parts[1] + '-' + parts[2];
     return mmdd === hoje;
@@ -1127,8 +1127,8 @@ function getAniversariantesHoje() {
 
 function checkAniversários() {
   var anivs = getAniversariantesHoje();
-  var banner = document.getElementById('aniversário-banner');
-  var nomes  = document.getElementById('aniversário-nomes');
+  var banner = document.getElementById('aniversario-banner');
+  var nomes  = document.getElementById('aniversario-nomes');
   if (anivs.length > 0) {
     nomes.textContent = anivs.map(function(m){ return m.nome; }).join(', ');
     banner.classList.add('show');
@@ -1164,7 +1164,7 @@ function renderMembros() {
   var sorted = membros.slice().sort(function(a,b){ return a.nome.localeCompare(b.nome); });
 
   sorted.forEach(function(m) {
-    var parts = (m.aniversário||'').split('-');
+    var parts = (m.aniversario||'').split('-');
     var mmdd = parts.length >= 3 ? parts[1]+'-'+parts[2] : '';
     var isAniv = mmdd === hoje;
 
@@ -1193,7 +1193,7 @@ function renderMembros() {
     nomeEl.textContent = m.nome;
     var anivEl = document.createElement('div');
     anivEl.className = 'membro-aniv';
-    anivEl.textContent = 'Aniversário: ' + formatAniv(m.aniversário);
+    anivEl.textContent = 'Aniversário: ' + formatAniv(m.aniversario);
     info.appendChild(nomeEl);
     info.appendChild(anivEl);
     card.appendChild(info);
@@ -1233,7 +1233,7 @@ function openModalMembro(edit) {
     var m = membros.find(function(x){ return x.id===edit; });
     if (m) {
       document.getElementById('membro-nome').value = m.nome;
-      document.getElementById('membro-aniv').value = m.aniversário || '';
+      document.getElementById('membro-aniv').value = m.aniversario || '';
     }
   } else {
     document.getElementById('membro-nome').value = '';
@@ -1252,9 +1252,9 @@ function salvarMembro() {
   if (!nome) { alert('Informe o nome do membro.'); return; }
   if (editingMembroId) {
     var idx = membros.findIndex(function(m){ return m.id===editingMembroId; });
-    if (idx !== -1) membros[idx] = { id: editingMembroId, nome: nome, aniversário: aniv };
+    if (idx !== -1) membros[idx] = { id: editingMembroId, nome: nome, aniversario: aniv };
   } else {
-    membros.push({ id: uid(), nome: nome, aniversário: aniv });
+    membros.push({ id: uid(), nome: nome, aniversario: aniv });
   }
   saveMembros();
   renderMembros();
@@ -1286,7 +1286,7 @@ function dbSaveMembro(m) {
   return fetch(API_MEMBROS, { method:'POST', headers:H, body:JSON.stringify(m) }).then(function(r){ if(!r.ok) throw new Error(r.status); });
 }
 function dbUpdateMembro(m) {
-  return fetch(API_MEMBROS + '?id=eq.' + m.id, { method:'PATCH', headers:H, body:JSON.stringify({nome:m.nome,aniversário:m.aniversário}) }).then(function(r){ if(!r.ok) throw new Error(r.status); });
+  return fetch(API_MEMBROS + '?id=eq.' + m.id, { method:'PATCH', headers:H, body:JSON.stringify({nome:m.nome,aniversario:m.aniversario}) }).then(function(r){ if(!r.ok) throw new Error(r.status); });
 }
 function dbDeleteMembro(id) {
   return fetch(API_MEMBROS + '?id=eq.' + id, { method:'DELETE', headers:H_GET }).then(function(r){ if(!r.ok) throw new Error(r.status); });
@@ -1327,16 +1327,16 @@ function getDiaMes() {
 function getAniversariantesHoje() {
   var hoje = getDiaMes();
   return membros.filter(function(m) {
-    if (!m.aniversário) return false;
-    var parts = m.aniversário.split('-');
+    if (!m.aniversario) return false;
+    var parts = m.aniversario.split('-');
     if (parts.length < 3) return false;
     return parts[1] + '-' + parts[2] === hoje;
   });
 }
 function checkAniversários() {
   var anivs = getAniversariantesHoje();
-  var banner = document.getElementById('aniversário-banner');
-  var nomes  = document.getElementById('aniversário-nomes');
+  var banner = document.getElementById('aniversario-banner');
+  var nomes  = document.getElementById('aniversario-nomes');
   if (anivs.length > 0) {
     nomes.textContent = anivs.map(function(m){ return m.nome; }).join(', ');
     banner.classList.add('show');
@@ -1368,7 +1368,7 @@ function renderMembros() {
   }
   var sorted = membros.slice().sort(function(a,b){ return a.nome.localeCompare(b.nome); });
   sorted.forEach(function(m) {
-    var parts = (m.aniversário||'').split('-');
+    var parts = (m.aniversario||'').split('-');
     var mmdd = parts.length >= 3 ? parts[1]+'-'+parts[2] : '';
     var isAniv = mmdd === hoje;
     var card = document.createElement('div');
@@ -1386,7 +1386,7 @@ function renderMembros() {
     var info = document.createElement('div');
     info.className = 'membro-info';
     var nomeEl = document.createElement('div'); nomeEl.className = 'membro-nome'; nomeEl.textContent = m.nome;
-    var anivEl = document.createElement('div'); anivEl.className = 'membro-aniv'; anivEl.textContent = 'Aniversário: ' + formatAniv(m.aniversário);
+    var anivEl = document.createElement('div'); anivEl.className = 'membro-aniv'; anivEl.textContent = 'Aniversário: ' + formatAniv(m.aniversario);
     info.appendChild(nomeEl); info.appendChild(anivEl);
     card.appendChild(info);
     if (adminLogado) {
@@ -1409,7 +1409,7 @@ function openModalMembro(edit) {
   document.getElementById('modal-membro-titulo').textContent = edit ? 'Editar Membro' : 'Novo Membro';
   if (edit) {
     var m = membros.find(function(x){ return x.id===edit; });
-    if (m) { document.getElementById('membro-nome').value = m.nome; document.getElementById('membro-aniv').value = m.aniversário || ''; }
+    if (m) { document.getElementById('membro-nome').value = m.nome; document.getElementById('membro-aniv').value = m.aniversario || ''; }
   } else {
     document.getElementById('membro-nome').value = '';
     document.getElementById('membro-aniv').value = '';
@@ -1429,14 +1429,14 @@ function salvarMembro() {
   btn.textContent = 'Salvando...'; btn.disabled = true;
   var promise;
   if (editingMembroId) {
-    var obj = { id: editingMembroId, nome: nome, aniversário: aniv };
+    var obj = { id: editingMembroId, nome: nome, aniversario: aniv };
     promise = dbUpdateMembro(obj).then(function(){
       var idx = membros.findIndex(function(m){ return m.id===editingMembroId; });
       if (idx !== -1) membros[idx] = obj;
       toast('Membro atualizado!');
     });
   } else {
-    var obj = { id: uid(), nome: nome, aniversário: aniv };
+    var obj = { id: uid(), nome: nome, aniversario: aniv };
     promise = dbSaveMembro(obj).then(function(){
       membros.push(obj);
       toast('Membro cadastrado!');
