@@ -448,7 +448,7 @@
     </div>
     <div style="display:flex;align-items:center;gap:12px;">
       <div class="admin-badge">&#128273; CUPULA <button class="btn-sair" onclick="sair()">SAIR</button></div>
-      <button class="btn-nova" onclick="openModalRodada()">+ NOVA RODADA</button>
+      <button class="btn-nova" id="btn-nova-rodada" onclick="openModalRodada()" style="display:none;">+ NOVA RODADA</button>
     </div>
   </div>
 </header>
@@ -843,6 +843,10 @@ function fazerLogin() {
   var p = document.getElementById('login-pass').value;
   if (u === ADMIN_USER && p === ADMIN_PASS) {
     fecharLogin(); setAdmin(true); toast('BEM-VINDO, CUPULA!'); render(); renderCaixa(); renderMembros(); renderAvisos();
+    var abaAtiva = document.querySelector('.tab-btn.active');
+    var tabAtual = abaAtiva ? abaAtiva.getAttribute('onclick').match(/'(\w+)'/)[1] : '';
+    var btnR = document.getElementById('btn-nova-rodada');
+    if (btnR) btnR.style.display = tabAtual === 'rodadas' ? '' : 'none';
   } else {
     document.getElementById('login-error').classList.add('show');
     document.getElementById('login-pass').value = '';
@@ -851,6 +855,8 @@ function fazerLogin() {
 }
 function sair() {
   setAdmin(false);
+  var btnR = document.getElementById('btn-nova-rodada');
+  if (btnR) btnR.style.display = 'none';
   toast('SESSAO ENCERRADA.');
   renderAvisos();
   // If on caixa tab, redirect to ranking
@@ -1050,6 +1056,8 @@ function toggleRodada(id) {
   btn.classList.add('active');
   var filtroBar = document.getElementById('filtro-global-bar');
   if (filtroBar) filtroBar.style.display = tab === 'avisos' ? 'none' : '';
+  var btnRodada = document.getElementById('btn-nova-rodada');
+  if (btnRodada) btnRodada.style.display = (tab === 'rodadas' && adminLogado) ? '' : 'none';
 }
 
 function openModalRodada(edit) {
