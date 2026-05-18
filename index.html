@@ -217,6 +217,8 @@
   .tipo-btn.active[data-tipo="avulso"]{background:rgba(232,100,26,0.2);color:var(--laranja);border-color:var(--laranja);}
   .tipo-btn.active[data-tipo="goleiro"]{background:rgba(125,232,122,0.2);color:#7de87a;border-color:#7de87a;}
   .membro-avatar.presidente{border-color:#f0c040;color:#f0c040;background:rgba(240,192,64,0.12);}
+  .presidente-card{border-color:rgba(240,192,64,0.4);background:linear-gradient(135deg,rgba(240,192,64,0.06) 0%,transparent 60%);}
+  .membro-badge-presidente{font-family:'Bebas Neue',sans-serif;font-size:10px;letter-spacing:1.5px;color:#f0c040;background:rgba(240,192,64,0.15);border:1px solid rgba(240,192,64,0.35);border-radius:4px;padding:2px 7px;display:inline-block;margin-bottom:6px;align-self:flex-start;}
   .membros-secao-titulo.presidente::after{background:rgba(240,192,64,0.3);}
   .tipo-btn.active[data-tipo="presidente"]{background:rgba(240,192,64,0.2);color:#f0c040;border-color:#f0c040;}
   .membro-info{flex:1;min-width:0;}
@@ -437,10 +439,6 @@
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
       <div class="section-title" style="margin-bottom:0;flex:1;">MEMBROS DA PELADA</div>
       <button class="btn-add-membro admin-only" onclick="openModalMembro('mensalista')" style="display:none;">+ Adicionar Membro</button>
-    </div>
-    <div class="membros-secao-titulo presidente" style="color:#f0c040;">&#128081; Presidentes</div>
-    <div class="membros-grid" id="membros-grid-presidente">
-      <div class="loading"><div class="spinner"></div>CARREGANDO...</div>
     </div>
     <div class="membros-secao-titulo">&#128100; Mensalistas</div>
     <div class="membros-grid" id="membros-grid-mensalista">
@@ -1419,10 +1417,29 @@ function dbGetMembros() {
   return fetch(API_MEMBROS + '?order=nome.asc', { headers: H_GET }).then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); });
 }
 function dbSaveMembro(m) {
-  return fetch(API_MEMBROS, { method:'POST', headers:H, body:JSON.stringify(m) }).then(function(r){ if(!r.ok) throw new Error(r.status); });
+  // Tenta com todos os campos; se falhar, tenta só com campos básicos
+  var full = { id: m.id, nome: m.nome, aniversario: m.aniversario, tipo: m.tipo||'mensalista', mes_entrada: m.mes_entrada||null, mes_saida: m.mes_saida||null };
+  var basic = { id: m.id, nome: m.nome, aniversario: m.aniversario };
+  return fetch(API_MEMBROS, { method:'POST', headers:H, body:JSON.stringify(full) })
+    .then(function(r){
+      if (r.status === 400) {
+        return fetch(API_MEMBROS, { method:'POST', headers:H, body:JSON.stringify(basic) })
+          .then(function(r2){ if(!r2.ok) throw new Error(r2.status); });
+      }
+      if (!r.ok) throw new Error(r.status);
+    });
 }
 function dbUpdateMembro(m) {
-  return fetch(API_MEMBROS + '?id=eq.' + m.id, { method:'PATCH', headers:H, body:JSON.stringify({nome:m.nome,aniversario:m.aniversario,tipo:m.tipo||'mensalista',mes_entrada:m.mes_entrada||null,mes_saida:m.mes_saida||null}) }).then(function(r){ if(!r.ok) throw new Error(r.status); });
+  var full = { nome:m.nome, aniversario:m.aniversario, tipo:m.tipo||'mensalista', mes_entrada:m.mes_entrada||null, mes_saida:m.mes_saida||null };
+  var basic = { nome:m.nome, aniversario:m.aniversario };
+  return fetch(API_MEMBROS + '?id=eq.' + m.id, { method:'PATCH', headers:H, body:JSON.stringify(full) })
+    .then(function(r){
+      if (r.status === 400) {
+        return fetch(API_MEMBROS + '?id=eq.' + m.id, { method:'PATCH', headers:H, body:JSON.stringify(basic) })
+          .then(function(r2){ if(!r2.ok) throw new Error(r2.status); });
+      }
+      if (!r.ok) throw new Error(r.status);
+    });
 }
 function dbDeleteMembro(id) {
   return fetch(API_MEMBROS + '?id=eq.' + id, { method:'DELETE', headers:H_GET }).then(function(r){ if(!r.ok) throw new Error(r.status); });
@@ -1495,41 +1512,44 @@ function renderMembros() {
   var gridM = document.getElementById('membros-grid-mensalista');
   var gridA = document.getElementById('membros-grid-avulso');
   var gridG = document.getElementById('membros-grid-goleiro');
-  var gridP = document.getElementById('membros-grid-presidente');
-  if (!gridM || !gridA || !gridG || !gridP) return;
+  if (!gridM || !gridA || !gridG) return;
   var hoje = getDiaMes();
   var mesFiltro = (filtroAtivo === 'geral') ? '' : filtroAtivo;
   gridM.innerHTML = '';
   gridA.innerHTML = '';
   gridG.innerHTML = '';
-  gridP.innerHTML = '';
 
   function filtrar(tipo) {
     return membros.filter(function(m){
       return m.tipo === tipo && membroAtivoNoMes(m, mesFiltro);
     }).sort(function(a,b){ return a.nome.localeCompare(b.nome); });
   }
-  var mensalistas  = membros.filter(function(m){ return (m.tipo==='mensalista'||!m.tipo) && membroAtivoNoMes(m,mesFiltro); }).sort(function(a,b){return a.nome.localeCompare(b.nome);});
-  var avulsos      = filtrar('avulso');
-  var goleiros     = filtrar('goleiro');
-  var presidentes  = filtrar('presidente');
+  var presidentes = filtrar('presidente');
+  var mensalistas = membros.filter(function(m){ return (m.tipo==='mensalista'||!m.tipo) && membroAtivoNoMes(m,mesFiltro); }).sort(function(a,b){return a.nome.localeCompare(b.nome);});
+  var mensGrid    = presidentes.concat(mensalistas);
+  var avulsos     = filtrar('avulso');
+  var goleiros    = filtrar('goleiro');
 
   function buildCard(m, grid) {
     var parts = (m.aniversario||'').split('-');
     var mmdd = parts.length >= 3 ? parts[1]+'-'+parts[2] : '';
     var isAniv = mmdd === hoje;
+    var isPresidente = m.tipo === 'presidente';
     var card = document.createElement('div');
-    card.className = 'membro-card' + (isAniv ? ' aniversariante' : '');
+    card.className = 'membro-card' + (isAniv ? ' aniversariante' : '') + (isPresidente ? ' presidente-card' : '');
+    if (isPresidente) {
+      var pbadge = document.createElement('div');
+      pbadge.className = 'membro-badge-presidente';
+      pbadge.innerHTML = '&#128081; PRESIDENTE';
+      card.appendChild(pbadge);
+    }
     if (isAniv) {
       var badge = document.createElement('div');
       badge.className = 'membro-badge-aniv';
       badge.textContent = 'ANIVERSARIO!';
       card.appendChild(badge);
     }
-    var avatarClass = 'membro-avatar';
-    if (m.tipo === 'avulso') avatarClass += ' avulso';
-    else if (m.tipo === 'goleiro') avatarClass += ' goleiro';
-    else if (m.tipo === 'presidente') avatarClass += ' presidente';
+    var avatarClass = 'membro-avatar' + (isPresidente ? ' presidente' : m.tipo === 'avulso' ? ' avulso' : m.tipo === 'goleiro' ? ' goleiro' : '');
     var avatar = document.createElement('div');
     avatar.className = avatarClass;
     avatar.textContent = m.nome.charAt(0).toUpperCase();
@@ -1539,12 +1559,10 @@ function renderMembros() {
     var nomeEl = document.createElement('div'); nomeEl.className = 'membro-nome'; nomeEl.textContent = m.nome;
     var anivEl = document.createElement('div'); anivEl.className = 'membro-aniv'; anivEl.textContent = 'ANIVERSARIO: ' + formatAniv(m.aniversario);
     info.appendChild(nomeEl); info.appendChild(anivEl);
-    // Mês entrada/saída
     if (m.mes_entrada) {
       var mesEl = document.createElement('div');
-      mesEl.className = 'membro-aniv';
-      mesEl.style.marginTop = '2px';
-      mesEl.textContent = 'DESDE: ' + formatMesAno(m.mes_entrada) + (m.mes_saida ? ' • ATÉ: ' + formatMesAno(m.mes_saida) : '');
+      mesEl.className = 'membro-aniv'; mesEl.style.marginTop = '2px';
+      mesEl.textContent = 'DESDE: ' + formatMesAno(m.mes_entrada) + (m.mes_saida ? ' • ATE: ' + formatMesAno(m.mes_saida) : '');
       info.appendChild(mesEl);
     }
     card.appendChild(info);
@@ -1567,16 +1585,13 @@ function renderMembros() {
     grid.appendChild(e);
   }
 
-  if (!presidentes.length) emptyState(gridP, '&#128081;', 'Nenhum presidente' + (mesFiltro ? ' neste mês' : ' cadastrado'));
-  else presidentes.forEach(function(m){ buildCard(m, gridP); });
+  if (!mensGrid.length) emptyState(gridM, '&#128100;', 'Nenhum mensalista' + (mesFiltro ? ' neste mes' : ' cadastrado'));
+  else mensGrid.forEach(function(m){ buildCard(m, gridM); });
 
-  if (!mensalistas.length) emptyState(gridM, '&#128100;', 'Nenhum mensalista' + (mesFiltro ? ' neste mês' : ' cadastrado'));
-  else mensalistas.forEach(function(m){ buildCard(m, gridM); });
-
-  if (!avulsos.length) emptyState(gridA, '&#9889;', 'Nenhum avulso' + (mesFiltro ? ' neste mês' : ' cadastrado'));
+  if (!avulsos.length) emptyState(gridA, '&#9889;', 'Nenhum avulso' + (mesFiltro ? ' neste mes' : ' cadastrado'));
   else avulsos.forEach(function(m){ buildCard(m, gridA); });
 
-  if (!goleiros.length) emptyState(gridG, '&#129508;', 'Nenhum goleiro' + (mesFiltro ? ' neste mês' : ' cadastrado'));
+  if (!goleiros.length) emptyState(gridG, '&#129508;', 'Nenhum goleiro' + (mesFiltro ? ' neste mes' : ' cadastrado'));
   else goleiros.forEach(function(m){ buildCard(m, gridG); });
 }
 
