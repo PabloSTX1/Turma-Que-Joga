@@ -1604,10 +1604,12 @@ function _renderCaixaUI(mes) {
   var tbody = document.getElementById('caixa-mensalistas-body');
   tbody.innerHTML = '';
   var presidentes = caixaItens.filter(function(c){
-    return c.tipo==='mensalista' && membros.find(function(m){ return m.id===c.membro_id && m.tipo==='presidente'; });
+    var m = membros.find(function(x){ return x.id===c.membro_id; });
+    return c.tipo==='mensalista' && m && m.tipo==='presidente';
   }).sort(function(a,b){ return (a.nome||'').localeCompare(b.nome||''); });
   var mensalistas = caixaItens.filter(function(c){
-    return c.tipo==='mensalista' && !membros.find(function(m){ return m.id===c.membro_id && m.tipo==='presidente'; });
+    var m = membros.find(function(x){ return x.id===c.membro_id; });
+    return c.tipo==='mensalista' && (!m || m.tipo==='mensalista' || !m.tipo);
   }).sort(function(a,b){ return (a.nome||'').localeCompare(b.nome||''); });
 
   if (presidentes.length) {
