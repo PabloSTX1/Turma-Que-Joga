@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TURMA QUE JOGA FC</title>
+<title>Turma Que Joga FC</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
@@ -159,7 +159,7 @@
   .goleiro-ranking-table td.num{text-align:center;}
   .goleiro-ranking-table tbody tr:last-child td{border-bottom:none;}
   .goleiro-ranking-table tbody tr:hover{background:rgba(125,232,122,0.05);}
-  .vitorias-num{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:19px;color:#7de87a;}
+  .vitórias-num{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:19px;color:#7de87a;}
 
   /* GOLEIRO INPUT */
   .goleiro-input-area{margin-top:16px;background:rgba(125,232,122,0.05);border:1px dashed rgba(125,232,122,0.35);border-radius:8px;padding:14px;}
@@ -184,7 +184,7 @@
   .filtro-select option{background:var(--preto-medio);}
   .periodo-label{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1.5px;color:var(--laranja);margin-left:4px;}
 
-  /* ANIVERSARIO BANNER */
+  /* ANIVERSÁRIO BANNER */
   .aniversario-banner{display:none;background:linear-gradient(135deg,#1a1200,#2d1f00);border:2px solid var(--laranja);border-radius:12px;padding:16px 20px;margin-bottom:20px;animation:pulse-border 2s infinite;}
   .aniversario-banner.show{display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
   @keyframes pulse-border{0%,100%{box-shadow:0 0 8px rgba(232,100,26,.4);}50%{box-shadow:0 0 20px rgba(232,100,26,.8);}}
@@ -305,7 +305,7 @@
   .rodada-tab.active{background:var(--azul);color:#fff;border-color:var(--azul);}
   .sem-rodadas{font-family:'Barlow Condensed',sans-serif;font-size:13px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;padding:12px 0;}
 
-  /* ORDENACAO RANKING */
+  /* ORDENAÇÃO RANKING */
   .ordenacao-bar{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
   .ordenacao-label{font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);flex-shrink:0;}
   .ord-btn{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;background:transparent;color:var(--muted);border:1.5px solid var(--azul-linha);padding:6px 16px;border-radius:20px;cursor:pointer;transition:all .2s;}
@@ -314,7 +314,7 @@
   .ord-btn.active-assists{background:rgba(125,232,122,0.15);color:#7de87a;border-color:#7de87a;}
   .ord-btn.active-total{background:rgba(232,100,26,0.15);color:var(--laranja);border-color:var(--laranja);}
 
-  /* ORDENACAO RANKING */
+  /* ORDENAÇÃO RANKING */
   .ordenacao-bar{display:flex;align-items:center;gap:8px;margin-bottom:20px;flex-wrap:wrap;}
   .ordenacao-label{font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);flex-shrink:0;}
   .ord-btn{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;background:transparent;color:var(--muted);border:1.5px solid var(--azul-linha);padding:6px 16px;border-radius:20px;cursor:pointer;transition:all .2s;white-space:nowrap;}
@@ -331,142 +331,148 @@
     <div class="logo-area">
       <div class="logo-wrap" onclick="abrirLogin()"></div>
       <div class="logo-text">
-        <h1>TURMA QUE JOGA <span>FC</span></h1>
-        <p>&#9917; DOMINGOS &middot; 10H DA MANHÃ</p>
+        <h1>Turma Que Joga <span>FC</span></h1>
+        <p>&#9917; Domingos &middot; 10h da manh&#227;</p>
       </div>
     </div>
     <div style="display:flex;align-items:center;gap:12px;">
-      <div class="admin-badge">&#128273; PRESIDENCIA <button class="btn-sair" onclick="sair()">SAIR</button></div>
-      <button class="btn-nova" onclick="openModalRodada()">+ NOVA RODADA</button>
+      <div class="admin-badge">&#128273; Presidência <button class="btn-sair" onclick="sair()">Sair</button></div>
+      <button class="btn-nova" onclick="openModalRodada()">+ Nova Rodada</button>
     </div>
   </div>
 </header>
 
 <div class="tabs">
   <div class="tabs-inner">
-    <button class="tab-btn active" onclick="switchTab('ranking',this)">RANKING GERAL</button>
-    <button class="tab-btn" onclick="switchTab('rodadas',this)">RODADAS</button>
-    <button class="tab-btn" onclick="switchTab('goleiros',this)">GOLEIROS</button>
-    <button class="tab-btn" onclick="switchTab('membros',this)">MEMBROS</button>
-    <button class="tab-btn admin-only" style="display:none;" onclick="switchTab('caixa',this)">CAIXA</button>
+    <button class="tab-btn active" onclick="switchTab('ranking',this)">Ranking Geral</button>
+    <button class="tab-btn" onclick="switchTab('rodadas',this)">Rodadas</button>
+    <button class="tab-btn" onclick="switchTab('goleiros',this)">Goleiros</button>
+    <button class="tab-btn" onclick="switchTab('membros',this)">Membros</button>
+    <button class="tab-btn admin-only" style="display:none;" onclick="switchTab('caixa',this)">Caixa</button>
   </div>
 </div>
 
-
+<!-- FILTRO GLOBAL -->
+<div class="tabs" style="border-top:none;border-bottom:1px solid #152050;padding:10px 20px;">
+  <div style="max-width:960px;margin:0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+    <span class="filtro-label">Período:</span>
+    <div class="filtro-pills" id="filtro-pills-global"></div>
+    <select class="filtro-select" id="filtro-select-global" onchange="setFiltroGlobal(this.value)">
+      <option value="">Outros meses...</option>
+    </select>
+  </div>
+</div>
 
 <div class="page active" id="page-ranking">
   <div class="wrap">
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
-      <span class="filtro-label">PERIODO:</span>
-      <div class="filtro-pills" id="filtro-pills-global"></div>
-      <select class="filtro-select" id="filtro-select-global" onchange="setFiltroGlobal(this.value)" style="display:none;">
-        <option value="">OUTROS MESES...</option>
-      </select>
-    </div>
-    <div class="aniversario-banner" id="aniversario-banner">
+    <div class="aniversário-banner" id="aniversario-banner">
       <div class="aniversario-icon">&#127874;</div>
       <div class="aniversario-texto">
-        <h3>FELIZ ANIVERSÁRIO!</h3>
-        <p>HOJE É ANIVERSÁRIO DE <span class="aniversario-nomes" id="aniversario-nomes"></span>!</p>
+        <h3>Feliz Aniversário!</h3>
+        <p>Hoje é aniversário de <span class="aniversario-nomes" id="aniversario-nomes"></span>!</p>
       </div>
     </div>
-    
+    <div class="filtro-bar">
+      <span class="filtro-label">Período:</span>
+      <div class="filtro-pills">
+        <button class="pill active" onclick="setFiltro('geral',this)">Geral</button>
+      </div>
       <select class="filtro-select" id="filtro-select" onchange="setFiltroSelect(this)">
-        <option value="">SELECIONAR MES...</option>
+        <option value="">Selecionar mês...</option>
       </select>
     </div>
     <div class="hero-stats">
-      <div class="hero-card"><div class="number" id="total-rodadas">-</div><div class="label">RODADAS</div></div>
-      <div class="hero-card"><div class="number" id="total-gols">-</div><div class="label">GOLS TOTAIS</div></div>
-      <div class="hero-card"><div class="number" id="total-jogadores">-</div><div class="label">JOGADORES</div></div>
-      <div class="hero-card" style="border-top-color:var(--laranja);"><div class="number" id="top-goleiro" style="font-size:28px;padding-top:4px;">-</div><div class="label">GOLEIRO LIDER</div></div>
+      <div class="hero-card"><div class="number" id="total-rodadas">-</div><div class="label">Rodadas</div></div>
+      <div class="hero-card"><div class="number" id="total-gols">-</div><div class="label">Gols Totais</div></div>
+      <div class="hero-card"><div class="number" id="total-jogadores">-</div><div class="label">Jogadores</div></div>
+      <div class="hero-card" style="border-top-color:var(--laranja);"><div class="number" id="top-goleiro" style="font-size:28px;padding-top:4px;">-</div><div class="label">Goleiro Líder</div></div>
     </div>
     <div class="ordenacao-bar">
-      <span class="ordenacao-label">ORDENAR POR:</span>
-      <button class="ord-btn active-gols" id="ord-gols" onclick="setOrdenacao('gols')">⚽ GOLS</button>
-      <button class="ord-btn" id="ord-assists" onclick="setOrdenacao('assists')">🎯 ASSISTENCIAS</button>
-      <button class="ord-btn" id="ord-total" onclick="setOrdenacao('total')">🏅 PARTICIPACOES</button>
+      <span class="ordenacao-label">Ordenar por:</span>
+      <button class="ord-btn active-gols" id="ord-gols" onclick="setOrdenacao('gols')">⚽ Gols</button>
+      <button class="ord-btn" id="ord-assists" onclick="setOrdenacao('assists')">🎯 Assistências</button>
+      <button class="ord-btn" id="ord-total" onclick="setOrdenacao('total')">🏅 Participações</button>
     </div>
-    <div class="section-title" id="ranking-titulo">ARTILHARIA GERAL</div>
+    <div class="section-title" id="ranking-titulo">Artilharia Geral</div>
     
-    <div id="ranking-container"><div class="loading"><div class="spinner"></div>CARREGANDO...</div></div>
+    <div id="ranking-container"><div class="loading"><div class="spinner"></div>Carregando...</div></div>
   </div>
 </div>
 
 <div class="page" id="page-rodadas">
   <div class="wrap">
-    <div id="rodadas-container"><div class="loading"><div class="spinner"></div>CARREGANDO...</div></div>
+    <div id="rodadas-container"><div class="loading"><div class="spinner"></div>Carregando...</div></div>
   </div>
 </div>
 
 <div class="page" id="page-goleiros">
   <div class="wrap">
-    <div class="section-title">RANKING DE GOLEIROS</div>
-    <div id="goleiros-container"><div class="loading"><div class="spinner"></div>CARREGANDO...</div></div>
+    <div class="section-title">Ranking de Goleiros</div>
+    <div id="goleiros-container"><div class="loading"><div class="spinner"></div>Carregando...</div></div>
   </div>
 </div>
 
 <div class="page" id="page-membros">
   <div class="wrap">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
-      <div class="section-title" style="margin-bottom:0;flex:1;">MEMBROS DA PELADA</div>
-      <button class="btn-add-membro" onclick="openModalMembro()">+ ADICIONAR MEMBRO</button>
+      <div class="section-title" style="margin-bottom:0;flex:1;">Membros da Pelada</div>
+      <button class="btn-add-membro" onclick="openModalMembro()">+ Adicionar Membro</button>
     </div>
     <div class="membros-grid" id="membros-grid">
-      <div class="loading"><div class="spinner"></div>CARREGANDO...</div>
+      <div class="loading"><div class="spinner"></div>Carregando...</div>
     </div>
   </div>
 </div>
 
 <div class="modal-overlay" id="modal-login" onclick="fecharLoginFora(event)">
   <div class="modal-login-box">
-    <h2>AREA DA PRESIDENCIA</h2>
-    <p class="modal-sub">ACESSO EXCLUSIVO PARA GERENCIAR AS RODADAS</p>
-    <div class="form-group"><label>USUARIO</label><input type="text" id="login-user" placeholder="USUARIO" autocomplete="off"></div>
-    <div class="form-group"><label>SENHA</label><input type="password" id="login-pass" placeholder="SENHA" onkeydown="if(event.key==='Enter')fazerLogin()"></div>
-    <div class="login-error" id="login-error">USUARIO OU SENHA INCORRETOS.</div>
+    <h2>Area da Presidência</h2>
+    <p class="modal-sub">Acesso exclusivo para gerenciar as rodadas</p>
+    <div class="form-group"><label>Usuário</label><input type="text" id="login-user" placeholder="usuario" autocomplete="off"></div>
+    <div class="form-group"><label>Senha</label><input type="password" id="login-pass" placeholder="senha" onkeydown="if(event.key==='Enter')fazerLogin()"></div>
+    <div class="login-error" id="login-error">Usuário ou senha incorretos.</div>
     <div class="modal-actions">
-      <button class="btn-cancel" onclick="fecharLogin()">CANCELAR</button>
-      <button class="btn-entrar" onclick="fazerLogin()">ENTRAR</button>
+      <button class="btn-cancel" onclick="fecharLogin()">Cancelar</button>
+      <button class="btn-entrar" onclick="fazerLogin()">Entrar</button>
     </div>
   </div>
 </div>
 
 <div class="modal-overlay" id="modal-rodada" onclick="fecharRodadaFora(event)">
   <div class="modal-rodada-box">
-    <h2 id="modal-rodada-titulo">NOVA RODADA</h2>
-    <div class="form-group"><label>DATA DA PELADA</label><input type="date" id="input-data"></div>
-    <div class="modal-section-title">ESTATISTICAS DOS JOGADORES</div>
+    <h2 id="modal-rodada-titulo">Nova Rodada</h2>
+    <div class="form-group"><label>Data da Pelada</label><input type="date" id="input-data"></div>
+    <div class="modal-section-title">Estatísticas dos Jogadores</div>
     <div class="col-labels">
-      <span>JOGADOR</span><span class="c-gol">GOLS</span><span class="c-ast">ASSIST</span><span></span>
+      <span>Jogador</span><span class="c-gol">Gols</span><span class="c-ast">Assist</span><span></span>
     </div>
     <div id="stat-rows"></div>
-    <button class="btn-add-row" onclick="addStatRow()">+ ADICIONAR JOGADOR</button>
+    <button class="btn-add-row" onclick="addStatRow()">+ Adicionar Jogador</button>
     <div class="goleiro-input-area">
-      <span class="goleiro-input-label">GOLEIROS DA RODADA</span>
+      <span class="goleiro-input-label">Goleiros da Rodada</span>
       <div style="display:grid;grid-template-columns:1fr 90px 32px;gap:8px;margin-bottom:6px;">
-        <span style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);">GOLEIRO</span>
-        <span style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#7de87a;text-align:center;">VITORIAS</span>
+        <span style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);">Goleiro</span>
+        <span style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#7de87a;text-align:center;">Vitórias</span>
         <span></span>
       </div>
       <div id="goleiro-rows"></div>
-      <button class="btn-add-goleiro" onclick="addGoleiroRow()">+ ADICIONAR GOLEIRO</button>
+      <button class="btn-add-goleiro" onclick="addGoleiroRow()">+ Adicionar Goleiro</button>
     </div>
     <div class="modal-actions">
-      <button class="btn-cancel" onclick="fecharModalRodada()">CANCELAR</button>
-      <button class="btn-save" id="btn-save" onclick="salvarRodada()">SALVAR RODADA</button>
+      <button class="btn-cancel" onclick="fecharModalRodada()">Cancelar</button>
+      <button class="btn-save" id="btn-save" onclick="salvarRodada()">Salvar Rodada</button>
     </div>
   </div>
 </div>
 
 <div class="modal-overlay" id="modal-membro" onclick="fecharMembroFora(event)">
   <div class="modal-membro-box">
-    <h2 id="modal-membro-titulo">NOVO MEMBRO</h2>
-    <div class="form-group"><label>NOME COMPLETO</label><input type="text" id="membro-nome" placeholder="NOME DO MENSALISTA"></div>
-    <div class="form-group"><label>DATA DE ANIVERSARIO</label><input type="date" id="membro-aniv"></div>
+    <h2 id="modal-membro-titulo">Novo Membro</h2>
+    <div class="form-group"><label>Nome completo</label><input type="text" id="membro-nome" placeholder="Nome do mensalista"></div>
+    <div class="form-group"><label>Data de Aniversário</label><input type="date" id="membro-aniv"></div>
     <div class="modal-actions">
-      <button class="btn-cancel" onclick="fecharModalMembro()">CANCELAR</button>
-      <button class="btn-save" onclick="salvarMembro()">SALVAR</button>
+      <button class="btn-cancel" onclick="fecharModalMembro()">Cancelar</button>
+      <button class="btn-save" onclick="salvarMembro()">Salvar</button>
     </div>
   </div>
 </div>
@@ -475,64 +481,64 @@
   <div class="wrap">
 
     <div class="caixa-mes-select">
-      <span class="filtro-label">MES:</span>
+      <span class="filtro-label">Mês:</span>
       <select class="filtro-select" id="caixa-mes-sel" onchange="renderCaixa()"></select>
     </div>
 
     <!-- TOTAL EM CAIXA -->
     <div class="caixa-total-box">
       <div>
-        <div class="caixa-total-label">SALDO EM CAIXA</div>
+        <div class="caixa-total-label">Saldo em Caixa</div>
         <div class="caixa-total-valor" id="ck-saldo">R$ 0</div>
         <div class="caixa-total-detail">
-          ENTRADAS: <span id="ck-entradas">R$ 0</span> &nbsp;|&nbsp; GASTOS: <span id="ck-gastos-total">R$ 0</span>
+          Entradas: <span id="ck-entradas">R$ 0</span> &nbsp;|&nbsp; Gastos: <span id="ck-gastos-total">R$ 0</span>
         </div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;min-width:280px;">
-        <div class="caixa-card pago" style="margin:0;"><div class="ck-num" id="ck-pago">0</div><div class="ck-label">PAGARAM</div></div>
-        <div class="caixa-card pendente" style="margin:0;"><div class="ck-num" id="ck-pendente">0</div><div class="ck-label">PENDENTES</div></div>
+        <div class="caixa-card pago" style="margin:0;"><div class="ck-num" id="ck-pago">0</div><div class="ck-label">Pagaram</div></div>
+        <div class="caixa-card pendente" style="margin:0;"><div class="ck-num" id="ck-pendente">0</div><div class="ck-label">Pendentes</div></div>
       </div>
     </div>
 
     <!-- MENSALISTAS -->
     <div class="caixa-section-title">
-      MENSALISTAS
+      Mensalistas
       <div class="caixa-section-line"></div>
     </div>
     <table class="caixa-table">
       <thead><tr>
-        <th>NOME</th>
-        <th class="num">VALOR (R$)</th>
-        <th class="num">STATUS</th>
-        <th class="num">FORMA</th>
-        <th class="num acao-col" style="display:none;">ACAO</th>
+        <th>Nome</th>
+        <th class="num">Valor (R$)</th>
+        <th class="num">Status</th>
+        <th class="num">Forma</th>
+        <th class="num acao-col" style="display:none;">Ação</th>
       </tr></thead>
       <tbody id="caixa-mensalistas-body"></tbody>
     </table>
 
     <!-- AVULSOS -->
     <div class="caixa-section-title" style="margin-top:8px;">
-      AVULSOS POR RODADA
+      Avulsos por Rodada
       <div class="caixa-section-line"></div>
-      <button class="btn-add-avulso acao-col" style="display:none;" onclick="openModalAvulso()">+ AVULSO</button>
+      <button class="btn-add-avulso acao-col" style="display:none;" onclick="openModalAvulso()">+ Avulso</button>
     </div>
     <div id="avulsos-rodada-tabs" class="rodada-tabs"></div>
     <table class="caixa-table">
       <thead><tr>
-        <th>NOME</th>
-        <th class="num">VALOR (R$)</th>
-        <th class="num">STATUS</th>
-        <th class="num">FORMA</th>
-        <th class="num acao-col" style="display:none;">ACAO</th>
+        <th>Nome</th>
+        <th class="num">Valor (R$)</th>
+        <th class="num">Status</th>
+        <th class="num">Forma</th>
+        <th class="num acao-col" style="display:none;">Ação</th>
       </tr></thead>
       <tbody id="caixa-avulsos-body"></tbody>
     </table>
 
     <!-- GASTOS -->
     <div class="caixa-section-title" style="margin-top:8px;">
-      GASTOS DO MES
+      Gastos do Mês
       <div class="caixa-section-line"></div>
-      <button class="btn-add-gasto acao-col" style="display:none;" onclick="openModalGasto()">+ GASTO</button>
+      <button class="btn-add-gasto acao-col" style="display:none;" onclick="openModalGasto()">+ Gasto</button>
     </div>
     <div id="caixa-gastos-lista"></div>
 
@@ -542,12 +548,12 @@
 <!-- MODAL AVULSO -->
 <div class="modal-overlay" id="modal-avulso" onclick="if(event.target===this)fecharModalAvulso()">
   <div class="modal-avulso-box">
-    <h2>ADICIONAR AVULSO</h2>
-    <div class="form-group"><label>NOME</label><input type="text" id="avulso-nome" placeholder="NOME COMPLETO"></div>
-    <div class="form-group"><label>VALOR (R$)</label><input type="number" id="avulso-valor" placeholder="0.00" min="0" step="0.01" class="valor-input"></div>
+    <h2>Adicionar Avulso</h2>
+    <div class="form-group"><label>Nome</label><input type="text" id="avulso-nome" placeholder="Nome completo"></div>
+    <div class="form-group"><label>Valor (R$)</label><input type="number" id="avulso-valor" placeholder="0.00" min="0" step="0.01" class="valor-input"></div>
     <div class="modal-actions">
-      <button class="btn-cancel" onclick="fecharModalAvulso()">CANCELAR</button>
-      <button class="btn-save" onclick="salvarAvulso()">ADICIONAR</button>
+      <button class="btn-cancel" onclick="fecharModalAvulso()">Cancelar</button>
+      <button class="btn-save" onclick="salvarAvulso()">Adicionar</button>
     </div>
   </div>
 </div>
@@ -555,16 +561,16 @@
 <!-- MODAL PAGAMENTO -->
 <div class="modal-overlay" id="modal-pgto" onclick="if(event.target===this)fecharModalPgto()">
   <div class="modal-pgto-box">
-    <h2>REGISTRAR PAGAMENTO</h2>
+    <h2>Registrar Pagamento</h2>
     <p id="modal-pgto-nome" style="font-family:Barlow Condensed,sans-serif;font-size:16px;color:var(--branco);font-weight:700;margin-bottom:4px;"></p>
-    <p style="font-family:Barlow Condensed,sans-serif;font-size:13px;color:var(--muted);margin-bottom:16px;">COMO FOI O PAGAMENTO?</p>
+    <p style="font-family:Barlow Condensed,sans-serif;font-size:13px;color:var(--muted);margin-bottom:16px;">Como foi o pagamento?</p>
     <div class="forma-btns">
       <button class="forma-btn pix-btn" onclick="confirmarPgto('PIX')">PIX</button>
-      <button class="forma-btn din-btn" onclick="confirmarPgto('DINHEIRO')">DINHEIRO</button>
+      <button class="forma-btn din-btn" onclick="confirmarPgto('DINHEIRO')">Dinheiro</button>
     </div>
-    <button class="btn-desfazer" id="btn-desfazer-pgto" style="display:none;" onclick="desfazerPgto()">DESFAZER PAGAMENTO</button>
+    <button class="btn-desfazer" id="btn-desfazer-pgto" style="display:none;" onclick="desfazerPgto()">Desfazer pagamento</button>
     <div style="margin-top:12px;text-align:center;">
-      <button class="btn-cancel" onclick="fecharModalPgto()">CANCELAR</button>
+      <button class="btn-cancel" onclick="fecharModalPgto()">Cancelar</button>
     </div>
   </div>
 </div>
@@ -572,12 +578,12 @@
 <!-- MODAL GASTO -->
 <div class="modal-overlay" id="modal-gasto" onclick="if(event.target===this)fecharModalGasto()">
   <div class="modal-gasto-box">
-    <h2>NOVO GASTO</h2>
-    <div class="form-group"><label>DESCRICAO</label><input type="text" id="gasto-desc" placeholder="EX: COMPRA DE COLETES"></div>
-    <div class="form-group"><label>VALOR (R$)</label><input type="number" id="gasto-valor" placeholder="0.00" min="0" step="0.01" class="valor-input" style="color:#e74c3c;"></div>
+    <h2>Novo Gasto</h2>
+    <div class="form-group"><label>Descrição</label><input type="text" id="gasto-desc" placeholder="Ex: Compra de coletes"></div>
+    <div class="form-group"><label>Valor (R$)</label><input type="number" id="gasto-valor" placeholder="0.00" min="0" step="0.01" class="valor-input" style="color:#e74c3c;"></div>
     <div class="modal-actions">
-      <button class="btn-cancel" onclick="fecharModalGasto()">CANCELAR</button>
-      <button class="btn-save" onclick="salvarGasto()">SALVAR</button>
+      <button class="btn-cancel" onclick="fecharModalGasto()">Cancelar</button>
+      <button class="btn-save" onclick="salvarGasto()">Salvar</button>
     </div>
   </div>
 </div>
@@ -661,7 +667,7 @@ function fazerLogin() {
   var u = document.getElementById('login-user').value.trim();
   var p = document.getElementById('login-pass').value;
   if (u === ADMIN_USER && p === ADMIN_PASS) {
-    fecharLogin(); setAdmin(true); toast('BEM-VINDO, PRESIDENCIA!'); render(); renderCaixa(); renderMembros();
+    fecharLogin(); setAdmin(true); toast('Bem-vindo, Presidência!'); render(); renderCaixa(); renderMembros();
   } else {
     document.getElementById('login-error').classList.add('show');
     document.getElementById('login-pass').value = '';
@@ -670,7 +676,7 @@ function fazerLogin() {
 }
 function sair() {
   setAdmin(false);
-  toast('SESSAO ENCERRADA.');
+  toast('Sessão encerrada.');
   // If on caixa tab, redirect to ranking
   var caixaPage = document.getElementById('page-caixa');
   if (caixaPage && caixaPage.classList.contains('active')) {
@@ -688,13 +694,13 @@ function computeGoleiros() {
     gols.forEach(function(g) {
       if (!g) return;
       var nome = typeof g === 'object' ? g.nome : g;
-      var vit  = typeof g === 'object' ? (g.vitorias || 0) : 1;
+      var vit  = typeof g === 'object' ? (g.vitórias || 0) : 1;
       if (!nome) return;
-      if (!map[nome]) map[nome] = { nome: nome, vitorias: 0 };
-      map[nome].vitorias += vit;
+      if (!map[nome]) map[nome] = { nome: nome, vitórias: 0 };
+      map[nome].vitórias += vit;
     });
   });
-  return Object.values(map).sort(function(a,b){ return b.vitorias - a.vitorias; });
+  return Object.values(map).sort(function(a,b){ return b.vitórias - a.vitórias; });
 }
 
 function renderGoleiros() {
@@ -709,10 +715,10 @@ function renderGoleiros() {
     var pos = i+1, pc = pos<=3?'pos-'+pos:'pos-n';
     rows += '<tr><td class="num"><span class="pos-badge '+pc+'">'+pos+'</span></td>'
       +'<td><span class="player-name">'+esc(g.nome)+'</span></td>'
-      +'<td class="num"><span class="vitorias-num">'+g.vitorias+'</span></td></tr>';
+      +'<td class="num"><span class="vitórias-num">'+g.vitórias+'</span></td></tr>';
   });
   gc.innerHTML = '<table class="goleiro-ranking-table"><thead><tr>'
-    +'<th class="num" style="width:48px">#</th><th>Goleiro</th><th class="num">Vitorias</th>'
+    +'<th class="num" style="width:48px">#</th><th>Goleiro</th><th class="num">Vitórias</th>'
     +'</tr></thead><tbody>'+rows+'</tbody></table>';
 }
 
@@ -765,7 +771,7 @@ function render() {
   if (grank.length > 0) {
     topGEl.textContent = grank[0].nome;
     topGEl.style.fontSize = grank[0].nome.length > 8 ? '16px' : '22px';
-    topGEl.title = grank[0].vitorias + ' vitoria(s)';
+    topGEl.title = grank[0].vitórias + ' vitória(s)';
   } else {
     topGEl.textContent = '-';
     topGEl.style.fontSize = '28px';
@@ -787,7 +793,7 @@ function render() {
     });
     var thGols    = '<th class="num" style="'+(ordenacaoAtiva==='gols'?'color:#5bc8ff;':'')+'">Gols</th>';
     var thAssists = '<th class="num" style="'+(ordenacaoAtiva==='assists'?'color:#7de87a;':'')+'">Assists</th>';
-    var thTotal   = '<th class="num" style="'+(ordenacaoAtiva==='total'?'color:var(--laranja);':'')+'">Participacoes</th>';
+    var thTotal   = '<th class="num" style="'+(ordenacaoAtiva==='total'?'color:var(--laranja);':'')+'">Participações</th>';
     rc.innerHTML = '<table class="ranking-table"><thead><tr>'
       +'<th class="num" style="width:48px">#</th><th>Jogador</th>'
       +thGols+thAssists+thTotal
@@ -802,7 +808,7 @@ function renderRodadas() {
   var rd = document.getElementById('rodadas-container');
   var lista = getRodadasFiltradas(filtroAtivo);
   if (!lista.length) {
-    rd.innerHTML = '<div class="empty-state"><div class="icon">&#128197;</div><p>Nenhuma rodada para este periodo</p></div>';
+    rd.innerHTML = '<div class="empty-state"><div class="icon">&#128197;</div><p>Nenhuma rodada para este período</p></div>';
     return;
   }
   rd.innerHTML = lista.map(function(r) {
@@ -821,7 +827,7 @@ function renderRodadas() {
     if (gols.length > 0) {
       var gRows = gols.map(function(g) {
         var nome = (typeof g === 'object' && g !== null) ? (g.nome || '') : String(g);
-        var vit  = (typeof g === 'object' && g !== null) ? (g.vitorias || 0) : 0;
+        var vit  = (typeof g === 'object' && g !== null) ? (g.vitórias || 0) : 0;
         return '<tr>'
           +'<td style="padding:9px 8px;border-bottom:1px solid rgba(17,32,80,.6);color:var(--branco);">' + esc(nome) + '</td>'
           +'<td style="padding:9px 8px;border-bottom:1px solid rgba(17,32,80,.6);text-align:center;font-family:Barlow Condensed,sans-serif;font-weight:700;font-size:16px;color:#7de87a;">' + vit + '</td>'
@@ -832,7 +838,7 @@ function renderRodadas() {
         +'<table style="width:100%;border-collapse:collapse;">'
         +'<thead><tr>'
         +'<th style="font-family:Barlow Condensed,sans-serif;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);padding:6px 8px;text-align:left;border-bottom:1px solid var(--azul-linha);">Goleiro</th>'
-        +'<th style="font-family:Barlow Condensed,sans-serif;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#7de87a;padding:6px 8px;text-align:center;border-bottom:1px solid var(--azul-linha);">Vitorias</th>'
+        +'<th style="font-family:Barlow Condensed,sans-serif;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#7de87a;padding:6px 8px;text-align:center;border-bottom:1px solid var(--azul-linha);">Vitórias</th>'
         +'</tr></thead>'
         +'<tbody>' + gRows + '</tbody></table>'
         +'</div>';
@@ -850,7 +856,7 @@ function renderRodadas() {
       +'</div></div>'
       +'<div class="rodada-body" id="body-'+r.id+'">'
       +'<table class="rodada-mini-table"><thead><tr>'
-      +'<th>Jogador</th><th class="num">Gols</th><th class="num">Assist</th><th class="num">Participacoes</th>'
+      +'<th>Jogador</th><th class="num">Gols</th><th class="num">Assist</th><th class="num">Participações</th>'
       +'</tr></thead><tbody>'+trs+'</tbody></table>'
       +goleiroHTML
       +'</div></div>';
@@ -881,7 +887,7 @@ function openModalRodada(edit) {
       document.getElementById('input-data').value = r.data;
       r.stats.forEach(function(s){ addStatRow(s.nome, s.gols, s.assists); });
       (r.goleiros||[]).forEach(function(g){
-        if (typeof g === 'object') addGoleiroRow(g.nome, g.vitorias);
+        if (typeof g === 'object') addGoleiroRow(g.nome, g.vitórias);
         else addGoleiroRow(g, 0);
       });
     }
@@ -895,8 +901,8 @@ function editarRodada(id) { openModalRodada(id); }
 function fecharModalRodada() { document.getElementById('modal-rodada').classList.remove('open'); editingId = null; }
 function fecharRodadaFora(e) { if (e.target === document.getElementById('modal-rodada')) fecharModalRodada(); }
 
-function addGoleiroRow(nome, vitorias) {
-  nome = nome || ''; vitorias = vitorias || 0;
+function addGoleiroRow(nome, vitórias) {
+  nome = nome || ''; vitórias = vitórias || 0;
   var id = 'grow-' + uid();
   var div = document.createElement('div');
   div.className = 'goleiro-row'; div.id = id;
@@ -907,7 +913,7 @@ function addGoleiroRow(nome, vitorias) {
   inp.style.cssText = 'background:var(--preto);border:1px solid var(--azul-linha);border-radius:6px;color:var(--branco);font-family:Barlow,sans-serif;font-size:14px;padding:9px 12px;outline:none;width:100%;';
   var vit = document.createElement('input');
   vit.type = 'number'; vit.placeholder = '0'; vit.min = '0';
-  vit.value = vitorias; vit.className = 'grow-vitorias';
+  vit.value = vitórias; vit.className = 'grow-vitórias';
   vit.style.cssText = 'background:var(--preto);border:1px solid var(--azul-linha);border-radius:6px;color:#7de87a;font-family:Barlow,sans-serif;font-size:14px;padding:9px 8px;outline:none;text-align:center;width:100%;-moz-appearance:textfield;';
   var btn = document.createElement('button');
   btn.className = 'btn-rem-goleiro'; btn.innerHTML = '&times;';
@@ -934,7 +940,7 @@ function addStatRow(nome, gols, assists) {
 function salvarRodada() {
   if (!adminLogado) return;
   var data = document.getElementById('input-data').value;
-  if (!data) { alert('INFORME A DATA DA PELADA.'); return; }
+  if (!data) { alert('Informe a data da pelada.'); return; }
   var stats = [];
   document.querySelectorAll('#stat-rows .stat-entry-row').forEach(function(row) {
     var nome = row.querySelector('.row-nome').value.trim();
@@ -942,46 +948,46 @@ function salvarRodada() {
     var assists = parseInt(row.querySelector('.row-assists').value) || 0;
     if (nome) stats.push({ nome: nome, gols: gols, assists: assists });
   });
-  if (!stats.length) { alert('ADICIONE AO MENOS UM JOGADOR COM NOME.'); return; }
+  if (!stats.length) { alert('Adicione ao menos um jogador com nome.'); return; }
   var goleiros = [];
   document.querySelectorAll('#goleiro-rows .goleiro-row').forEach(function(row) {
     var g = row.querySelector('.grow-nome').value.trim();
-    var v = parseInt(row.querySelector('.grow-vitorias').value) || 0;
-    if (g) goleiros.push({nome: g, vitorias: v});
+    var v = parseInt(row.querySelector('.grow-vitórias').value) || 0;
+    if (g) goleiros.push({nome: g, vitórias: v});
   });
   var btn = document.getElementById('btn-save');
-  btn.textContent = 'SALVANDO...'; btn.disabled = true;
+  btn.textContent = 'Salvando...'; btn.disabled = true;
   var promise;
   if (editingId) {
     promise = dbAtualizar({ id: editingId, data: data, stats: stats, goleiros: goleiros }).then(function() {
       var idx = rodadas.findIndex(function(r){ return r.id===editingId; });
       if (idx !== -1) rodadas[idx] = Object.assign({}, rodadas[idx], { data: data, stats: stats, goleiros: goleiros });
-      toast('RODADA ATUALIZADA!');
+      toast('Rodada atualizada!');
     });
   } else {
     var novaId = uid();
     promise = dbInserir({ id: novaId, data: data, stats: stats, goleiros: goleiros }).then(function() {
       rodadas.unshift({ id: novaId, data: data, stats: stats, goleiros: goleiros });
-      toast('RODADA SALVA!');
+      toast('Rodada salva!');
     });
   }
   promise.then(function() {
     render(); fecharModalRodada();
   }).catch(function(e) {
-    toast('ERRO: ' + e.message, 'err');
+    toast('Erro: ' + e.message, 'err');
   }).finally(function() {
-    btn.textContent = 'SALVAR RODADA'; btn.disabled = false;
+    btn.textContent = 'Salvar Rodada'; btn.disabled = false;
   });
 }
 
 function deletarRodada(id) {
   if (!adminLogado) return;
-  if (!confirm('EXCLUIR ESTA RODADA?')) return;
+  if (!confirm('Excluir esta rodada?')) return;
   dbDeletar(id).then(function() {
     rodadas = rodadas.filter(function(r){ return r.id !== id; });
-    render(); toast('RODADA EXCLUIDA.');
+    render(); toast('Rodada excluída.');
   }).catch(function(e) {
-    toast('ERRO AO EXCLUIR.', 'err');
+    toast('Erro ao excluir.', 'err');
   });
 }
 
@@ -994,7 +1000,7 @@ function setOrdenacao(tipo) {
   document.getElementById('ord-assists').className = 'ord-btn' + (tipo==='assists' ? ' active-assists'  : '');
   document.getElementById('ord-total').className   = 'ord-btn' + (tipo==='total'   ? ' active-total'   : '');
   // Update section title
-  var titles = { gols: 'Artilharia Geral', assists: 'Ranking de Assistencias', total: 'Ranking de Participacoes' };
+  var titles = { gols: 'Artilharia Geral', assists: 'Ranking de Assistências', total: 'Ranking de Participações' };
   document.getElementById('ranking-titulo').textContent = titles[tipo];
   render();
 }
@@ -1032,7 +1038,7 @@ function buildGlobalPills() {
   // Geral button
   var btnGeral = document.createElement('button');
   btnGeral.className = 'pill' + (filtroAtivo === 'geral' ? ' active' : '');
-  btnGeral.textContent = 'GERAL';
+  btnGeral.textContent = 'Geral';
   btnGeral.onclick = function() { setFiltroGlobal('geral'); };
   pillsDiv.appendChild(btnGeral);
 
@@ -1081,7 +1087,7 @@ function init() {
     render();
     loadMembros().then(function(){
       renderMembros();
-      checkAniversarios();
+      checkAniversários();
       buildCaixaMesSel();
       renderCaixa();
     });
@@ -1111,7 +1117,7 @@ function getAniversariantesHoje() {
   var hoje = getDiaMes(); // MM-DD
   return membros.filter(function(m) {
     if (!m.aniversario) return false;
-    // aniversario format: YYYY-MM-DD, we compare MM-DD
+    // aniversário format: YYYY-MM-DD, we compare MM-DD
     var parts = m.aniversario.split('-');
     if (parts.length < 3) return false;
     var mmdd = parts[1] + '-' + parts[2];
@@ -1165,11 +1171,11 @@ function renderMembros() {
     var card = document.createElement('div');
     card.className = 'membro-card' + (isAniv ? ' aniversariante' : '');
 
-    // Badge aniversario
+    // Badge aniversário
     if (isAniv) {
       var badge = document.createElement('div');
       badge.className = 'membro-badge-aniv';
-      badge.textContent = 'ANIVERSARIO!';
+      badge.textContent = 'Aniversário!';
       card.appendChild(badge);
     }
 
@@ -1187,7 +1193,7 @@ function renderMembros() {
     nomeEl.textContent = m.nome;
     var anivEl = document.createElement('div');
     anivEl.className = 'membro-aniv';
-    anivEl.textContent = 'ANIVERSARIO: ' + formatAniv(m.aniversario);
+    anivEl.textContent = 'Aniversário: ' + formatAniv(m.aniversario);
     info.appendChild(nomeEl);
     info.appendChild(anivEl);
     card.appendChild(info);
@@ -1243,7 +1249,7 @@ function fecharMembroFora(e) { if(e.target===document.getElementById('modal-memb
 function salvarMembro() {
   var nome = document.getElementById('membro-nome').value.trim();
   var aniv = document.getElementById('membro-aniv').value;
-  if (!nome) { alert('INFORME O NOME DO MEMBRO.'); return; }
+  if (!nome) { alert('Informe o nome do membro.'); return; }
   if (editingMembroId) {
     var idx = membros.findIndex(function(m){ return m.id===editingMembroId; });
     if (idx !== -1) membros[idx] = { id: editingMembroId, nome: nome, aniversario: aniv };
@@ -1252,19 +1258,19 @@ function salvarMembro() {
   }
   saveMembros();
   renderMembros();
-  checkAniversarios();
+  checkAniversários();
   fecharModalMembro();
   toast(editingMembroId ? 'Membro atualizado!' : 'Membro cadastrado!');
 }
 
 function deletarMembro(id) {
   if (!adminLogado) return;
-  if (!confirm('REMOVER ESTE MEMBRO?')) return;
+  if (!confirm('Remover este membro?')) return;
   membros = membros.filter(function(m){ return m.id !== id; });
   saveMembros();
   renderMembros();
-  checkAniversarios();
-  toast('MEMBRO REMOVIDO.');
+  checkAniversários();
+  toast('Membro removido.');
 }
 
 
@@ -1359,7 +1365,7 @@ function renderMembros() {
     if (isAniv) {
       var badge = document.createElement('div');
       badge.className = 'membro-badge-aniv';
-      badge.textContent = 'ANIVERSARIO!';
+      badge.textContent = 'Aniversário!';
       card.appendChild(badge);
     }
     var avatar = document.createElement('div');
@@ -1369,7 +1375,7 @@ function renderMembros() {
     var info = document.createElement('div');
     info.className = 'membro-info';
     var nomeEl = document.createElement('div'); nomeEl.className = 'membro-nome'; nomeEl.textContent = m.nome;
-    var anivEl = document.createElement('div'); anivEl.className = 'membro-aniv'; anivEl.textContent = 'ANIVERSARIO: ' + formatAniv(m.aniversario);
+    var anivEl = document.createElement('div'); anivEl.className = 'membro-aniv'; anivEl.textContent = 'Aniversário: ' + formatAniv(m.aniversario);
     info.appendChild(nomeEl); info.appendChild(anivEl);
     card.appendChild(info);
     if (adminLogado) {
@@ -1407,37 +1413,37 @@ function fecharMembroFora(e) { if(e.target===document.getElementById('modal-memb
 function salvarMembro() {
   var nome = document.getElementById('membro-nome').value.trim();
   var aniv = document.getElementById('membro-aniv').value;
-  if (!nome) { alert('INFORME O NOME DO MEMBRO.'); return; }
+  if (!nome) { alert('Informe o nome do membro.'); return; }
   var btn = document.querySelector('#modal-membro .btn-save');
-  btn.textContent = 'SALVANDO...'; btn.disabled = true;
+  btn.textContent = 'Salvando...'; btn.disabled = true;
   var promise;
   if (editingMembroId) {
     var obj = { id: editingMembroId, nome: nome, aniversario: aniv };
     promise = dbUpdateMembro(obj).then(function(){
       var idx = membros.findIndex(function(m){ return m.id===editingMembroId; });
       if (idx !== -1) membros[idx] = obj;
-      toast('MEMBRO ATUALIZADO!');
+      toast('Membro atualizado!');
     });
   } else {
     var obj = { id: uid(), nome: nome, aniversario: aniv };
     promise = dbSaveMembro(obj).then(function(){
       membros.push(obj);
-      toast('MEMBRO CADASTRADO!');
+      toast('Membro cadastrado!');
     });
   }
   promise.then(function(){
-    renderMembros(); checkAniversarios(); fecharModalMembro();
-  }).catch(function(e){ toast('ERRO: ' + e.message, 'err'); })
-  .finally(function(){ btn.textContent = 'SALVAR'; btn.disabled = false; });
+    renderMembros(); checkAniversários(); fecharModalMembro();
+  }).catch(function(e){ toast('Erro: ' + e.message, 'err'); })
+  .finally(function(){ btn.textContent = 'Salvar'; btn.disabled = false; });
 }
 
 function deletarMembro(id) {
   if (!adminLogado) return;
-  if (!confirm('REMOVER ESTE MEMBRO?')) return;
+  if (!confirm('Remover este membro?')) return;
   dbDeleteMembro(id).then(function(){
     membros = membros.filter(function(m){ return m.id !== id; });
-    renderMembros(); checkAniversarios(); toast('MEMBRO REMOVIDO.');
-  }).catch(function(e){ toast('ERRO: ' + e.message, 'err'); });
+    renderMembros(); checkAniversários(); toast('Membro removido.');
+  }).catch(function(e){ toast('Erro: ' + e.message, 'err'); });
 }
 
 // ── CAIXA ─────────────────────────────────────────────────────
@@ -1487,7 +1493,7 @@ function renderCaixa() {
     return Promise.all(createPromises);
   }).then(function(){
     _renderCaixaUI(mes);
-  }).catch(function(e){ toast('ERRO AO CARREGAR CAIXA: ' + e.message, 'err'); });
+  }).catch(function(e){ toast('Erro ao carregar caixa: ' + e.message, 'err'); });
 }
 
 function _renderCaixaUI(mes) {
@@ -1530,7 +1536,7 @@ function _renderCaixaUI(mes) {
   if (!rodadasDoMes.length) {
     var semR = document.createElement('div');
     semR.className = 'sem-rodadas';
-    semR.textContent = 'NENHUMA RODADA REGISTRADA NESTE MES';
+    semR.textContent = 'Nenhuma rodada registrada neste mês';
     tabsDiv.appendChild(semR);
     avulsoRodadaAtiva = null;
   } else {
@@ -1541,7 +1547,7 @@ function _renderCaixaUI(mes) {
     rodadasDoMes.forEach(function(r, i) {
       var btn = document.createElement('button');
       btn.className = 'rodada-tab' + (r.id === avulsoRodadaAtiva ? ' active' : '');
-      btn.textContent = 'RODADA ' + (i+1) + ' - ' + fmtDate(r.data);
+      btn.textContent = 'Rodada ' + (i+1) + ' - ' + fmtDate(r.data);
       btn.onclick = (function(rid){ return function(){
         avulsoRodadaAtiva = rid;
         renderAvulsosTabela(mes, avulsos);
@@ -1569,7 +1575,7 @@ function _renderCaixaUI(mes) {
   if (!gastosItens.length) {
     var empty = document.createElement('div');
     empty.style.cssText = 'text-align:center;color:var(--muted);font-family:Barlow Condensed,sans-serif;padding:24px;letter-spacing:1px;text-transform:uppercase;';
-    empty.textContent = 'NENHUM GASTO REGISTRADO';
+    empty.textContent = 'Nenhum gasto registrado';
     gastosDiv.appendChild(empty);
   } else {
     gastosItens.forEach(function(g) {
@@ -1599,7 +1605,7 @@ function renderAvulsosTabela(mes, avulsos) {
     var tr0 = document.createElement('tr');
     var td0 = document.createElement('td'); td0.colSpan=5;
     td0.style.cssText='text-align:center;color:var(--muted);font-family:Barlow Condensed,sans-serif;padding:20px;letter-spacing:1px;text-transform:uppercase;';
-    td0.textContent = 'SELECIONE UMA RODADA ACIMA';
+    td0.textContent = 'Selecione uma rodada acima';
     tr0.appendChild(td0); tbodyAv.appendChild(tr0);
     return;
   }
@@ -1610,7 +1616,7 @@ function renderAvulsosTabela(mes, avulsos) {
     var tr0 = document.createElement('tr');
     var td0 = document.createElement('td'); td0.colSpan=5;
     td0.style.cssText='text-align:center;color:var(--muted);font-family:Barlow Condensed,sans-serif;padding:20px;letter-spacing:1px;text-transform:uppercase;';
-    td0.textContent = 'NENHUM AVULSO NESTA RODADA';
+    td0.textContent = 'Nenhum avulso nesta rodada';
     tr0.appendChild(td0); tbodyAv.appendChild(tr0);
   } else {
     filtrados.forEach(function(item){ tbodyAv.appendChild(_buildCaixaRow(item, mes)); });
@@ -1649,17 +1655,17 @@ function _buildCaixaRow(item, mes) {
     tdForma.appendChild(fb);
   } else { tdForma.innerHTML='<span class="forma-none">-</span>'; }
 
-  var tdAcao = document.createElement('td'); tdAcao.className='num acao-col'; tdAcao.style.display=adminLogado?'table-cell':'none';
+  var tdAção = document.createElement('td'); tdAção.className='num acao-col'; tdAção.style.display=adminLogado?'table-cell':'none';
   var btnPgto = document.createElement('button'); btnPgto.className='btn-status'; btnPgto.textContent=item.pago?'Alterar':'Pagar';
   btnPgto.onclick = (function(id,nome){ return function(){ openModalPgto(id,nome,mes); }; })(item.id, item.nome);
-  tdAcao.appendChild(btnPgto);
+  tdAção.appendChild(btnPgto);
   if (item.tipo === 'avulso') {
-    var btnDel = document.createElement('button'); btnDel.className='btn-status'; btnDel.style.color='#e74c3c'; btnDel.textContent='REMOVER';
+    var btnDel = document.createElement('button'); btnDel.className='btn-status'; btnDel.style.color='#e74c3c'; btnDel.textContent='Remover';
     btnDel.onclick = (function(id){ return function(){ removerAvulso(id, mes); }; })(item.id);
-    tdAcao.appendChild(btnDel);
+    tdAção.appendChild(btnDel);
   }
 
-  tr.appendChild(tdNome); tr.appendChild(tdValor); tr.appendChild(tdStatus); tr.appendChild(tdForma); tr.appendChild(tdAcao);
+  tr.appendChild(tdNome); tr.appendChild(tdValor); tr.appendChild(tdStatus); tr.appendChild(tdForma); tr.appendChild(tdAção);
   return tr;
 }
 
@@ -1667,12 +1673,12 @@ function atualizarValor(id, valor, mes) {
   var v = parseFloat(valor) || 0;
   fetch(API_CAIXA + '?id=eq.' + id, { method:'PATCH', headers:H, body:JSON.stringify({valor:v}) })
     .then(function(r){ if(!r.ok) throw new Error(r.status); })
-    .catch(function(e){ toast('ERRO AO SALVAR VALOR', 'err'); });
+    .catch(function(e){ toast('Erro ao salvar valor', 'err'); });
 }
 
 // Modal avulso
 function openModalAvulso() {
-  if (!avulsoRodadaAtiva) { toast('SELECIONE UMA RODADA PRIMEIRO.', 'err'); return; }
+  if (!avulsoRodadaAtiva) { toast('Selecione uma rodada primeiro.', 'err'); return; }
   document.getElementById('avulso-nome').value = '';
   document.getElementById('avulso-valor').value = '';
   document.getElementById('modal-avulso').classList.add('open');
@@ -1682,18 +1688,18 @@ function fecharModalAvulso() { document.getElementById('modal-avulso').classList
 function salvarAvulso() {
   var nome = document.getElementById('avulso-nome').value.trim();
   var valor = parseFloat(document.getElementById('avulso-valor').value) || 0;
-  if (!nome) { alert('INFORME O NOME DO AVULSO.'); return; }
+  if (!nome) { alert('Informe o nome do avulso.'); return; }
   var sel = document.getElementById('caixa-mes-sel');
   var mes = sel.value;
   var item = { id: uid(), mes: mes, tipo: 'avulso', membro_id: null, nome: nome, pago: false, forma: null, valor: valor, rodada_id: avulsoRodadaAtiva };
   dbUpsertCaixa(item).then(function(){
-    fecharModalAvulso(); renderCaixa(); toast('AVULSO ADICIONADO!');
-  }).catch(function(e){ toast('ERRO: ' + e.message, 'err'); });
+    fecharModalAvulso(); renderCaixa(); toast('Avulso adicionado!');
+  }).catch(function(e){ toast('Erro: ' + e.message, 'err'); });
 }
 function removerAvulso(id, mes) {
-  if (!confirm('REMOVER ESTE AVULSO?')) return;
-  dbDeleteCaixaItem(id).then(function(){ renderCaixa(); toast('AVULSO REMOVIDO.'); })
-    .catch(function(e){ toast('ERRO: ' + e.message, 'err'); });
+  if (!confirm('Remover este avulso?')) return;
+  dbDeleteCaixaItem(id).then(function(){ renderCaixa(); toast('Avulso removido.'); })
+    .catch(function(e){ toast('Erro: ' + e.message, 'err'); });
 }
 
 // Modal pagamento
@@ -1709,15 +1715,15 @@ function confirmarPgto(forma) {
   if (!pgtoTarget) return;
   fetch(API_CAIXA + '?id=eq.' + pgtoTarget.id, { method:'PATCH', headers:H, body:JSON.stringify({pago:true, forma:forma}) })
     .then(function(r){ if(!r.ok) throw new Error(r.status); })
-    .then(function(){ fecharModalPgto(); renderCaixa(); toast('PAGAMENTO VIA ' + forma + ' registrado!'); })
-    .catch(function(e){ toast('ERRO: ' + e.message, 'err'); });
+    .then(function(){ fecharModalPgto(); renderCaixa(); toast('Pagamento via ' + forma + ' registrado!'); })
+    .catch(function(e){ toast('Erro: ' + e.message, 'err'); });
 }
 function desfazerPgto() {
-  if (!pgtoTarget || !confirm('DESFAZER PAGAMENTO?')) return;
+  if (!pgtoTarget || !confirm('Desfazer pagamento?')) return;
   fetch(API_CAIXA + '?id=eq.' + pgtoTarget.id, { method:'PATCH', headers:H, body:JSON.stringify({pago:false, forma:null}) })
     .then(function(r){ if(!r.ok) throw new Error(r.status); })
-    .then(function(){ fecharModalPgto(); renderCaixa(); toast('PAGAMENTO DESFEITO.'); })
-    .catch(function(e){ toast('ERRO: ' + e.message, 'err'); });
+    .then(function(){ fecharModalPgto(); renderCaixa(); toast('Pagamento desfeito.'); })
+    .catch(function(e){ toast('Erro: ' + e.message, 'err'); });
 }
 
 // Gastos
@@ -1731,18 +1737,18 @@ function fecharModalGasto() { document.getElementById('modal-gasto').classList.r
 function salvarGasto() {
   var desc = document.getElementById('gasto-desc').value.trim();
   var valor = parseFloat(document.getElementById('gasto-valor').value) || 0;
-  if (!desc) { alert('INFORME A DESCRICAO.'); return; }
-  if (valor <= 0) { alert('INFORME UM VALOR VALIDO.'); return; }
+  if (!desc) { alert('Informe a descrição.'); return; }
+  if (valor <= 0) { alert('Informe um valor válido.'); return; }
   var sel = document.getElementById('caixa-mes-sel');
   var gasto = { id: uid(), mes: sel.value, descricao: desc, valor: valor };
   dbSaveGasto(gasto).then(function(){
-    fecharModalGasto(); renderCaixa(); toast('GASTO REGISTRADO!');
-  }).catch(function(e){ toast('ERRO: ' + e.message, 'err'); });
+    fecharModalGasto(); renderCaixa(); toast('Gasto registrado!');
+  }).catch(function(e){ toast('Erro: ' + e.message, 'err'); });
 }
 function deletarGasto(id, mes) {
-  if (!confirm('REMOVER ESTE GASTO?')) return;
-  dbDeleteGasto(id).then(function(){ renderCaixa(); toast('GASTO REMOVIDO.'); })
-    .catch(function(e){ toast('ERRO: ' + e.message, 'err'); });
+  if (!confirm('Remover este gasto?')) return;
+  dbDeleteGasto(id).then(function(){ renderCaixa(); toast('Gasto removido.'); })
+    .catch(function(e){ toast('Erro: ' + e.message, 'err'); });
 }
 
 window.onload = init;
