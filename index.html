@@ -671,16 +671,18 @@
     </div>
 
     <!-- CONFIGS DE VALORES -->
-    <div class="acao-col admin-only" style="display:none;margin-bottom:20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
-      <div style="display:flex;align-items:center;gap:8px;">
-        <span class="filtro-label">MENSALIDADE:</span>
-        <span style="color:var(--muted);font-size:12px;">R$</span>
-        <input type="number" id="cfg-valor-mens" value="45" min="0" step="1" style="width:64px;background:var(--preto);border:1px solid var(--azul-linha);border-radius:6px;color:#7de87a;font-size:14px;padding:5px 8px;text-align:center;outline:none;">
-      </div>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <span class="filtro-label">AVULSO:</span>
-        <span style="color:var(--muted);font-size:12px;">R$</span>
-        <input type="number" id="cfg-valor-avulso" value="12" min="0" step="1" style="width:64px;background:var(--preto);border:1px solid var(--azul-linha);border-radius:6px;color:var(--laranja);font-size:14px;padding:5px 8px;text-align:center;outline:none;">
+    <div class="caixa-cfg-valores acao-col" style="display:none;margin-bottom:20px;">
+      <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span class="filtro-label">MENSALIDADE:</span>
+          <span style="color:var(--muted);font-size:12px;">R$</span>
+          <input type="number" id="cfg-valor-mens" value="45" min="0" step="1" style="width:64px;background:var(--preto);border:1px solid var(--azul-linha);border-radius:6px;color:#7de87a;font-size:14px;padding:5px 8px;text-align:center;outline:none;">
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span class="filtro-label">AVULSO:</span>
+          <span style="color:var(--muted);font-size:12px;">R$</span>
+          <input type="number" id="cfg-valor-avulso" value="12" min="0" step="1" style="width:64px;background:var(--preto);border:1px solid var(--azul-linha);border-radius:6px;color:var(--laranja);font-size:14px;padding:5px 8px;text-align:center;outline:none;">
+        </div>
       </div>
     </div>
 
@@ -2067,7 +2069,9 @@ function _renderCaixaUI(mes) {
   // Toggle admin controls
   document.querySelectorAll('#page-caixa .acao-col').forEach(function(el){
     if (adminLogado) {
-      el.style.display = el.tagName === 'BUTTON' ? 'inline-block' : 'table-cell';
+      if (el.tagName === 'TH' || el.tagName === 'TD') el.style.display = 'table-cell';
+      else if (el.classList.contains('caixa-cfg-valores')) el.style.display = 'block';
+      else el.style.display = 'inline-block';
     } else {
       el.style.display = 'none';
     }
