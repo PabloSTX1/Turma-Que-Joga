@@ -833,6 +833,14 @@ var rodadas = [];
 var editingId = null;
 var adminLogado = false;
 
+// ── MEMBROS / CAIXA GLOBALS ────────────────────────────────────
+var membros = [];
+var editingMembroId = null;
+var caixaItens = [];
+var gastosItens = [];
+var avulsoRodadaAtiva = null;
+var MESES_NOME = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+
 var API = SB_URL + '/rest/v1/rodadas';
 var H_GET = {
   'apikey': SB_KEY,
@@ -1923,29 +1931,27 @@ function deletarAviso(id) {
 
 
 function renderCaixa() {
-  var sel = document.getElementById('caixa-mes-sel');
-  if (!sel) return;
-  var mes = sel.value;
+  var mes = (filtroAtivo === 'geral' || !filtroAtivo) ? mesAtualYM() : filtroAtivo;
 
-  // Load from Supabase
   Promise.all([dbGetCaixa(mes), dbGetGastos(mes)]).then(function(results) {
     caixaItens  = results[0];
     gastosItens = results[1];
-
-    // Ensure all membros have entries
-    var existingIds = caixaItens.filter(function(c){ return c.tipo==='mensalista'; }).map(function(c){ return c.membro_id; });
-    var toCreate = membros.filter(function(m){ return existingIds.indexOf(m.id) === -1; });
-    var createPromises = toCreate.map(function(m){
-      var item = { id: uid(), mes: mes, tipo: 'mensalista', membro_id: m.id, nome: m.nome, pago: false, forma: null, valor: 0 };
-      caixaItens.push(item);
-      return dbUpsertCaixa(item);
-    });
-    return Promise.all(createPromises);
-  }).then(function(){
     _renderCaixaUI(mes);
   }).catch(function(e){ toast('ERRO AO CARREGAR CAIXA: ' + e.message, 'err'); });
-}
 
+  // All-time totals (non-blocking)
+  Promise.all([dbGetAllCaixa(), dbGetAllGastos()]).then(function(results) {
+    var allCaixa  = results[0] || [];
+    var allGastos = results[1] || [];
+    var totalEntradas = allCaixa.reduce(function(s,c){ return s + (c.pago ? parseFloat(c.valor||0) : 0); }, 0);
+    var totalGastos   = allGastos.reduce(function(s,g){ return s + parseFloat(g.valor||0); }, 0);
+    var saldo = totalEntradas - totalGastos;
+    var sgEl = document.getElementById('ck-saldo-geral');
+    if (sgEl) { sgEl.textContent = fmtValor(saldo); sgEl.className = 'caixa-total-valor' + (saldo < 0 ? ' negativo' : ''); sgEl.style.fontSize = '28px'; }
+    var eg = document.getElementById('ck-entradas-geral'); if (eg) eg.textContent = fmtValor(totalEntradas);
+    var gg = document.getElementById('ck-gastos-geral');   if (gg) gg.textContent = fmtValor(totalGastos);
+  }).catch(function(){});
+}
 
 function _renderCaixaUI(mes) {
   var mensalistas = caixaItens.filter(function(c){ return c.tipo==='mensalista'; });
