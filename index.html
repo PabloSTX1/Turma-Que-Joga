@@ -829,6 +829,24 @@ var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZ
 var ADMIN_USER = '01';
 var ADMIN_PASS = '01';
 
+var API         = SB_URL + '/rest/v1/rodadas';
+var API_MEMBROS = SB_URL + '/rest/v1/membros';
+var API_CAIXA   = SB_URL + '/rest/v1/caixa';
+var API_GASTOS  = SB_URL + '/rest/v1/gastos';
+
+var H_GET = {
+  'apikey': SB_KEY,
+  'Authorization': 'Bearer ' + SB_KEY,
+  'Content-Type': 'application/json'
+};
+var H_WRITE = {
+  'apikey': SB_KEY,
+  'Authorization': 'Bearer ' + SB_KEY,
+  'Content-Type': 'application/json',
+  'Prefer': 'return=minimal'
+};
+var H = H_WRITE;
+
 var rodadas = [];
 var editingId = null;
 var adminLogado = false;
@@ -842,18 +860,6 @@ var avulsoRodadaAtiva = null;
 var MESES_NOME = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
 
 var API = SB_URL + '/rest/v1/rodadas';
-var H_GET = {
-  'apikey': SB_KEY,
-  'Authorization': 'Bearer ' + SB_KEY,
-  'Content-Type': 'application/json'
-};
-var H_WRITE = {
-  'apikey': SB_KEY,
-  'Authorization': 'Bearer ' + SB_KEY,
-  'Content-Type': 'application/json',
-  'Prefer': 'return=representation'
-};
-var H = H_WRITE;
 
 function dbCarregar() {
   return fetch(API + '?order=data.desc', { headers: H_GET }).then(function(r) {
