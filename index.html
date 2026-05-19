@@ -1756,211 +1756,22 @@ function roundRect(ctx, x, y, w, h, r) {
   ctx.closePath();
 }
 
-
-  var grank = computeGoleiros().slice(0, 5);
-  var periodo = filtroAtivo === 'geral' ? 'Geral' : formatMesAno(filtroAtivo);
-  var ord = ordenacaoAtiva === 'gols' ? 'Gols' : ordenacaoAtiva === 'assists' ? 'Assistências' : 'Participações';
-
-  // Sort by current ordenacao
-  rank.sort(function(a,b){
-    if (ordenacaoAtiva === 'assists') return (b.assists - a.assists) || (b.gols - a.gols);
-    if (ordenacaoAtiva === 'total') return ((b.gols+b.assists) - (a.gols+a.assists));
-    return (b.gols - a.gols) || (b.assists - a.assists);
-  });
-
-  var ROW_H = 44;
-  var PADDING = 28;
-  var WIDTH = 680;
-  var headerH = 110;
-  var rankH = rank.length * ROW_H + 56;
-  var golH = grank.length > 0 ? grank.length * ROW_H + 56 : 0;
-  var totalH = headerH + rankH + golH + PADDING * 2;
-
-  var canvas = document.createElement('canvas');
-  canvas.width = WIDTH;
-  canvas.height = totalH;
-  var ctx = canvas.getContext('2d');
-
-  // Background
-  ctx.fillStyle = '#0a0f1e';
-  ctx.fillRect(0, 0, WIDTH, totalH);
-
-  // Grid lines
-  ctx.strokeStyle = 'rgba(26,79,189,0.08)';
-  ctx.lineWidth = 1;
-  for (var x = 0; x < WIDTH; x += 40) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,totalH); ctx.stroke(); }
-  for (var y = 0; y < totalH; y += 40) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(WIDTH,y); ctx.stroke(); }
-
-  // Header bar
-  var grad = ctx.createLinearGradient(0,0,WIDTH,0);
-  grad.addColorStop(0,'rgba(26,79,189,0.5)');
-  grad.addColorStop(1,'rgba(10,15,30,0)');
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, WIDTH, headerH);
-
-  // Orange accent line
-  ctx.fillStyle = '#e8641a';
-  ctx.fillRect(0, 0, 4, headerH);
-
-  // Title
-  ctx.fillStyle = '#ffffff';
-  ctx.font = 'bold 28px "Arial Black", Arial, sans-serif';
-  ctx.fillText('TURMA QUE JOGA FC', PADDING + 8, 42);
-
-  ctx.fillStyle = '#e8641a';
-  ctx.font = 'bold 14px Arial, sans-serif';
-  ctx.fillText('RANKING ' + ord.toUpperCase() + '  •  ' + periodo.toUpperCase(), PADDING + 8, 66);
-
-  ctx.fillStyle = 'rgba(255,255,255,0.35)';
-  ctx.font = '12px Arial, sans-serif';
-  var dataHoje = new Date();
-  ctx.fillText('Gerado em ' + dataHoje.toLocaleDateString('pt-BR'), PADDING + 8, 90);
-
-  // ── RANKING TABLE ──────────────────────────────────────────
-  var y = headerH + PADDING;
-
-  // Section title
-  ctx.fillStyle = '#ffffff';
-  ctx.font = 'bold 15px "Arial Black", Arial, sans-serif';
-  ctx.letterSpacing = '2px';
-  ctx.fillText('⚽  ARTILHARIA', PADDING, y + 20);
-  ctx.fillStyle = 'rgba(26,79,189,0.6)';
-  ctx.fillRect(PADDING, y + 28, WIDTH - PADDING*2, 1);
-  y += 40;
-
-  // Column headers
-  ctx.fillStyle = 'rgba(255,255,255,0.4)';
-  ctx.font = 'bold 11px Arial, sans-serif';
-  ctx.fillText('#', PADDING, y + 14);
-  ctx.fillText('JOGADOR', PADDING + 44, y + 14);
-  ctx.fillText('G', WIDTH - 150, y + 14);
-  ctx.fillText('A', WIDTH - 100, y + 14);
-  ctx.fillText('P', WIDTH - 50, y + 14);
-  y += 20;
-
-  // Rows
-  rank.forEach(function(p, i) {
-    var rowY = y + i * ROW_H;
-    var isTop3 = i < 3;
-
-    // Row bg
-    if (i % 2 === 0) { ctx.fillStyle = 'rgba(255,255,255,0.03)'; ctx.fillRect(PADDING - 8, rowY - 2, WIDTH - PADDING*2 + 16, ROW_H - 4); }
-
-    // Medal/rank number
-    var medals = ['🥇','🥈','🥉'];
-    if (isTop3) {
-      ctx.font = '18px Arial';
-      ctx.fillText(medals[i], PADDING - 4, rowY + 26);
-    } else {
-      ctx.fillStyle = 'rgba(255,255,255,0.4)';
-      ctx.font = 'bold 13px Arial';
-      ctx.fillText(String(i+1), PADDING + 2, rowY + 26);
-    }
-
-    // Avatar circle
-    var avatarColors = ['#1a4fbd','#e8641a','#7de87a','#f0c040'];
-    ctx.fillStyle = avatarColors[i % avatarColors.length];
-    ctx.beginPath(); ctx.arc(PADDING + 44, rowY + 20, 14, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 13px Arial';
-    ctx.textAlign = 'center';
-    ctx.fillText(p.nome.charAt(0).toUpperCase(), PADDING + 44, rowY + 25);
-    ctx.textAlign = 'left';
-
-    // Name
-    var displayNome = p.nome.length > 18 ? p.nome.substring(0,17)+'…' : p.nome;
-    ctx.fillStyle = isTop3 ? '#ffffff' : 'rgba(255,255,255,0.85)';
-    ctx.font = isTop3 ? 'bold 14px Arial' : '14px Arial';
-    ctx.fillText(displayNome, PADDING + 64, rowY + 26);
-
-    // Stats
-    ctx.textAlign = 'center';
-    ctx.fillStyle = '#7de87a'; ctx.font = 'bold 14px Arial'; ctx.fillText(p.gols, WIDTH - 138, rowY + 26);
-    ctx.fillStyle = '#e8641a'; ctx.font = 'bold 14px Arial'; ctx.fillText(p.assists, WIDTH - 88, rowY + 26);
-    ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.font = '13px Arial'; ctx.fillText(p.gols+p.assists, WIDTH - 38, rowY + 26);
-    ctx.textAlign = 'left';
-  });
-
-  y += rank.length * ROW_H + 16;
-
-  // ── GOLEIROS TABLE ──────────────────────────────────────────
-  if (grank.length > 0) {
-    ctx.fillStyle = 'rgba(125,232,122,0.15)';
-    ctx.fillRect(0, y - 8, WIDTH, grank.length * ROW_H + 70);
-
-    ctx.fillStyle = '#7de87a';
-    ctx.font = 'bold 15px "Arial Black", Arial, sans-serif';
-    ctx.fillText('🧤  GOLEIROS', PADDING, y + 20);
-    ctx.fillStyle = 'rgba(125,232,122,0.5)';
-    ctx.fillRect(PADDING, y + 28, WIDTH - PADDING*2, 1);
-    y += 40;
-
-    ctx.fillStyle = 'rgba(255,255,255,0.4)'; ctx.font = 'bold 11px Arial';
-    ctx.fillText('#', PADDING, y + 14);
-    ctx.fillText('GOLEIRO', PADDING + 44, y + 14);
-    ctx.fillText('V', WIDTH - 80, y + 14);
-    y += 20;
-
-    grank.forEach(function(g, i) {
-      var rowY = y + i * ROW_H;
-      if (i % 2 === 0) { ctx.fillStyle = 'rgba(255,255,255,0.03)'; ctx.fillRect(PADDING - 8, rowY - 2, WIDTH - PADDING*2 + 16, ROW_H - 4); }
-      ctx.fillStyle = 'rgba(255,255,255,0.4)'; ctx.font = 'bold 13px Arial';
-      ctx.fillText(String(i+1), PADDING + 2, rowY + 26);
-
-      ctx.fillStyle = '#2a6040';
-      ctx.beginPath(); ctx.arc(PADDING + 44, rowY + 20, 14, 0, Math.PI*2); ctx.fill();
-      ctx.fillStyle = '#7de87a'; ctx.font = 'bold 13px Arial'; ctx.textAlign = 'center';
-      ctx.fillText(g.nome.charAt(0).toUpperCase(), PADDING + 44, rowY + 25);
-      ctx.textAlign = 'left';
-
-      var displayNome = g.nome.length > 22 ? g.nome.substring(0,21)+'…' : g.nome;
-      ctx.fillStyle = '#ffffff'; ctx.font = '14px Arial';
-      ctx.fillText(displayNome, PADDING + 64, rowY + 26);
-      ctx.fillStyle = '#7de87a'; ctx.font = 'bold 14px Arial'; ctx.textAlign = 'center';
-      ctx.fillText(g.vitorias, WIDTH - 68, rowY + 26);
-      ctx.textAlign = 'left';
-    });
-  }
-
-  // Footer
-  ctx.fillStyle = 'rgba(255,255,255,0.15)';
-  ctx.font = '11px Arial';
-  ctx.textAlign = 'center';
-  ctx.fillText('turma-que-joga.vercel.app', WIDTH/2, totalH - 10);
-  ctx.textAlign = 'left';
-
-  // Download
-  var link = document.createElement('a');
-  link.download = 'ranking-' + (filtroAtivo === 'geral' ? 'geral' : filtroAtivo) + '.png';
-  link.href = canvas.toDataURL('image/png');
-
 function renderAnivMes() {
   var card = document.getElementById('aniv-mes-card');
   if (!card) return;
   var lista = getAniversariantesMes();
   if (!lista.length) { card.style.display = 'none'; return; }
-
   var hoje = getDiaMes();
   var d = new Date();
   var MESES_FULL = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
   var mesFull = MESES_FULL[d.getMonth()];
-
   document.getElementById('aniv-mes-label').textContent = mesFull + ' ' + d.getFullYear();
-
-  var nAniv = lista.filter(function(m){
-    var parts = m.aniversario.split('-');
-    return parts[1]+'-'+parts[2] === hoje;
-  });
+  var nAniv = lista.filter(function(m){ var p=m.aniversario.split('-'); return p[1]+'-'+p[2]===hoje; });
   var tituloAniv;
-  if (nAniv.length === 1) {
-    tituloAniv = '🎉 ' + nAniv[0].nome + ' faz aniversário HOJE!';
-  } else if (nAniv.length > 1) {
-    tituloAniv = '🎉 ' + nAniv.map(function(m){return m.nome;}).join(', ') + ' fazem aniversário HOJE!';
-  } else {
-    tituloAniv = 'Quem faz aniversário este mês';
-  }
+  if (nAniv.length===1) tituloAniv = '🎉 '+nAniv[0].nome+' faz aniversário HOJE!';
+  else if (nAniv.length>1) tituloAniv = '🎉 '+nAniv.map(function(m){return m.nome;}).join(', ')+' fazem aniversário HOJE!';
+  else tituloAniv = 'Quem faz aniversário este mês';
   document.getElementById('aniv-mes-titulo').textContent = tituloAniv;
-
   var listaEl = document.getElementById('aniv-mes-lista');
   listaEl.innerHTML = '';
   lista.forEach(function(m) {
@@ -1968,13 +1779,12 @@ function renderAnivMes() {
     var dia = parts[2];
     var isHoje = parts[1]+'-'+parts[2] === hoje;
     var chip = document.createElement('div');
-    chip.style.cssText = 'display:flex;align-items:center;gap:8px;background:' + (isHoje ? 'rgba(240,192,64,0.18)' : 'rgba(255,255,255,0.04)') + ';border:1px solid ' + (isHoje ? 'rgba(240,192,64,0.5)' : 'var(--azul-linha)') + ';border-radius:8px;padding:6px 12px;';
-    chip.innerHTML = (isHoje ? '&#127874; ' : '&#127882; ') +
-      '<strong style="font-family:\'Barlow Condensed\',sans-serif;font-size:14px;color:' + (isHoje ? '#f0c040' : 'var(--branco)') + ';">' + m.nome + '</strong>' +
-      '<span style="font-size:12px;color:var(--muted);font-family:\'Barlow Condensed\',sans-serif;">dia ' + parseInt(dia,10) + '</span>';
+    chip.style.cssText = 'display:flex;align-items:center;gap:8px;background:'+(isHoje?'rgba(240,192,64,0.18)':'rgba(255,255,255,0.04)')+';border:1px solid '+(isHoje?'rgba(240,192,64,0.5)':'var(--azul-linha)')+';border-radius:8px;padding:6px 12px;';
+    var icon = isHoje ? '&#127874; ' : '&#127882; ';
+    var nameColor = isHoje ? '#f0c040' : 'var(--branco)';
+    chip.innerHTML = icon + '<strong style="font-family:Barlow Condensed,sans-serif;font-size:14px;color:' + nameColor + ';">' + m.nome + '</strong><span style="font-size:12px;color:var(--muted);margin-left:6px;">dia ' + parseInt(dia,10) + '</span>';
     listaEl.appendChild(chip);
   });
-
   card.style.display = '';
 }
 
@@ -1982,49 +1792,39 @@ function renderAvisos() {
   var container = document.getElementById('avisos-container');
   if (!container) return;
   container.innerHTML = '';
-
   var sorted = avisos.slice().sort(function(a,b){
     if ((a.fixado||a.tipo==='fixado') && !(b.fixado||b.tipo==='fixado')) return -1;
     if (!(a.fixado||a.tipo==='fixado') && (b.fixado||b.tipo==='fixado')) return 1;
     return (b.created_at||'').localeCompare(a.created_at||'');
   });
-
-  // Visitantes não veem ocultos
   var visiveis = adminLogado ? sorted : sorted.filter(function(a){ return !a.oculto; });
-
   if (!visiveis.length) {
     container.innerHTML = '<div class="aviso-empty"><div class="icon">&#128227;</div><p>Nenhum aviso publicado ainda.</p></div>';
     return;
   }
-
   visiveis.forEach(function(a) {
     var card = document.createElement('div');
     var tipo = a.tipo || 'normal';
     var isOculto = !!a.oculto;
-    card.className = 'aviso-card' + (tipo==='fixado' ? ' fixado' : tipo==='urgente' ? ' urgente' : '') + (isOculto ? ' aviso-oculto' : '');
-
+    card.className = 'aviso-card'+(tipo==='fixado'?' fixado':tipo==='urgente'?' urgente':'')+(isOculto?' aviso-oculto':'');
     var header = '<div class="aviso-header">';
     header += '<span class="aviso-badge cupula">&#128081; CUPULA</span>';
-    if (tipo === 'urgente') header += '<span class="aviso-badge urgente">&#128680; URGENTE</span>';
-    if (tipo === 'fixado')  header += '<span class="aviso-badge fixado">&#128204; FIXADO</span>';
-    if (isOculto)           header += '<span class="aviso-badge oculto-badge">&#128065; OCULTO</span>';
-    header += '<span class="aviso-data">' + fmtDataAviso(a.created_at) + '</span>';
-    header += '</div>';
-
-    var titulo = '<div class="aviso-titulo-txt">' + escHtml(a.titulo||'') + '</div>';
-    var corpo  = '<div class="aviso-corpo-txt">'  + escHtml(a.corpo||'').replace(/\n/g,'<br>') + '</div>';
-
+    if (tipo==='urgente') header += '<span class="aviso-badge urgente">&#128680; URGENTE</span>';
+    if (tipo==='fixado')  header += '<span class="aviso-badge fixado">&#128204; FIXADO</span>';
+    if (isOculto)         header += '<span class="aviso-badge oculto-badge">&#128065; OCULTO</span>';
+    header += '<span class="aviso-data">'+fmtDataAviso(a.created_at)+'</span></div>';
+    var titulo = '<div class="aviso-titulo-txt">'+escHtml(a.titulo||'')+'</div>';
+    var corpo  = '<div class="aviso-corpo-txt">'+escHtml(a.corpo||'').replace(/\n/g,'<br>')+'</div>';
     var footer = '';
     if (adminLogado) {
       var labelOculto = isOculto ? '&#128065; Mostrar' : '&#128683; Ocultar';
       footer = '<div class="aviso-footer">'
-        + '<button class="aviso-acao" onclick="editarAviso(\'' + a.id + '\')">&#9998; Editar</button>'
-        + '<button class="aviso-acao ocultar-btn" onclick="toggleOcultarAviso(\'' + a.id + '\',' + isOculto + ')">' + labelOculto + '</button>'
-        + '<button class="aviso-acao del" onclick="deletarAviso(\'' + a.id + '\')">&#215; Excluir</button>'
-        + '</div>';
+        +'<button class="aviso-acao" onclick="editarAviso('+a.id+'">&#9998; Editar</button>'
+        +'<button class="aviso-acao ocultar-btn" onclick="toggleOcultarAviso('+a.id+','+isOculto+')">'+labelOculto+'</button>'
+        +'<button class="aviso-acao del" onclick="deletarAviso('+a.id+'">&#215; Excluir</button>'
+        +'</div>';
     }
-
-    card.innerHTML = header + titulo + corpo + footer;
+    card.innerHTML = header+titulo+corpo+footer;
     container.appendChild(card);
   });
 }
@@ -2082,23 +1882,22 @@ function salvarAviso() {
   btn.textContent = 'PUBLICANDO...'; btn.disabled = true;
   var promise;
   if (editingAvisoId) {
-    var obj = { id: editingAvisoId, titulo: titulo, corpo: corpo, tipo: tipo, fixado: tipo==='fixado' };
+    var obj = { id:editingAvisoId, titulo:titulo, corpo:corpo, tipo:tipo, fixado:tipo==='fixado' };
     promise = dbUpdateAviso(obj).then(function(){
       var idx = avisos.findIndex(function(x){ return x.id===editingAvisoId; });
       if (idx !== -1) Object.assign(avisos[idx], obj);
       toast('AVISO ATUALIZADO!');
     });
   } else {
-    var obj = { id: uid(), titulo: titulo, corpo: corpo, tipo: tipo, fixado: tipo==='fixado', created_at: new Date().toISOString() };
-    promise = dbSaveAviso(obj).then(function(){
-      avisos.unshift(obj);
-      toast('AVISO PUBLICADO!');
-    });
+    var obj = { id:uid(), titulo:titulo, corpo:corpo, tipo:tipo, fixado:tipo==='fixado', created_at:new Date().toISOString() };
+    promise = dbSaveAviso(obj).then(function(){ avisos.unshift(obj); toast('AVISO PUBLICADO!'); });
   }
   promise.then(function(){ fecharModalAviso(); renderAvisos(); })
-    .catch(function(e){ toast('ERRO: ' + e.message, 'err'); })
-    .finally(function(){ btn.textContent = 'PUBLICAR'; btn.disabled = false; });
+    .catch(function(e){ toast('ERRO: '+e.message,'err'); })
+    .finally(function(){ btn.textContent='PUBLICAR'; btn.disabled=false; });
 }
+
+function editarAviso(id) { openModalAviso(id); }
 
 function toggleOcultarAviso(id, atualOculto) {
   var novoOculto = !atualOculto;
@@ -2107,433 +1906,46 @@ function toggleOcultarAviso(id, atualOculto) {
     if (a) a.oculto = novoOculto;
     renderAvisos();
     toast(novoOculto ? 'AVISO OCULTADO DOS VISITANTES.' : 'AVISO VISIVEL PARA TODOS.');
-  }).catch(function(e){ toast('ERRO: ' + e.message, 'err'); });
+  }).catch(function(e){ toast('ERRO: '+e.message,'err'); });
 }
-
-function editarAviso(id) { openModalAviso(id); }
 
 function deletarAviso(id) {
   if (!confirm('EXCLUIR ESTE AVISO?')) return;
   dbDeleteAviso(id).then(function(){
     avisos = avisos.filter(function(a){ return a.id !== id; });
     renderAvisos(); toast('AVISO EXCLUIDO.');
-  }).catch(function(e){ toast('ERRO: ' + e.message, 'err'); });
+  }).catch(function(e){ toast('ERRO: '+e.message,'err'); });
 }
 
 
 
-function getDiaMes() {
-  var d = new Date();
-  return String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-}
-
-function getAniversariantesHoje() {
-  var hoje = getDiaMes(); // MM-DD
-  return membros.filter(function(m) {
-    if (!m.aniversario) return false;
-    var parts = m.aniversario.split('-');
-    if (parts.length < 3) return false;
-    var mmdd = parts[1] + '-' + parts[2];
-    return mmdd === hoje;
-  });
-}
-
-function getAniversariantesMes() {
-  var mesAtual = new Date().getMonth() + 1; // 1-12
-  return membros.filter(function(m) {
-    if (!m.aniversario) return false;
-    var parts = m.aniversario.split('-');
-    if (parts.length < 3) return false;
-    return parseInt(parts[1], 10) === mesAtual;
-  }).sort(function(a, b) {
-    // Sort by day
-    var diaA = parseInt(a.aniversario.split('-')[2], 10);
-    var diaB = parseInt(b.aniversario.split('-')[2], 10);
-    return diaA - diaB;
-  });
-}
-
-function checkAniversarios() {
-  var anivs = getAniversariantesHoje();
-  var banner = document.getElementById('aniversario-banner');
-  var nomes  = document.getElementById('aniversario-nomes');
-  if (anivs.length > 0) {
-    nomes.textContent = anivs.map(function(m){ return m.nome; }).join(', ');
-    banner.classList.add('show');
-  } else {
-    banner.classList.remove('show');
-  }
-}
-
-var MESES_NOME = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-function formatAniv(dateStr) {
-  if (!dateStr) return 'Sem data';
-  var p = dateStr.split('-');
-  if (p.length < 3) return dateStr;
-  return p[2] + ' de ' + MESES_NOME[parseInt(p[1],10)-1];
-}
+// ── RESTORED FUNCTIONS ──────────────────────────────────────
 
 
-function openModalMembro(edit) {
-  edit = edit || null;
-  editingMembroId = edit;
-  document.getElementById('modal-membro-titulo').textContent = edit ? 'Editar Membro' : 'Novo Membro';
-  if (edit) {
-    var m = membros.find(function(x){ return x.id===edit; });
-    if (m) {
-      document.getElementById('membro-nome').value = m.nome;
-      document.getElementById('membro-aniv').value = m.aniversario || '';
-    }
-  } else {
-    document.getElementById('membro-nome').value = '';
-    document.getElementById('membro-aniv').value = '';
-  }
-  document.getElementById('modal-membro').classList.add('open');
-  setTimeout(function(){ document.getElementById('membro-nome').focus(); }, 100);
-}
-function editarMembro(id) { openModalMembro(id); }
-function fecharModalMembro() { document.getElementById('modal-membro').classList.remove('open'); editingMembroId = null; }
-function fecharMembroFora(e) { if(e.target===document.getElementById('modal-membro')) fecharModalMembro(); }
+function renderCaixa() {
+  var sel = document.getElementById('caixa-mes-sel');
+  if (!sel) return;
+  var mes = sel.value;
 
-function salvarMembro() {
-  var nome = document.getElementById('membro-nome').value.trim();
-  var aniv = document.getElementById('membro-aniv').value;
-  if (!nome) { alert('INFORME O NOME DO MEMBRO.'); return; }
-  if (editingMembroId) {
-    var idx = membros.findIndex(function(m){ return m.id===editingMembroId; });
-    if (idx !== -1) membros[idx] = { id: editingMembroId, nome: nome, aniversario: aniv };
-  } else {
-    membros.push({ id: uid(), nome: nome, aniversario: aniv });
-  }
-  saveMembros();
-  renderMembros();
-  checkAniversarios();
-  fecharModalMembro();
-  toast(editingMembroId ? 'Membro atualizado!' : 'Membro cadastrado!');
-}
-
-function deletarMembro(id) {
-  if (!adminLogado) return;
-  if (!confirm('REMOVER ESTE MEMBRO?')) return;
-  membros = membros.filter(function(m){ return m.id !== id; });
-  saveMembros();
-  renderMembros();
-  checkAniversarios();
-  toast('MEMBRO REMOVIDO.');
-}
-
-
-// ── SUPABASE: MEMBROS ────────────────────────────────────────
-var API_MEMBROS = SB_URL + '/rest/v1/membros';
-var API_CAIXA   = SB_URL + '/rest/v1/caixa';
-var API_GASTOS  = SB_URL + '/rest/v1/gastos';
-
-function dbGetMembros() {
-  return fetch(API_MEMBROS + '?order=nome.asc', { headers: H_GET }).then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); });
-}
-function dbSaveMembro(m) {
-  // Tenta com todos os campos; se falhar, tenta só com campos básicos
-  var full = { id: m.id, nome: m.nome, aniversario: m.aniversario, tipo: m.tipo||'mensalista', mes_entrada: m.mes_entrada||null, mes_saida: m.mes_saida||null };
-  var basic = { id: m.id, nome: m.nome, aniversario: m.aniversario };
-  return fetch(API_MEMBROS, { method:'POST', headers:H, body:JSON.stringify(full) })
-    .then(function(r){
-      if (r.status === 400) {
-        return fetch(API_MEMBROS, { method:'POST', headers:H, body:JSON.stringify(basic) })
-          .then(function(r2){ if(!r2.ok) throw new Error(r2.status); });
-      }
-      if (!r.ok) throw new Error(r.status);
-    });
-}
-function dbUpdateMembro(m) {
-  var full = { nome:m.nome, aniversario:m.aniversario, tipo:m.tipo||'mensalista', mes_entrada:m.mes_entrada||null, mes_saida:m.mes_saida||null };
-  var basic = { nome:m.nome, aniversario:m.aniversario };
-  return fetch(API_MEMBROS + '?id=eq.' + m.id, { method:'PATCH', headers:H, body:JSON.stringify(full) })
-    .then(function(r){
-      if (r.status === 400) {
-        return fetch(API_MEMBROS + '?id=eq.' + m.id, { method:'PATCH', headers:H, body:JSON.stringify(basic) })
-          .then(function(r2){ if(!r2.ok) throw new Error(r2.status); });
-      }
-      if (!r.ok) throw new Error(r.status);
-    });
-}
-function dbDeleteMembro(id) {
-  return fetch(API_MEMBROS + '?id=eq.' + id, { method:'DELETE', headers:H_GET }).then(function(r){ if(!r.ok) throw new Error(r.status); });
-}
-
-// ── SUPABASE: CAIXA ───────────────────────────────────────────
-function dbGetCaixa(mes) {
-  return fetch(API_CAIXA + '?mes=eq.' + mes, { headers: H_GET }).then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); });
-}
-function dbGetAllCaixa() {
-  var h = Object.assign({}, H_GET, {'Range': '0-9999'});
-  return fetch(API_CAIXA + '?select=valor,pago&order=id', { headers: h }).then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); });
-}
-function dbUpsertCaixa(item) {
-  return fetch(API_CAIXA, { method:'POST', headers: Object.assign({}, H, {'Prefer':'resolution=merge-duplicates'}), body:JSON.stringify(item) }).then(function(r){ if(!r.ok) throw new Error(r.status); });
-}
-function dbDeleteCaixaItem(id) {
-  return fetch(API_CAIXA + '?id=eq.' + id, { method:'DELETE', headers:H_GET }).then(function(r){ if(!r.ok) throw new Error(r.status); });
-}
-
-// ── SUPABASE: GASTOS ──────────────────────────────────────────
-function dbGetGastos(mes) {
-  return fetch(API_GASTOS + '?mes=eq.' + mes + '&order=created_at.asc', { headers: H_GET }).then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); });
-}
-function dbSaveGasto(g) {
-  return fetch(API_GASTOS, { method:'POST', headers:H, body:JSON.stringify(g) }).then(function(r){ if(!r.ok) throw new Error(r.status); });
-}
-function dbGetAllGastos() {
-  var h = Object.assign({}, H_GET, {'Range': '0-9999'});
-  return fetch(API_GASTOS + '?select=valor&order=id', { headers: h }).then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); });
-}
-function dbDeleteGasto(id) {
-  return fetch(API_GASTOS + '?id=eq.' + id, { method:'DELETE', headers:H_GET }).then(function(r){ if(!r.ok) throw new Error(r.status); });
-}
-
-// ── MEMBROS ───────────────────────────────────────────────────
-function loadMembros() {
-  return dbGetMembros().then(function(data){ membros = data; }).catch(function(){ membros = []; });
-}
-function saveMembros() {} // no-op, now uses Supabase
-
-function getDiaMes() {
-  var d = new Date();
-  return String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-}
-function getAniversariantesHoje() {
-  var hoje = getDiaMes();
-  return membros.filter(function(m) {
-    if (!m.aniversario) return false;
-    var parts = m.aniversario.split('-');
-    if (parts.length < 3) return false;
-    return parts[1] + '-' + parts[2] === hoje;
-  });
-}
-
-var MESES_NOME = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-function formatAniv(dateStr) {
-  if (!dateStr) return 'Sem data';
-  var p = dateStr.split('-');
-  if (p.length < 3) return dateStr;
-  return p[2] + ' de ' + MESES_NOME[parseInt(p[1],10)-1];
-}
-
-function buildMembrosmesSel() {
-  // Sincronizado com filtro global - sem seletor próprio
-}
-
-function membroAtivoNoMes(m, mes) {
-  if (!mes) return true; // sem filtro = todos
-  var entrada = m.mes_entrada || null;
-  var saida   = m.mes_saida   || null;
-  if (entrada && mes < entrada) return false;
-  if (saida   && mes > saida)   return false;
-  return true;
-}
-
-function renderMembros() {
-  var gridM = document.getElementById('membros-grid-mensalista');
-  var gridA = document.getElementById('membros-grid-avulso');
-  var gridG = document.getElementById('membros-grid-goleiro');
-  if (!gridM || !gridA || !gridG) return;
-  var hoje = getDiaMes();
-  var mesFiltro = (filtroAtivo === 'geral') ? '' : filtroAtivo;
-  gridM.innerHTML = '';
-  gridA.innerHTML = '';
-  gridG.innerHTML = '';
-
-  function filtrar(tipo) {
-    return membros.filter(function(m){
-      return m.tipo === tipo && membroAtivoNoMes(m, mesFiltro);
-    }).sort(function(a,b){ return a.nome.localeCompare(b.nome); });
-  }
-  var presidentes = filtrar('presidente');
-  var mensalistas = membros.filter(function(m){ return (m.tipo==='mensalista'||!m.tipo) && membroAtivoNoMes(m,mesFiltro); }).sort(function(a,b){return a.nome.localeCompare(b.nome);});
-  var mensGrid    = presidentes.concat(mensalistas);
-  var avulsos     = filtrar('avulso');
-  var goleiros    = filtrar('goleiro');
-
-  function buildCard(m, grid) {
-    var parts = (m.aniversario||'').split('-');
-    var mmdd = parts.length >= 3 ? parts[1]+'-'+parts[2] : '';
-    var isAniv = mmdd === hoje;
-    var isPresidente = m.tipo === 'presidente';
-    var card = document.createElement('div');
-    card.className = 'membro-card' + (isAniv ? ' aniversariante' : '') + (isPresidente ? ' presidente-card' : '');
-    if (isAniv) {
-      var badge = document.createElement('div');
-      badge.className = 'membro-badge-aniv';
-      badge.textContent = 'ANIVERSARIO!';
-      card.appendChild(badge);
-    }
-    if (isPresidente) {
-      var pbadge = document.createElement('div');
-      pbadge.className = 'membro-badge-presidente';
-      pbadge.innerHTML = '&#128081; CUPULA';
-      card.appendChild(pbadge);
-    }
-    var avatarClass = 'membro-avatar' + (isPresidente ? ' presidente' : m.tipo === 'avulso' ? ' avulso' : m.tipo === 'goleiro' ? ' goleiro' : '');
-    var avatar = document.createElement('div');
-    avatar.className = avatarClass;
-    avatar.textContent = m.nome.charAt(0).toUpperCase();
-    card.appendChild(avatar);
-    var info = document.createElement('div');
-    info.className = 'membro-info';
-    var nomeEl = document.createElement('div'); nomeEl.className = 'membro-nome'; nomeEl.textContent = m.nome;
-    var anivEl = document.createElement('div'); anivEl.className = 'membro-aniv'; anivEl.textContent = 'ANIVERSARIO: ' + formatAniv(m.aniversario);
-    info.appendChild(nomeEl); info.appendChild(anivEl);
-    if (m.mes_entrada) {
-      var mesEl = document.createElement('div');
-      mesEl.className = 'membro-aniv'; mesEl.style.marginTop = '2px';
-      mesEl.textContent = 'DESDE: ' + formatMesAno(m.mes_entrada) + (m.mes_saida ? ' • ATE: ' + formatMesAno(m.mes_saida) : '');
-      info.appendChild(mesEl);
-    }
-    card.appendChild(info);
-    if (adminLogado) {
-      var actions = document.createElement('div');
-      actions.className = 'membro-actions'; actions.style.display = 'flex'; actions.style.gap = '6px';
-      var btnEdit = document.createElement('button'); btnEdit.className = 'btn-membro-edit'; btnEdit.title = 'Editar'; btnEdit.innerHTML = '&#9998;';
-      btnEdit.onclick = (function(id){ return function(){ editarMembro(id); }; })(m.id);
-      var btnDel = document.createElement('button'); btnDel.className = 'btn-membro-del'; btnDel.title = 'Excluir'; btnDel.innerHTML = '&times;';
-      btnDel.onclick = (function(id){ return function(){ deletarMembro(id); }; })(m.id);
-      actions.appendChild(btnEdit); actions.appendChild(btnDel);
-      card.appendChild(actions);
-    }
-    grid.appendChild(card);
-  }
-
-  function emptyState(grid, icon, msg) {
-    var e = document.createElement('div'); e.className = 'empty-state'; e.style.gridColumn = '1 / -1';
-    e.innerHTML = '<div class="icon">' + icon + '</div><p>' + msg + '</p>';
-    grid.appendChild(e);
-  }
-
-  if (!mensGrid.length) emptyState(gridM, '&#128100;', 'Nenhum mensalista' + (mesFiltro ? ' neste mes' : ' cadastrado'));
-  else mensGrid.forEach(function(m){ buildCard(m, gridM); });
-
-  if (!avulsos.length) emptyState(gridA, '&#9889;', 'Nenhum avulso' + (mesFiltro ? ' neste mes' : ' cadastrado'));
-  else avulsos.forEach(function(m){ buildCard(m, gridA); });
-
-  if (!goleiros.length) emptyState(gridG, '&#129508;', 'Nenhum goleiro' + (mesFiltro ? ' neste mes' : ' cadastrado'));
-  else goleiros.forEach(function(m){ buildCard(m, gridG); });
-}
-
-
-function setTipoMembro(tipo) {
-  document.getElementById('membro-tipo').value = tipo;
-  document.querySelectorAll('.tipo-btn').forEach(function(b){
-    b.classList.toggle('active', b.getAttribute('data-tipo') === tipo);
-  });
-}
-
-function openModalMembro(tipoOuEdit) {
-  tipoOuEdit = tipoOuEdit || 'mensalista';
-  var isEdit = membros.find(function(x){ return x.id === tipoOuEdit; });
-  editingMembroId = isEdit ? tipoOuEdit : null;
-  var tipoDefault = isEdit ? (isEdit.tipo || 'mensalista') : tipoOuEdit;
-  document.getElementById('modal-membro-titulo').textContent = editingMembroId ? 'EDITAR MEMBRO' : 'NOVO MEMBRO';
-  if (editingMembroId) {
-    var m = isEdit;
-    document.getElementById('membro-nome').value = m.nome;
-    document.getElementById('membro-aniv').value = m.aniversario || '';
-    document.getElementById('membro-mes-entrada').value = m.mes_entrada || '';
-    document.getElementById('membro-mes-saida').value = m.mes_saida || '';
-    document.getElementById('membro-tipo').value = m.tipo || 'mensalista';
-    setTipoMembro(m.tipo || 'mensalista');
-  } else {
-    var agora = new Date();
-    var mesAtual = agora.getFullYear() + '-' + String(agora.getMonth()+1).padStart(2,'0');
-    document.getElementById('membro-nome').value = '';
-    document.getElementById('membro-aniv').value = '';
-    document.getElementById('membro-mes-entrada').value = mesAtual;
-    document.getElementById('membro-mes-saida').value = '';
-    document.getElementById('membro-tipo').value = tipoDefault;
-    setTipoMembro(tipoDefault);
-  }
-  document.getElementById('modal-membro').classList.add('open');
-  setTimeout(function(){ document.getElementById('membro-nome').focus(); }, 100);
-}
-function editarMembro(id) { openModalMembro(id); }
-function fecharModalMembro() { document.getElementById('modal-membro').classList.remove('open'); editingMembroId = null; }
-function fecharMembroFora(e) { if(e.target===document.getElementById('modal-membro')) fecharModalMembro(); }
-
-function salvarMembro() {
-  var nome = document.getElementById('membro-nome').value.trim();
-  var aniv = document.getElementById('membro-aniv').value;
-  var tipo = document.getElementById('membro-tipo').value || 'mensalista';
-  var mesEntrada = document.getElementById('membro-mes-entrada').value || null;
-  var mesSaida   = document.getElementById('membro-mes-saida').value || null;
-  if (!nome) { alert('INFORME O NOME DO MEMBRO.'); return; }
-  var btn = document.querySelector('#modal-membro .btn-save');
-  btn.textContent = 'SALVANDO...'; btn.disabled = true;
-  var promise;
-  if (editingMembroId) {
-    var obj = { id: editingMembroId, nome: nome, aniversario: aniv, tipo: tipo, mes_entrada: mesEntrada, mes_saida: mesSaida };
-    promise = dbUpdateMembro(obj).then(function(){
-      var idx = membros.findIndex(function(m){ return m.id===editingMembroId; });
-      if (idx !== -1) membros[idx] = obj;
-      toast('MEMBRO ATUALIZADO!');
-    });
-  } else {
-    var obj = { id: uid(), nome: nome, aniversario: aniv, tipo: tipo, mes_entrada: mesEntrada, mes_saida: mesSaida };
-    promise = dbSaveMembro(obj).then(function(){
-      membros.push(obj);
-      toast('MEMBRO ADICIONADO!');
-    });
-  }
-  promise.then(function(){
-    buildMembrosmesSel();
-    renderMembros(); checkAniversarios(); fecharModalMembro();
-  }).catch(function(e){ toast('ERRO: ' + e.message, 'err'); })
-  .finally(function(){ btn.textContent = 'SALVAR'; btn.disabled = false; });
-}
-
-function deletarMembro(id) {
-  if (!adminLogado) return;
-  if (!confirm('REMOVER ESTE MEMBRO?')) return;
-  dbDeleteMembro(id).then(function(){
-    membros = membros.filter(function(m){ return m.id !== id; });
-    renderMembros(); checkAniversarios(); toast('MEMBRO REMOVIDO.');
-  }).catch(function(e){ toast('ERRO: ' + e.message, 'err'); });
-}
-
-// ── CAIXA ─────────────────────────────────────────────────────
-var caixaItens = [];
-var avulsoRodadaAtiva = null; // id da rodada selecionada nos avulsos
-var gastosItens = [];
-var pgtoTarget = null;
-
-function buildCaixaMesSel() {
-  // Sincronizado com filtro global - sem seletor próprio
-}
-
-function fmtValor(v) {
-  return 'R$ ' + parseFloat(v||0).toFixed(2).replace('.', ',');
-}
-
- function renderCaixa() {
-  var mes = (filtroAtivo === 'geral' || !filtroAtivo) ? mesAtualYM() : filtroAtivo;
-
-  // Load month data first (critical), then all-time totals (optional)
+  // Load from Supabase
   Promise.all([dbGetCaixa(mes), dbGetGastos(mes)]).then(function(results) {
     caixaItens  = results[0];
     gastosItens = results[1];
+
+    // Ensure all membros have entries
+    var existingIds = caixaItens.filter(function(c){ return c.tipo==='mensalista'; }).map(function(c){ return c.membro_id; });
+    var toCreate = membros.filter(function(m){ return existingIds.indexOf(m.id) === -1; });
+    var createPromises = toCreate.map(function(m){
+      var item = { id: uid(), mes: mes, tipo: 'mensalista', membro_id: m.id, nome: m.nome, pago: false, forma: null, valor: 0 };
+      caixaItens.push(item);
+      return dbUpsertCaixa(item);
+    });
+    return Promise.all(createPromises);
+  }).then(function(){
     _renderCaixaUI(mes);
   }).catch(function(e){ toast('ERRO AO CARREGAR CAIXA: ' + e.message, 'err'); });
-
-  // Load all-time totals separately (non-blocking)
-  Promise.all([dbGetAllCaixa(), dbGetAllGastos()]).then(function(results) {
-    var allCaixa  = results[0] || [];
-    var allGastos = results[1] || [];
-    var totalGeralEntradas = allCaixa.reduce(function(s,c){ return s + (c.pago ? parseFloat(c.valor||0) : 0); }, 0);
-    var totalGeralGastos   = allGastos.reduce(function(s,g){ return s + parseFloat(g.valor||0); }, 0);
-    var saldoGeral = totalGeralEntradas - totalGeralGastos;
-    var sgEl = document.getElementById('ck-saldo-geral');
-    if (sgEl) { sgEl.textContent = fmtValor(saldoGeral); sgEl.className = 'caixa-total-valor' + (saldoGeral < 0 ? ' negativo' : ''); sgEl.style.fontSize = '28px'; }
-    var eg = document.getElementById('ck-entradas-geral'); if (eg) eg.textContent = fmtValor(totalGeralEntradas);
-    var gg = document.getElementById('ck-gastos-geral');   if (gg) gg.textContent = fmtValor(totalGeralGastos);
-  }).catch(function(){ /* totais gerais indisponiveis */ });
 }
+
 
 function _renderCaixaUI(mes) {
   var mensalistas = caixaItens.filter(function(c){ return c.tipo==='mensalista'; });
@@ -2560,27 +1972,10 @@ function _renderCaixaUI(mes) {
   // Mensalistas table
   var tbody = document.getElementById('caixa-mensalistas-body');
   tbody.innerHTML = '';
-  var presidentes = caixaItens.filter(function(c){
-    var m = membros.find(function(x){ return x.id===c.membro_id; });
-    return c.tipo==='mensalista' && m && m.tipo==='presidente';
-  }).sort(function(a,b){ return (a.nome||'').localeCompare(b.nome||''); });
-  var mensalistas = caixaItens.filter(function(c){
-    var m = membros.find(function(x){ return x.id===c.membro_id; });
-    return c.tipo==='mensalista' && (!m || m.tipo==='mensalista' || !m.tipo);
-  }).sort(function(a,b){ return (a.nome||'').localeCompare(b.nome||''); });
-
-  if (presidentes.length) {
-    var trh1 = document.createElement('tr');
-    trh1.innerHTML = '<td colspan="5" style="padding:10px 16px 4px;font-family:Bebas Neue,sans-serif;font-size:14px;letter-spacing:2px;color:#f0c040;border-bottom:1px solid rgba(240,192,64,0.3);">&#128081; CUPULAS</td>';
-    tbody.appendChild(trh1);
-    presidentes.forEach(function(item){ tbody.appendChild(_buildCaixaRow(item, mes, true)); });
-  }
-  if (mensalistas.length) {
-    var trh2 = document.createElement('tr');
-    trh2.innerHTML = '<td colspan="5" style="padding:10px 16px 4px;font-family:Bebas Neue,sans-serif;font-size:14px;letter-spacing:2px;color:#4a80e8;border-bottom:1px solid rgba(26,79,189,0.3);">&#128100; MENSALISTAS</td>';
-    tbody.appendChild(trh2);
-    mensalistas.forEach(function(item){ tbody.appendChild(_buildCaixaRow(item, mes, true)); });
-  }
+  var sortedM = mensalistas.slice().sort(function(a,b){ return (a.nome||'').localeCompare(b.nome||''); });
+  sortedM.forEach(function(item) {
+    tbody.appendChild(_buildCaixaRow(item, mes));
+  });
 
   // Avulsos - build rodada tabs
   var rodadasDoMes = rodadas.filter(function(r){ return r.data && r.data.substring(0,7) === mes; })
@@ -2621,9 +2016,7 @@ function _renderCaixaUI(mes) {
   // Toggle admin controls
   document.querySelectorAll('#page-caixa .acao-col').forEach(function(el){
     if (adminLogado) {
-      if (el.tagName === 'TH' || el.tagName === 'TD') el.style.display = 'table-cell';
-      else if (el.classList.contains('caixa-cfg-valores')) el.style.display = 'block';
-      else el.style.display = 'inline-block';
+      el.style.display = el.tagName === 'BUTTON' ? 'inline-block' : 'table-cell';
     } else {
       el.style.display = 'none';
     }
@@ -2655,33 +2048,8 @@ function _renderCaixaUI(mes) {
   }
 }
 
-function renderAvulsosTabela(mes, avulsos) {
-  var tbodyAv = document.getElementById('caixa-avulsos-body');
-  tbodyAv.innerHTML = '';
 
-  if (!avulsoRodadaAtiva) {
-    var tr0 = document.createElement('tr');
-    var td0 = document.createElement('td'); td0.colSpan=5;
-    td0.style.cssText='text-align:center;color:var(--muted);font-family:Barlow Condensed,sans-serif;padding:20px;letter-spacing:1px;text-transform:uppercase;';
-    td0.textContent = 'SELECIONE UMA RODADA ACIMA';
-    tr0.appendChild(td0); tbodyAv.appendChild(tr0);
-    return;
-  }
-
-  var filtrados = avulsos.filter(function(a){ return a.rodada_id === avulsoRodadaAtiva; });
-
-  if (!filtrados.length) {
-    var tr0 = document.createElement('tr');
-    var td0 = document.createElement('td'); td0.colSpan=5;
-    td0.style.cssText='text-align:center;color:var(--muted);font-family:Barlow Condensed,sans-serif;padding:20px;letter-spacing:1px;text-transform:uppercase;';
-    td0.textContent = 'NENHUM AVULSO NESTA RODADA';
-    tr0.appendChild(td0); tbodyAv.appendChild(tr0);
-  } else {
-    filtrados.forEach(function(item){ tbodyAv.appendChild(_buildCaixaRow(item, mes)); });
-  }
-}
-
-function _buildCaixaRow(item, mes, showDelete) {
+function _buildCaixaRow(item, mes) {
   var tr = document.createElement('tr');
 
   var tdNome = document.createElement('td'); tdNome.style.fontWeight='600'; tdNome.textContent = item.nome || '';
@@ -2717,19 +2085,246 @@ function _buildCaixaRow(item, mes, showDelete) {
   var btnPgto = document.createElement('button'); btnPgto.className='btn-status'; btnPgto.textContent=item.pago?'Alterar':'Pagar';
   btnPgto.onclick = (function(id,nome){ return function(){ openModalPgto(id,nome,mes); }; })(item.id, item.nome);
   tdAcao.appendChild(btnPgto);
-  if (item.tipo === 'avulso' || showDelete) {
-    var btnDel = document.createElement('button'); btnDel.className='btn-status'; btnDel.style.color='#e74c3c'; btnDel.textContent='EXCLUIR';
-    btnDel.onclick = (function(id){ return function(){
-      if (!confirm('EXCLUIR ESTE REGISTRO DO CAIXA?')) return;
-      dbDeleteCaixaItem(id).then(function(){ renderCaixa(); toast('REGISTRO EXCLUIDO.'); })
-        .catch(function(e){ toast('ERRO: ' + e.message, 'err'); });
-    }; })(item.id);
+  if (item.tipo === 'avulso') {
+    var btnDel = document.createElement('button'); btnDel.className='btn-status'; btnDel.style.color='#e74c3c'; btnDel.textContent='REMOVER';
+    btnDel.onclick = (function(id){ return function(){ removerAvulso(id, mes); }; })(item.id);
     tdAcao.appendChild(btnDel);
   }
 
   tr.appendChild(tdNome); tr.appendChild(tdValor); tr.appendChild(tdStatus); tr.appendChild(tdForma); tr.appendChild(tdAcao);
   return tr;
 }
+
+
+function renderMembros() {
+  var grid = document.getElementById('membros-grid');
+  if (!grid) return;
+  var hoje = getDiaMes();
+  grid.innerHTML = '';
+  if (!membros.length) {
+    var empty = document.createElement('div');
+    empty.className = 'empty-state';
+    empty.style.gridColumn = '1 / -1';
+    empty.innerHTML = '<div class="icon">&#128101;</div><p>Nenhum membro cadastrado</p>';
+    grid.appendChild(empty);
+    return;
+  }
+  var sorted = membros.slice().sort(function(a,b){ return a.nome.localeCompare(b.nome); });
+  sorted.forEach(function(m) {
+    var parts = (m.aniversario||'').split('-');
+    var mmdd = parts.length >= 3 ? parts[1]+'-'+parts[2] : '';
+    var isAniv = mmdd === hoje;
+    var card = document.createElement('div');
+    card.className = 'membro-card' + (isAniv ? ' aniversariante' : '');
+    if (isAniv) {
+      var badge = document.createElement('div');
+      badge.className = 'membro-badge-aniv';
+      badge.textContent = 'ANIVERSARIO!';
+      card.appendChild(badge);
+    }
+    var avatar = document.createElement('div');
+    avatar.className = 'membro-avatar';
+    avatar.textContent = m.nome.charAt(0).toUpperCase();
+    card.appendChild(avatar);
+    var info = document.createElement('div');
+    info.className = 'membro-info';
+    var nomeEl = document.createElement('div'); nomeEl.className = 'membro-nome'; nomeEl.textContent = m.nome;
+    var anivEl = document.createElement('div'); anivEl.className = 'membro-aniv'; anivEl.textContent = 'ANIVERSARIO: ' + formatAniv(m.aniversario);
+    info.appendChild(nomeEl); info.appendChild(anivEl);
+    card.appendChild(info);
+    if (adminLogado) {
+      var actions = document.createElement('div');
+      actions.className = 'membro-actions'; actions.style.display = 'flex'; actions.style.gap = '6px';
+      var btnEdit = document.createElement('button'); btnEdit.className = 'btn-membro-edit'; btnEdit.title = 'Editar'; btnEdit.innerHTML = '&#9998;';
+      btnEdit.onclick = (function(id){ return function(){ editarMembro(id); }; })(m.id);
+      var btnDel = document.createElement('button'); btnDel.className = 'btn-membro-del'; btnDel.title = 'Excluir'; btnDel.innerHTML = '&times;';
+      btnDel.onclick = (function(id){ return function(){ deletarMembro(id); }; })(m.id);
+      actions.appendChild(btnEdit); actions.appendChild(btnDel);
+      card.appendChild(actions);
+    }
+    grid.appendChild(card);
+  });
+}
+
+
+function loadMembros() {
+  return dbGetMembros().then(function(data){ membros = data; }).catch(function(){ membros = []; });
+}
+
+
+function dbGetMembros() {
+  return fetch(API_MEMBROS + '?order=nome.asc', { headers: H_GET }).then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); });
+}
+
+
+function dbSaveMembro(m) {
+  return fetch(API_MEMBROS, { method:'POST', headers:H, body:JSON.stringify(m) }).then(function(r){ if(!r.ok) throw new Error(r.status); });
+}
+
+
+function dbUpdateMembro(m) {
+  return fetch(API_MEMBROS + '?id=eq.' + m.id, { method:'PATCH', headers:H, body:JSON.stringify({nome:m.nome,aniversario:m.aniversario}) }).then(function(r){ if(!r.ok) throw new Error(r.status); });
+}
+
+
+function dbDeleteMembro(id) {
+  return fetch(API_MEMBROS + '?id=eq.' + id, { method:'DELETE', headers:H_GET }).then(function(r){ if(!r.ok) throw new Error(r.status); });
+}
+
+
+function dbGetCaixa(mes) {
+  return fetch(API_CAIXA + '?mes=eq.' + mes, { headers: H_GET }).then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); });
+}
+
+
+function dbGetGastos(mes) {
+  return fetch(API_GASTOS + '?mes=eq.' + mes + '&order=created_at.asc', { headers: H_GET }).then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); });
+}
+
+
+function dbUpsertCaixa(item) {
+  return fetch(API_CAIXA, { method:'POST', headers: Object.assign({}, H, {'Prefer':'resolution=merge-duplicates'}), body:JSON.stringify(item) }).then(function(r){ if(!r.ok) throw new Error(r.status); });
+}
+
+
+function dbDeleteCaixaItem(id) {
+  return fetch(API_CAIXA + '?id=eq.' + id, { method:'DELETE', headers:H_GET }).then(function(r){ if(!r.ok) throw new Error(r.status); });
+}
+
+
+function dbSaveGasto(g) {
+  return fetch(API_GASTOS, { method:'POST', headers:H, body:JSON.stringify(g) }).then(function(r){ if(!r.ok) throw new Error(r.status); });
+}
+
+
+function dbDeleteGasto(id) {
+  return fetch(API_GASTOS + '?id=eq.' + id, { method:'DELETE', headers:H_GET }).then(function(r){ if(!r.ok) throw new Error(r.status); });
+}
+
+
+function openModalMembro(edit) {
+  edit = edit || null;
+  editingMembroId = edit;
+  document.getElementById('modal-membro-titulo').textContent = edit ? 'Editar Membro' : 'Novo Membro';
+  if (edit) {
+    var m = membros.find(function(x){ return x.id===edit; });
+    if (m) { document.getElementById('membro-nome').value = m.nome; document.getElementById('membro-aniv').value = m.aniversario || ''; }
+  } else {
+    document.getElementById('membro-nome').value = '';
+    document.getElementById('membro-aniv').value = '';
+  }
+  document.getElementById('modal-membro').classList.add('open');
+  setTimeout(function(){ document.getElementById('membro-nome').focus(); }, 100);
+}
+
+
+function fecharModalMembro() { document.getElementById('modal-membro').classList.remove('open'); editingMembroId = null; }
+
+
+function salvarMembro() {
+  var nome = document.getElementById('membro-nome').value.trim();
+  var aniv = document.getElementById('membro-aniv').value;
+  if (!nome) { alert('INFORME O NOME DO MEMBRO.'); return; }
+  var btn = document.querySelector('#modal-membro .btn-save');
+  btn.textContent = 'SALVANDO...'; btn.disabled = true;
+  var promise;
+  if (editingMembroId) {
+    var obj = { id: editingMembroId, nome: nome, aniversario: aniv };
+    promise = dbUpdateMembro(obj).then(function(){
+      var idx = membros.findIndex(function(m){ return m.id===editingMembroId; });
+      if (idx !== -1) membros[idx] = obj;
+      toast('MEMBRO ATUALIZADO!');
+    });
+  } else {
+    var obj = { id: uid(), nome: nome, aniversario: aniv };
+    promise = dbSaveMembro(obj).then(function(){
+      membros.push(obj);
+      toast('MEMBRO CADASTRADO!');
+    });
+  }
+  promise.then(function(){
+    renderMembros(); checkAniversarios(); fecharModalMembro();
+  }).catch(function(e){ toast('ERRO: ' + e.message, 'err'); })
+  .finally(function(){ btn.textContent = 'SALVAR'; btn.disabled = false; });
+}
+
+
+function editarMembro(id) { openModalMembro(id); }
+
+
+function deletarMembro(id) {
+  if (!adminLogado) return;
+  if (!confirm('REMOVER ESTE MEMBRO?')) return;
+  dbDeleteMembro(id).then(function(){
+    membros = membros.filter(function(m){ return m.id !== id; });
+    renderMembros(); checkAniversarios(); toast('MEMBRO REMOVIDO.');
+  }).catch(function(e){ toast('ERRO: ' + e.message, 'err'); });
+}
+
+
+function fecharMembroFora(e) { if(e.target===document.getElementById('modal-membro')) fecharModalMembro(); }
+
+
+function openModalGasto() {
+  document.getElementById('gasto-desc').value = '';
+  document.getElementById('gasto-valor').value = '';
+  document.getElementById('modal-gasto').classList.add('open');
+  setTimeout(function(){ document.getElementById('gasto-desc').focus(); }, 100);
+}
+
+
+function fecharModalGasto() { document.getElementById('modal-gasto').classList.remove('open'); }
+
+
+function salvarGasto() {
+  var desc = document.getElementById('gasto-desc').value.trim();
+  var valor = parseFloat(document.getElementById('gasto-valor').value) || 0;
+  if (!desc) { alert('INFORME A DESCRICAO.'); return; }
+  if (valor <= 0) { alert('INFORME UM VALOR VALIDO.'); return; }
+  var sel = document.getElementById('caixa-mes-sel');
+  var gasto = { id: uid(), mes: sel.value, descricao: desc, valor: valor };
+  dbSaveGasto(gasto).then(function(){
+    fecharModalGasto(); renderCaixa(); toast('GASTO REGISTRADO!');
+  }).catch(function(e){ toast('ERRO: ' + e.message, 'err'); });
+}
+
+
+function deletarGasto(id, mes) {
+  if (!confirm('REMOVER ESTE GASTO?')) return;
+  dbDeleteGasto(id).then(function(){ renderCaixa(); toast('GASTO REMOVIDO.'); })
+    .catch(function(e){ toast('ERRO: ' + e.message, 'err'); });
+}
+
+
+function openModalPgto(id, nome, mes) {
+  pgtoTarget = { id: id, nome: nome, mes: mes };
+  document.getElementById('modal-pgto-nome').textContent = nome;
+  var item = caixaItens.find(function(c){ return c.id===id; });
+  document.getElementById('btn-desfazer-pgto').style.display = (item && item.pago) ? 'block' : 'none';
+  document.getElementById('modal-pgto').classList.add('open');
+}
+
+
+function fecharModalPgto() { document.getElementById('modal-pgto').classList.remove('open'); pgtoTarget = null; }
+
+
+function confirmarPgto(forma) {
+  if (!pgtoTarget) return;
+  fetch(API_CAIXA + '?id=eq.' + pgtoTarget.id, { method:'PATCH', headers:H, body:JSON.stringify({pago:true, forma:forma}) })
+    .then(function(r){ if(!r.ok) throw new Error(r.status); })
+    .then(function(){ fecharModalPgto(); renderCaixa(); toast('PAGAMENTO VIA ' + forma + ' registrado!'); })
+    .catch(function(e){ toast('ERRO: ' + e.message, 'err'); });
+}
+
+
+function desfazerPgto() {
+  if (!pgtoTarget || !confirm('DESFAZER PAGAMENTO?')) return;
+  fetch(API_CAIXA + '?id=eq.' + pgtoTarget.id, { method:'PATCH', headers:H, body:JSON.stringify({pago:false, forma:null}) })
+    .then(function(r){ if(!r.ok) throw new Error(r.status); })
+    .then(function(){ fecharModalPgto(); renderCaixa(); toast('PAGAMENTO DESFEITO.'); })
+    .catch(function(e){ toast('ERRO: ' + e.message, 'err'); });
+}
+
 
 function atualizarValor(id, valor, mes) {
   var v = parseFloat(valor) || 0;
@@ -2738,20 +2333,164 @@ function atualizarValor(id, valor, mes) {
     .catch(function(e){ toast('ERRO AO SALVAR VALOR', 'err'); });
 }
 
-// Modal avulso
-function getCfgAvulso() { return parseFloat((document.getElementById('cfg-valor-avulso')||{}).value) || 12; }
-function getCfgMens()   { return parseFloat((document.getElementById('cfg-valor-mens')||{}).value)   || 45; }
 
+function buildCaixaMesSel() {
+  var sel = document.getElementById('caixa-mes-sel');
+  if (!sel) return;
+  var now = new Date();
+  sel.innerHTML = '';
+  for (var i = 0; i < 12; i++) {
+    var d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    var ym = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+    var opt = document.createElement('option');
+    opt.value = ym;
+    opt.textContent = MESES_PT[d.getMonth()] + ' ' + d.getFullYear();
+    if (i === 0) opt.selected = true;
+    sel.appendChild(opt);
+  }
+}
+
+
+function openModalAvulso() {
+  if (!avulsoRodadaAtiva) { toast('SELECIONE UMA RODADA PRIMEIRO.', 'err'); return; }
+  document.getElementById('avulso-nome').value = '';
+  document.getElementById('avulso-valor').value = '';
+  document.getElementById('modal-avulso').classList.add('open');
+  setTimeout(function(){ document.getElementById('avulso-nome').focus(); }, 100);
+}
+
+
+function fecharModalAvulso() { document.getElementById('modal-avulso').classList.remove('open'); }
+
+
+function salvarAvulso() {
+  var nome = document.getElementById('avulso-nome').value.trim();
+  var valor = parseFloat(document.getElementById('avulso-valor').value) || 0;
+  if (!nome) { alert('INFORME O NOME DO AVULSO.'); return; }
+  var sel = document.getElementById('caixa-mes-sel');
+  var mes = sel.value;
+  var item = { id: uid(), mes: mes, tipo: 'avulso', membro_id: null, nome: nome, pago: false, forma: null, valor: valor, rodada_id: avulsoRodadaAtiva };
+  dbUpsertCaixa(item).then(function(){
+    fecharModalAvulso(); renderCaixa(); toast('AVULSO ADICIONADO!');
+  }).catch(function(e){ toast('ERRO: ' + e.message, 'err'); });
+}
+
+
+function removerAvulso(id, mes) {
+  if (!confirm('REMOVER ESTE AVULSO?')) return;
+  dbDeleteCaixaItem(id).then(function(){ renderCaixa(); toast('AVULSO REMOVIDO.'); })
+    .catch(function(e){ toast('ERRO: ' + e.message, 'err'); });
+}
+
+
+function renderAvulsosTabela(mes, avulsos) {
+  var tbodyAv = document.getElementById('caixa-avulsos-body');
+  tbodyAv.innerHTML = '';
+
+  if (!avulsoRodadaAtiva) {
+    var tr0 = document.createElement('tr');
+    var td0 = document.createElement('td'); td0.colSpan=5;
+    td0.style.cssText='text-align:center;color:var(--muted);font-family:Barlow Condensed,sans-serif;padding:20px;letter-spacing:1px;text-transform:uppercase;';
+    td0.textContent = 'SELECIONE UMA RODADA ACIMA';
+    tr0.appendChild(td0); tbodyAv.appendChild(tr0);
+    return;
+  }
+
+  var filtrados = avulsos.filter(function(a){ return a.rodada_id === avulsoRodadaAtiva; });
+
+  if (!filtrados.length) {
+    var tr0 = document.createElement('tr');
+    var td0 = document.createElement('td'); td0.colSpan=5;
+    td0.style.cssText='text-align:center;color:var(--muted);font-family:Barlow Condensed,sans-serif;padding:20px;letter-spacing:1px;text-transform:uppercase;';
+    td0.textContent = 'NENHUM AVULSO NESTA RODADA';
+    tr0.appendChild(td0); tbodyAv.appendChild(tr0);
+  } else {
+    filtrados.forEach(function(item){ tbodyAv.appendChild(_buildCaixaRow(item, mes)); });
+  }
+}
+
+
+function formatAniv(dateStr) {
+  if (!dateStr) return 'Sem data';
+  var p = dateStr.split('-');
+  if (p.length < 3) return dateStr;
+  return p[2] + ' de ' + MESES_NOME[parseInt(p[1],10)-1];
+}
+
+
+function getDiaMes() {
+  var d = new Date();
+  return String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+
+function getAniversariantesHoje() {
+  var hoje = getDiaMes();
+  return membros.filter(function(m) {
+    if (!m.aniversario) return false;
+    var parts = m.aniversario.split('-');
+    if (parts.length < 3) return false;
+    return parts[1] + '-' + parts[2] === hoje;
+  });
+}
+
+
+function checkAniversarios() {
+  var anivs = getAniversariantesHoje();
+  var banner = document.getElementById('aniversario-banner');
+  var nomes  = document.getElementById('aniversario-nomes');
+  if (anivs.length > 0) {
+    nomes.textContent = anivs.map(function(m){ return m.nome; }).join(', ');
+    banner.classList.add('show');
+  } else {
+    banner.classList.remove('show');
+  }
+}
+
+
+function fmtValor(v) {
+  return 'R$ ' + parseFloat(v||0).toFixed(2).replace('.', ',');
+}
+
+
+function loadMembros() {
+  return dbGetMembros().then(function(data){ membros = data; }).catch(function(){ membros = []; });
+}
+
+
+function removerAvulso(id, mes) {
+  if (!confirm('REMOVER ESTE AVULSO?')) return;
+  dbDeleteCaixaItem(id).then(function(){ renderCaixa(); toast('AVULSO REMOVIDO.'); })
+    .catch(function(e){ toast('ERRO: ' + e.message, 'err'); });
+}
+
+function setTipoMembro(tipo) {
+  document.getElementById('membro-tipo').value = tipo;
+  document.querySelectorAll('.tipo-btn').forEach(function(b){
+    b.classList.toggle('active', b.getAttribute('data-tipo') === tipo);
+  });
+}
+function membroAtivoNoMes(m, mes) {
+  if (!mes) return true;
+  var entrada = m.mes_entrada || null;
+  var saida   = m.mes_saida   || null;
+  if (entrada && mes < entrada) return false;
+  if (saida   && mes > saida)   return false;
+  return true;
+}
+function buildMembrosmesSel() { /* sincronizado com filtro global */ }
+function getCfgMens()   { return parseFloat((document.getElementById('cfg-valor-mens')||{}).value)   || 45; }
+function getCfgAvulso() { return parseFloat((document.getElementById('cfg-valor-avulso')||{}).value) || 12; }
+function toggleAvulsoNome() {
+  var g = document.getElementById('avulso-nome-group');
+  if (g) g.style.display = g.style.display === 'none' ? '' : 'none';
+}
 function openModalMensalistaManual() {
   var mes = (filtroAtivo === 'geral' || !filtroAtivo) ? mesAtualYM() : filtroAtivo;
   var jaAdicionados = caixaItens.filter(function(c){ return c.tipo==='mensalista' && c.mes===mes; }).map(function(c){ return c.membro_id; });
   var lista = membros.filter(function(m){
     return (m.tipo==='mensalista'||m.tipo==='presidente'||!m.tipo) && jaAdicionados.indexOf(m.id)===-1;
-  }).sort(function(a,b){
-    var ordem={presidente:0,mensalista:1};
-    var oa=ordem[a.tipo||'mensalista']||1, ob=ordem[b.tipo||'mensalista']||1;
-    return oa!==ob ? oa-ob : a.nome.localeCompare(b.nome);
-  });
+  }).sort(function(a,b){ return a.nome.localeCompare(b.nome); });
   var container = document.getElementById('mens-check-list');
   container.innerHTML = '';
   if (!lista.length) { container.innerHTML = '<div style="padding:12px;color:var(--muted);font-size:13px;text-align:center;">Todos já foram adicionados neste mês.</div>'; }
@@ -2788,98 +2527,34 @@ function salvarMensalistaManual() {
     .catch(function(e){ toast('ERRO: '+e.message,'err'); })
     .finally(function(){ btn.textContent='ADICIONAR'; btn.disabled=false; });
 }
-
-function openModalAvulso() {
-  if (!avulsoRodadaAtiva) { toast('SELECIONE UMA RODADA PRIMEIRO.', 'err'); return; }
-  var container = document.getElementById('avulso-check-list');
-  container.innerHTML = '';
-  var lista = membros.filter(function(m){ return m.tipo==='avulso'; }).sort(function(a,b){ return a.nome.localeCompare(b.nome); });
-  if (!lista.length) { container.innerHTML = '<div style="padding:12px;color:var(--muted);font-size:13px;text-align:center;">Nenhum avulso cadastrado.</div>'; }
-  lista.forEach(function(m) {
-    var item = document.createElement('div'); item.className = 'check-item';
-    var cb = document.createElement('input'); cb.type='checkbox'; cb.id='ac-'+m.id; cb.value=m.id;
-    var lbl = document.createElement('label'); lbl.htmlFor='ac-'+m.id; lbl.textContent = '⚡ '+m.nome;
-    cb.onchange = function(){ item.classList.toggle('checked',cb.checked); };
-    item.onclick = function(e){ if(e.target!==cb){ cb.checked=!cb.checked; item.classList.toggle('checked',cb.checked); } };
-    item.appendChild(cb); item.appendChild(lbl); container.appendChild(item);
+function dbGetAllCaixa() {
+  var h = Object.assign({}, H_GET, {'Range': '0-9999'});
+  return fetch(API_CAIXA + '?select=valor,pago&order=id', { headers: h }).then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); });
+}
+function dbGetAllGastos() {
+  var h = Object.assign({}, H_GET, {'Range': '0-9999'});
+  return fetch(API_GASTOS + '?select=valor&order=id', { headers: h }).then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); });
+}
+function getAniversariantesMes() {
+  var mesAtual = new Date().getMonth() + 1;
+  return membros.filter(function(m) {
+    if (!m.aniversario) return false;
+    var parts = m.aniversario.split('-');
+    if (parts.length < 3) return false;
+    return parseInt(parts[1], 10) === mesAtual;
+  }).sort(function(a,b){
+    return parseInt(a.aniversario.split('-')[2],10) - parseInt(b.aniversario.split('-')[2],10);
   });
-  document.getElementById('avulso-nome').value = '';
-  document.getElementById('avulso-valor').value = getCfgAvulso().toFixed(2);
-  document.getElementById('modal-avulso').classList.add('open');
 }
-function fecharModalAvulso() { document.getElementById('modal-avulso').classList.remove('open'); }
-function salvarAvulso() {
-  var mes = (filtroAtivo === 'geral' || !filtroAtivo) ? mesAtualYM() : filtroAtivo;
-  var valor = parseFloat(document.getElementById('avulso-valor').value) || getCfgAvulso();
-  var nomeManual = document.getElementById('avulso-nome').value.trim();
-  var checks = document.querySelectorAll('#avulso-check-list input[type=checkbox]:checked');
-  var promises = [];
-  checks.forEach(function(cb){
-    var m = membros.find(function(x){ return x.id===cb.value; });
-    if (!m) return;
-    promises.push(dbUpsertCaixa({ id:uid(), mes:mes, tipo:'avulso', rodada_id:avulsoRodadaAtiva, membro_id:m.id, nome:m.nome, pago:false, forma:null, valor:valor }));
-  });
-  if (nomeManual) promises.push(dbUpsertCaixa({ id:uid(), mes:mes, tipo:'avulso', rodada_id:avulsoRodadaAtiva, membro_id:null, nome:nomeManual, pago:false, forma:null, valor:valor }));
-  if (!promises.length) { alert('SELECIONE AO MENOS UM AVULSO OU INFORME UM NOME.'); return; }
-  var btn = document.querySelector('#modal-avulso .btn-save');
-  btn.textContent='SALVANDO...'; btn.disabled=true;
-  Promise.all(promises).then(function(){ fecharModalAvulso(); renderCaixa(); toast(promises.length+' AVULSO(S) ADICIONADO(S)!'); })
-    .catch(function(e){ toast('ERRO: '+e.message,'err'); })
-    .finally(function(){ btn.textContent='ADICIONAR'; btn.disabled=false; });
-}
-function removerAvulso(id, mes) {
-  if (!confirm('REMOVER ESTE AVULSO?')) return;
-  dbDeleteCaixaItem(id).then(function(){ renderCaixa(); toast('AVULSO REMOVIDO.'); })
-    .catch(function(e){ toast('ERRO: '+e.message,'err'); });
-}
-
-// Modal pagamento
-function openModalPgto(id, nome, mes) {
-  pgtoTarget = { id: id, nome: nome, mes: mes };
-  document.getElementById('modal-pgto-nome').textContent = nome;
-  var item = caixaItens.find(function(c){ return c.id===id; });
-  document.getElementById('btn-desfazer-pgto').style.display = (item && item.pago) ? 'block' : 'none';
-  document.getElementById('modal-pgto').classList.add('open');
-}
-function fecharModalPgto() { document.getElementById('modal-pgto').classList.remove('open'); pgtoTarget = null; }
-function confirmarPgto(forma) {
-  if (!pgtoTarget) return;
-  fetch(API_CAIXA + '?id=eq.' + pgtoTarget.id, { method:'PATCH', headers:H, body:JSON.stringify({pago:true, forma:forma}) })
-    .then(function(r){ if(!r.ok) throw new Error(r.status); })
-    .then(function(){ fecharModalPgto(); renderCaixa(); toast('PAGAMENTO VIA ' + forma + ' registrado!'); })
-    .catch(function(e){ toast('ERRO: ' + e.message, 'err'); });
-}
-function desfazerPgto() {
-  if (!pgtoTarget || !confirm('DESFAZER PAGAMENTO?')) return;
-  fetch(API_CAIXA + '?id=eq.' + pgtoTarget.id, { method:'PATCH', headers:H, body:JSON.stringify({pago:false, forma:null}) })
-    .then(function(r){ if(!r.ok) throw new Error(r.status); })
-    .then(function(){ fecharModalPgto(); renderCaixa(); toast('PAGAMENTO DESFEITO.'); })
-    .catch(function(e){ toast('ERRO: ' + e.message, 'err'); });
-}
-
-// Gastos
-function openModalGasto() {
-  document.getElementById('gasto-desc').value = '';
-  document.getElementById('gasto-valor').value = '';
-  document.getElementById('modal-gasto').classList.add('open');
-  setTimeout(function(){ document.getElementById('gasto-desc').focus(); }, 100);
-}
-function fecharModalGasto() { document.getElementById('modal-gasto').classList.remove('open'); }
-function salvarGasto() {
-  var desc = document.getElementById('gasto-desc').value.trim();
-  var valor = parseFloat(document.getElementById('gasto-valor').value) || 0;
-  if (!desc) { alert('INFORME A DESCRICAO.'); return; }
-  if (valor <= 0) { alert('INFORME UM VALOR VALIDO.'); return; }
-   var mes = (filtroAtivo === 'geral' || !filtroAtivo) ? mesAtualYM() : filtroAtivo;
-   var gasto = { id: uid(), mes: mes, descricao: desc, valor: valor };
-  dbSaveGasto(gasto).then(function(){
-    fecharModalGasto(); renderCaixa(); toast('GASTO REGISTRADO!');
-  }).catch(function(e){ toast('ERRO: ' + e.message, 'err'); });
-}
-function deletarGasto(id, mes) {
-  if (!confirm('REMOVER ESTE GASTO?')) return;
-  dbDeleteGasto(id).then(function(){ renderCaixa(); toast('GASTO REMOVIDO.'); })
-    .catch(function(e){ toast('ERRO: ' + e.message, 'err'); });
+function switchTab(tab, btn) {
+  document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+  document.getElementById('page-'+tab).classList.add('active');
+  btn.classList.add('active');
+  var filtroBar = document.getElementById('filtro-global-bar');
+  if (filtroBar) filtroBar.style.display = tab === 'avisos' ? 'none' : '';
+  var btnRodada = document.getElementById('btn-nova-rodada');
+  if (btnRodada) btnRodada.style.display = (tab === 'rodadas' && adminLogado) ? '' : 'none';
 }
 
 window.onload = init;
