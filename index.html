@@ -649,7 +649,7 @@
     <!-- TOTAL EM CAIXA -->
     <div class="caixa-total-box">
       <div>
-        <div class="caixa-total-label">SALDO EM CAIXA</div>
+        <div class="caixa-total-label">SALDO DO MÊS</div>
         <div class="caixa-total-valor" id="ck-saldo">R$ 0</div>
         <div class="caixa-total-detail">
           ENTRADAS: <span id="ck-entradas">R$ 0</span> &nbsp;|&nbsp; GASTOS: <span id="ck-gastos-total">R$ 0</span>
@@ -658,6 +658,29 @@
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;min-width:0;width:100%;">
         <div class="caixa-card pago" style="margin:0;"><div class="ck-num" id="ck-pago">0</div><div class="ck-label">PAGARAM</div></div>
         <div class="caixa-card pendente" style="margin:0;"><div class="ck-num" id="ck-pendente">0</div><div class="ck-label">PENDENTES</div></div>
+      </div>
+    </div>
+
+    <!-- CAIXA GERAL ACUMULADO -->
+    <div class="caixa-total-box" id="ck-geral-box" style="margin-bottom:24px;background:rgba(26,79,189,0.08);border-color:rgba(26,79,189,0.35);">
+      <div style="flex:1;">
+        <div class="caixa-total-label" style="font-size:11px;">&#127381; CAIXA TOTAL ACUMULADO (TODOS OS MESES)</div>
+        <div class="caixa-total-valor" id="ck-saldo-geral" style="font-size:28px;">R$ 0</div>
+        <div class="caixa-total-detail">ENTRADAS TOTAIS: <span id="ck-entradas-geral">R$ 0</span> &nbsp;|&nbsp; GASTOS TOTAIS: <span id="ck-gastos-geral">R$ 0</span></div>
+      </div>
+    </div>
+
+    <!-- CONFIGS DE VALORES -->
+    <div class="acao-col admin-only" style="display:none;margin-bottom:20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span class="filtro-label">MENSALIDADE:</span>
+        <span style="color:var(--muted);font-size:12px;">R$</span>
+        <input type="number" id="cfg-valor-mens" value="45" min="0" step="1" style="width:64px;background:var(--preto);border:1px solid var(--azul-linha);border-radius:6px;color:#7de87a;font-size:14px;padding:5px 8px;text-align:center;outline:none;">
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span class="filtro-label">AVULSO:</span>
+        <span style="color:var(--muted);font-size:12px;">R$</span>
+        <input type="number" id="cfg-valor-avulso" value="12" min="0" step="1" style="width:64px;background:var(--preto);border:1px solid var(--azul-linha);border-radius:6px;color:var(--laranja);font-size:14px;padding:5px 8px;text-align:center;outline:none;">
       </div>
     </div>
 
@@ -711,8 +734,20 @@
 <div class="modal-overlay" id="modal-avulso" onclick="if(event.target===this)fecharModalAvulso()">
   <div class="modal-avulso-box">
     <h2>ADICIONAR AVULSO</h2>
-    <div class="form-group"><label>NOME</label><input type="text" id="avulso-nome" placeholder="NOME COMPLETO"></div>
+    <div class="form-group">
+      <label>SELECIONAR MEMBRO AVULSO</label>
+      <select id="avulso-membro-sel" style="width:100%;background:var(--preto);border:1px solid var(--azul-linha);border-radius:8px;color:var(--branco);font-family:'Barlow Condensed',sans-serif;font-size:15px;padding:10px 14px;outline:none;">
+        <option value="">-- Selecione --</option>
+      </select>
+    </div>
+    <div class="form-group" id="avulso-nome-group" style="display:none;">
+      <label>OU DIGITE O NOME</label>
+      <input type="text" id="avulso-nome" placeholder="NOME COMPLETO">
+    </div>
     <div class="form-group"><label>VALOR (R$)</label><input type="number" id="avulso-valor" placeholder="0.00" min="0" step="0.01" class="valor-input"></div>
+    <div style="margin-bottom:14px;">
+      <button type="button" style="background:transparent;border:none;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-size:13px;cursor:pointer;padding:0;text-decoration:underline;" onclick="toggleAvulsoNome()">+ digitar nome manualmente</button>
+    </div>
     <div class="modal-actions">
       <button class="btn-cancel" onclick="fecharModalAvulso()">CANCELAR</button>
       <button class="btn-save" onclick="salvarAvulso()">ADICIONAR</button>
@@ -1683,6 +1718,9 @@ function dbDeleteMembro(id) {
 function dbGetCaixa(mes) {
   return fetch(API_CAIXA + '?mes=eq.' + mes, { headers: H_GET }).then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); });
 }
+function dbGetAllCaixa() {
+  return fetch(API_CAIXA + '?select=valor,pago', { headers: H_GET }).then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); });
+}
 function dbUpsertCaixa(item) {
   return fetch(API_CAIXA, { method:'POST', headers: Object.assign({}, H, {'Prefer':'resolution=merge-duplicates'}), body:JSON.stringify(item) }).then(function(r){ if(!r.ok) throw new Error(r.status); });
 }
@@ -1696,6 +1734,9 @@ function dbGetGastos(mes) {
 }
 function dbSaveGasto(g) {
   return fetch(API_GASTOS, { method:'POST', headers:H, body:JSON.stringify(g) }).then(function(r){ if(!r.ok) throw new Error(r.status); });
+function dbGetAllGastos() {
+  return fetch(API_GASTOS + '?select=valor', { headers: H_GET }).then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); });
+}
 }
 function dbDeleteGasto(id) {
   return fetch(API_GASTOS + '?id=eq.' + id, { method:'DELETE', headers:H_GET }).then(function(r){ if(!r.ok) throw new Error(r.status); });
@@ -1922,15 +1963,20 @@ function fmtValor(v) {
   return 'R$ ' + parseFloat(v||0).toFixed(2).replace('.', ',');
 }
 
-function renderCaixa() {
+ function renderCaixa() {
   var mes = (filtroAtivo === 'geral' || !filtroAtivo) ? mesAtualYM() : filtroAtivo;
-
-  // Load from Supabase
-  Promise.all([dbGetCaixa(mes), dbGetGastos(mes)]).then(function(results) {
+  Promise.all([dbGetCaixa(mes), dbGetGastos(mes), dbGetAllCaixa(), dbGetAllGastos()]).then(function(results) {
     caixaItens  = results[0];
     gastosItens = results[1];
-
-  }).then(function(){
+    var allCaixa  = results[2] || [];
+    var allGastos = results[3] || [];
+    var totalGeralEntradas = allCaixa.reduce(function(s,c){ return s + (c.pago ? parseFloat(c.valor||0) : 0); }, 0);
+    var totalGeralGastos   = allGastos.reduce(function(s,g){ return s + parseFloat(g.valor||0); }, 0);
+    var saldoGeral = totalGeralEntradas - totalGeralGastos;
+    var sgEl = document.getElementById('ck-saldo-geral');
+    if (sgEl) { sgEl.textContent = fmtValor(saldoGeral); sgEl.className = 'caixa-total-valor' + (saldoGeral < 0 ? ' negativo' : ''); sgEl.style.fontSize = '28px'; }
+    var eg = document.getElementById('ck-entradas-geral'); if (eg) eg.textContent = fmtValor(totalGeralEntradas);
+    var gg = document.getElementById('ck-gastos-geral');   if (gg) gg.textContent = fmtValor(totalGeralGastos);
     _renderCaixaUI(mes);
   }).catch(function(e){ toast('ERRO AO CARREGAR CAIXA: ' + e.message, 'err'); });
 }
@@ -2166,7 +2212,7 @@ function openModalMensalistaManual() {
   }
 
   document.getElementById('mens-manual-nome').value = '';
-  document.getElementById('mens-manual-valor').value = '';
+  document.getElementById('mens-manual-valor').value = getCfgMens().toFixed(2);
   document.getElementById('mens-manual-nome-group').style.display = 'none';
   document.getElementById('modal-mensalista-manual').classList.add('open');
 }
@@ -2190,14 +2236,47 @@ function salvarMensalistaManual() {
   }).catch(function(e){ toast('ERRO: ' + e.message, 'err'); });
 }
 
+function toggleAvulsoNome() {
+  var g = document.getElementById('avulso-nome-group');
+  g.style.display = g.style.display === 'none' ? '' : 'none';
+}
+function getCfgAvulso() { return parseFloat((document.getElementById('cfg-valor-avulso')||{}).value) || 12; }
+function getCfgMens()   { return parseFloat((document.getElementById('cfg-valor-mens')||{}).value)   || 45; }
+
 function openModalAvulso() {
   if (!avulsoRodadaAtiva) { toast('SELECIONE UMA RODADA PRIMEIRO.', 'err'); return; }
+  // Populate avulsos selector
+  var sel = document.getElementById('avulso-membro-sel');
+  sel.innerHTML = '<option value="">-- Selecione --</option>';
+  var avulsosLista = membros.filter(function(m){ return m.tipo === 'avulso'; })
+    .sort(function(a,b){ return a.nome.localeCompare(b.nome); });
+  avulsosLista.forEach(function(m){
+    var o = document.createElement('option'); o.value = m.id; o.textContent = m.nome; sel.appendChild(o);
+  });
   document.getElementById('avulso-nome').value = '';
-  document.getElementById('avulso-valor').value = '';
+  document.getElementById('avulso-valor').value = getCfgAvulso().toFixed(2);
+  document.getElementById('avulso-nome-group').style.display = 'none';
   document.getElementById('modal-avulso').classList.add('open');
-  setTimeout(function(){ document.getElementById('avulso-nome').focus(); }, 100);
 }
 function fecharModalAvulso() { document.getElementById('modal-avulso').classList.remove('open'); }
+function salvarAvulso() {
+  var sel = document.getElementById('avulso-membro-sel');
+  var membroId = sel.value;
+  var nome = '';
+  if (membroId) {
+    var m = membros.find(function(x){ return x.id===membroId; });
+    nome = m ? m.nome : '';
+  } else {
+    nome = document.getElementById('avulso-nome').value.trim();
+  }
+  var valor = parseFloat(document.getElementById('avulso-valor').value) || getCfgAvulso();
+  if (!nome) { alert('SELECIONE OU INFORME O NOME.'); return; }
+  var mes = (filtroAtivo === 'geral' || !filtroAtivo) ? mesAtualYM() : filtroAtivo;
+  var item = { id: uid(), mes: mes, tipo: 'avulso', rodada_id: avulsoRodadaAtiva, membro_id: membroId || null, nome: nome, pago: false, forma: null, valor: valor };
+  dbUpsertCaixa(item).then(function(){
+    fecharModalAvulso(); renderCaixa(); toast('AVULSO ADICIONADO!');
+  }).catch(function(e){ toast('ERRO: ' + e.message, 'err'); });
+}
 function salvarAvulso() {
   var nome = document.getElementById('avulso-nome').value.trim();
   var valor = parseFloat(document.getElementById('avulso-valor').value) || 0;
