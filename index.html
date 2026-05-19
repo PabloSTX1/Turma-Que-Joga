@@ -723,9 +723,21 @@
 <!-- MODAL MENSALISTA MANUAL -->
 <div class="modal-overlay" id="modal-mensalista-manual" onclick="if(event.target===this)fecharModalMensalistaManual()">
   <div class="modal-avulso-box">
-    <h2>Adicionar Manualmente</h2>
-    <div class="form-group"><label>Nome</label><input type="text" id="mens-manual-nome" placeholder="Nome completo"></div>
+    <h2>Adicionar Mensalista</h2>
+    <div class="form-group">
+      <label>SELECIONAR MEMBRO</label>
+      <select id="mens-manual-membro-sel" style="width:100%;background:var(--preto);border:1px solid var(--azul-linha);border-radius:8px;color:var(--branco);font-family:'Barlow Condensed',sans-serif;font-size:15px;padding:10px 14px;outline:none;">
+        <option value="">-- Selecione um membro --</option>
+      </select>
+    </div>
+    <div class="form-group" id="mens-manual-nome-group" style="display:none;">
+      <label>OU DIGITE O NOME</label>
+      <input type="text" id="mens-manual-nome" placeholder="Nome completo">
+    </div>
     <div class="form-group"><label>Valor (R$)</label><input type="number" id="mens-manual-valor" placeholder="0.00" min="0" step="0.01" class="valor-input"></div>
+    <div style="margin-bottom:14px;">
+      <button type="button" style="background:transparent;border:none;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-size:13px;cursor:pointer;padding:0;text-decoration:underline;" onclick="toggleMensManualNome()">+ digitar nome manualmente</button>
+    </div>
     <div class="modal-actions">
       <button class="btn-cancel" onclick="fecharModalMensalistaManual()">CANCELAR</button>
       <button class="btn-save" onclick="salvarMensalistaManual()">ADICIONAR</button>
@@ -1918,18 +1930,6 @@ function renderCaixa() {
     caixaItens  = results[0];
     gastosItens = results[1];
 
-    // Ensure only membros ativos neste mes (mensalistas e cupula) tem entradas na caixa
-    var membrosAtivos = membros.filter(function(m){
-      return (m.tipo === 'mensalista' || m.tipo === 'presidente' || !m.tipo) && membroAtivoNoMes(m, mes);
-    });
-    var existingIds = caixaItens.filter(function(c){ return c.tipo==='mensalista'; }).map(function(c){ return c.membro_id; });
-    var toCreate = membrosAtivos.filter(function(m){ return existingIds.indexOf(m.id) === -1; });
-    var createPromises = toCreate.map(function(m){
-      var item = { id: uid(), mes: mes, tipo: 'mensalista', membro_id: m.id, nome: m.nome, pago: false, forma: null, valor: 0 };
-      caixaItens.push(item);
-      return dbUpsertCaixa(item);
-    });
-    return Promise.all(createPromises);
   }).then(function(){
     _renderCaixaUI(mes);
   }).catch(function(e){ toast('ERRO AO CARREGAR CAIXA: ' + e.message, 'err'); });
@@ -2137,19 +2137,54 @@ function atualizarValor(id, valor, mes) {
 }
 
 // Modal avulso
+function toggleMensManualNome() {
+  var g = document.getElementById('mens-manual-nome-group');
+  g.style.display = g.style.display === 'none' ? '' : 'none';
+}
 function openModalMensalistaManual() {
+  // Populate member selector with cupula + mensalistas not already in this month's list
+  var mes = (filtroAtivo === 'geral' || !filtroAtivo) ? mesAtualYM() : filtroAtivo;
+  var jaAdicionados = caixaItens.filter(function(c){ return c.tipo==='mensalista' && c.mes===mes; }).map(function(c){ return c.membro_id; });
+  var elegíveis = membros.filter(function(m){
+    return (m.tipo === 'mensalista' || m.tipo === 'presidente' || !m.tipo) && jaAdicionados.indexOf(m.id) === -1;
+  }).sort(function(a,b){ return a.nome.localeCompare(b.nome); });
+
+  var sel = document.getElementById('mens-manual-membro-sel');
+  sel.innerHTML = '<option value="">-- Selecione um membro --</option>';
+  // Cupula primeiro
+  var pres = elegíveis.filter(function(m){ return m.tipo==='presidente'; });
+  var mens = elegíveis.filter(function(m){ return m.tipo!=='presidente'; });
+  if (pres.length) {
+    var grp1 = document.createElement('optgroup'); grp1.label = '👑 CUPULA';
+    pres.forEach(function(m){ var o=document.createElement('option'); o.value=m.id; o.textContent=m.nome; grp1.appendChild(o); });
+    sel.appendChild(grp1);
+  }
+  if (mens.length) {
+    var grp2 = document.createElement('optgroup'); grp2.label = '👤 MENSALISTAS';
+    mens.forEach(function(m){ var o=document.createElement('option'); o.value=m.id; o.textContent=m.nome; grp2.appendChild(o); });
+    sel.appendChild(grp2);
+  }
+
   document.getElementById('mens-manual-nome').value = '';
   document.getElementById('mens-manual-valor').value = '';
+  document.getElementById('mens-manual-nome-group').style.display = 'none';
   document.getElementById('modal-mensalista-manual').classList.add('open');
-  setTimeout(function(){ document.getElementById('mens-manual-nome').focus(); }, 100);
 }
 function fecharModalMensalistaManual() { document.getElementById('modal-mensalista-manual').classList.remove('open'); }
 function salvarMensalistaManual() {
-  var nome = document.getElementById('mens-manual-nome').value.trim();
+  var sel = document.getElementById('mens-manual-membro-sel');
+  var membroId = sel.value;
+  var nome = '';
+  if (membroId) {
+    var m = membros.find(function(x){ return x.id === membroId; });
+    nome = m ? m.nome : sel.options[sel.selectedIndex].textContent;
+  } else {
+    nome = document.getElementById('mens-manual-nome').value.trim();
+  }
   var valor = parseFloat(document.getElementById('mens-manual-valor').value) || 0;
-  if (!nome) { alert('INFORME O NOME.'); return; }
+  if (!nome) { alert('SELECIONE OU INFORME O NOME.'); return; }
   var mes = (filtroAtivo === 'geral' || !filtroAtivo) ? mesAtualYM() : filtroAtivo;
-  var item = { id: uid(), mes: mes, tipo: 'mensalista', membro_id: null, nome: nome, pago: false, forma: null, valor: valor };
+  var item = { id: uid(), mes: mes, tipo: 'mensalista', membro_id: membroId || null, nome: nome, pago: false, forma: null, valor: valor };
   dbUpsertCaixa(item).then(function(){
     fecharModalMensalistaManual(); renderCaixa(); toast('ADICIONADO!');
   }).catch(function(e){ toast('ERRO: ' + e.message, 'err'); });
