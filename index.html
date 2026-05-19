@@ -460,6 +460,7 @@
       </div>
     </div>
     <div style="display:flex;align-items:center;gap:12px;">
+      <button id="btn-instalar-app" onclick="triggerInstall()" style="display:none;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;background:transparent;color:rgba(255,255,255,0.6);border:1px solid rgba(255,255,255,0.2);border-radius:8px;padding:6px 12px;cursor:pointer;transition:all .2s;white-space:nowrap;" onmouseover="this.style.color='#fff';this.style.borderColor='rgba(255,255,255,0.5)'" onmouseout="this.style.color='rgba(255,255,255,0.6)';this.style.borderColor='rgba(255,255,255,0.2)'">&#11015; INSTALAR APP</button>
       <div class="admin-badge">&#128273; CUPULA <button class="btn-sair" onclick="sair()">SAIR</button></div>
       <button class="btn-nova" id="btn-nova-rodada" onclick="openModalRodada()" style="display:none;">+ NOVA RODADA</button>
     </div>
@@ -2667,26 +2668,49 @@ window.onload = init;
   window.addEventListener('beforeinstallprompt', function(e) {
     e.preventDefault();
     deferredPrompt = e;
-    // Show banner after 2s
+    // Show install button
+    var btn = document.getElementById('btn-instalar-app');
+    if (btn) btn.style.display = 'block';
+    // Also show banner after 2s
     setTimeout(function() {
       var b = document.getElementById('pwa-banner');
       if (b) b.style.display = 'flex';
     }, 2000);
   });
 
+  window.triggerInstall = function() {
+    var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    if (deferredPrompt) {
+      // Android
+      var b = document.getElementById('pwa-banner');
+      if (b) b.style.display = 'none';
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then(function(r) {
+        if (r.outcome === 'accepted') {
+          var btn = document.getElementById('btn-instalar-app');
+          if (btn) btn.style.display = 'none';
+        }
+        deferredPrompt = null;
+      });
+    } else if (isIOS) {
+      // iOS: show instructions
+      var b = document.getElementById('ios-banner');
+      if (b) b.style.display = 'block';
+    }
+  };
+
   window.pwdInstall = function() {
     var b = document.getElementById('pwa-banner');
     if (b) b.style.display = 'none';
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      deferredPrompt.userChoice.then(function() { deferredPrompt = null; });
-    }
+    window.triggerInstall();
   };
 
   // iOS hint (Safari, not installed yet)
   var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
   var isInStandalone = window.navigator.standalone;
   if (isIOS && !isInStandalone) {
+    var btn = document.getElementById('btn-instalar-app');
+    if (btn) btn.style.display = 'block';
     setTimeout(function() {
       var b = document.getElementById('ios-banner');
       if (b) b.style.display = 'block';
