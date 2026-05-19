@@ -519,11 +519,14 @@
       <div class="hero-card"><div class="number" id="total-jogadores">-</div><div class="label">JOGADORES</div></div>
       <div class="hero-card" style="border-top-color:var(--laranja);"><div class="number" id="top-goleiro" style="font-size:28px;padding-top:4px;">-</div><div class="label">GOLEIRO LIDER</div></div>
     </div>
-    <div class="ordenacao-bar">
-      <span class="ordenacao-label">ORDENAR POR:</span>
-      <button class="ord-btn active-gols" id="ord-gols" onclick="setOrdenacao('gols')">⚽ GOLS</button>
-      <button class="ord-btn" id="ord-assists" onclick="setOrdenacao('assists')">🎯 ASSISTENCIAS</button>
-      <button class="ord-btn" id="ord-total" onclick="setOrdenacao('total')">🏅 PARTICIPACOES</button>
+    <div class="ordenacao-bar" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+        <span class="ordenacao-label">ORDENAR POR:</span>
+        <button class="ord-btn active-gols" id="ord-gols" onclick="setOrdenacao('gols')">⚽ GOLS</button>
+        <button class="ord-btn" id="ord-assists" onclick="setOrdenacao('assists')">🎯 ASSISTENCIAS</button>
+        <button class="ord-btn" id="ord-total" onclick="setOrdenacao('total')">🏅 PARTICIPACOES</button>
+      </div>
+      <button onclick="exportarRankingPNG()" style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;background:transparent;color:var(--laranja);border:1.5px solid var(--laranja);border-radius:8px;padding:7px 14px;cursor:pointer;white-space:nowrap;transition:all .2s;" onmouseover="this.style.background='rgba(232,100,26,0.15)'" onmouseout="this.style.background='transparent'">&#128247; EXPORTAR PNG</button>
     </div>
     <div class="section-title" id="ranking-titulo">ARTILHARIA GERAL</div>
     
@@ -1454,6 +1457,188 @@ function dbDeleteAviso(id) {
 
 function loadAvisos() {
   return dbGetAvisos().then(function(data){ avisos = data || []; }).catch(function(){ avisos = []; });
+}
+
+function exportarRankingPNG() {
+  var rank = computeRanking().slice(0, 15); // Top 15
+  var grank = computeGoleiros().slice(0, 5);
+  var periodo = filtroAtivo === 'geral' ? 'Geral' : formatMesAno(filtroAtivo);
+  var ord = ordenacaoAtiva === 'gols' ? 'Gols' : ordenacaoAtiva === 'assists' ? 'Assistências' : 'Participações';
+
+  // Sort by current ordenacao
+  rank.sort(function(a,b){
+    if (ordenacaoAtiva === 'assists') return (b.assists - a.assists) || (b.gols - a.gols);
+    if (ordenacaoAtiva === 'total') return ((b.gols+b.assists) - (a.gols+a.assists));
+    return (b.gols - a.gols) || (b.assists - a.assists);
+  });
+
+  var ROW_H = 44;
+  var PADDING = 28;
+  var WIDTH = 680;
+  var headerH = 110;
+  var rankH = rank.length * ROW_H + 56;
+  var golH = grank.length > 0 ? grank.length * ROW_H + 56 : 0;
+  var totalH = headerH + rankH + golH + PADDING * 2;
+
+  var canvas = document.createElement('canvas');
+  canvas.width = WIDTH;
+  canvas.height = totalH;
+  var ctx = canvas.getContext('2d');
+
+  // Background
+  ctx.fillStyle = '#0a0f1e';
+  ctx.fillRect(0, 0, WIDTH, totalH);
+
+  // Grid lines
+  ctx.strokeStyle = 'rgba(26,79,189,0.08)';
+  ctx.lineWidth = 1;
+  for (var x = 0; x < WIDTH; x += 40) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,totalH); ctx.stroke(); }
+  for (var y = 0; y < totalH; y += 40) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(WIDTH,y); ctx.stroke(); }
+
+  // Header bar
+  var grad = ctx.createLinearGradient(0,0,WIDTH,0);
+  grad.addColorStop(0,'rgba(26,79,189,0.5)');
+  grad.addColorStop(1,'rgba(10,15,30,0)');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, WIDTH, headerH);
+
+  // Orange accent line
+  ctx.fillStyle = '#e8641a';
+  ctx.fillRect(0, 0, 4, headerH);
+
+  // Title
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 28px "Arial Black", Arial, sans-serif';
+  ctx.fillText('TURMA QUE JOGA FC', PADDING + 8, 42);
+
+  ctx.fillStyle = '#e8641a';
+  ctx.font = 'bold 14px Arial, sans-serif';
+  ctx.fillText('RANKING ' + ord.toUpperCase() + '  •  ' + periodo.toUpperCase(), PADDING + 8, 66);
+
+  ctx.fillStyle = 'rgba(255,255,255,0.35)';
+  ctx.font = '12px Arial, sans-serif';
+  var dataHoje = new Date();
+  ctx.fillText('Gerado em ' + dataHoje.toLocaleDateString('pt-BR'), PADDING + 8, 90);
+
+  // ── RANKING TABLE ──────────────────────────────────────────
+  var y = headerH + PADDING;
+
+  // Section title
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 15px "Arial Black", Arial, sans-serif';
+  ctx.letterSpacing = '2px';
+  ctx.fillText('⚽  ARTILHARIA', PADDING, y + 20);
+  ctx.fillStyle = 'rgba(26,79,189,0.6)';
+  ctx.fillRect(PADDING, y + 28, WIDTH - PADDING*2, 1);
+  y += 40;
+
+  // Column headers
+  ctx.fillStyle = 'rgba(255,255,255,0.4)';
+  ctx.font = 'bold 11px Arial, sans-serif';
+  ctx.fillText('#', PADDING, y + 14);
+  ctx.fillText('JOGADOR', PADDING + 44, y + 14);
+  ctx.fillText('G', WIDTH - 150, y + 14);
+  ctx.fillText('A', WIDTH - 100, y + 14);
+  ctx.fillText('P', WIDTH - 50, y + 14);
+  y += 20;
+
+  // Rows
+  rank.forEach(function(p, i) {
+    var rowY = y + i * ROW_H;
+    var isTop3 = i < 3;
+
+    // Row bg
+    if (i % 2 === 0) { ctx.fillStyle = 'rgba(255,255,255,0.03)'; ctx.fillRect(PADDING - 8, rowY - 2, WIDTH - PADDING*2 + 16, ROW_H - 4); }
+
+    // Medal/rank number
+    var medals = ['🥇','🥈','🥉'];
+    if (isTop3) {
+      ctx.font = '18px Arial';
+      ctx.fillText(medals[i], PADDING - 4, rowY + 26);
+    } else {
+      ctx.fillStyle = 'rgba(255,255,255,0.4)';
+      ctx.font = 'bold 13px Arial';
+      ctx.fillText(String(i+1), PADDING + 2, rowY + 26);
+    }
+
+    // Avatar circle
+    var avatarColors = ['#1a4fbd','#e8641a','#7de87a','#f0c040'];
+    ctx.fillStyle = avatarColors[i % avatarColors.length];
+    ctx.beginPath(); ctx.arc(PADDING + 44, rowY + 20, 14, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 13px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText(p.nome.charAt(0).toUpperCase(), PADDING + 44, rowY + 25);
+    ctx.textAlign = 'left';
+
+    // Name
+    var displayNome = p.nome.length > 18 ? p.nome.substring(0,17)+'…' : p.nome;
+    ctx.fillStyle = isTop3 ? '#ffffff' : 'rgba(255,255,255,0.85)';
+    ctx.font = isTop3 ? 'bold 14px Arial' : '14px Arial';
+    ctx.fillText(displayNome, PADDING + 64, rowY + 26);
+
+    // Stats
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#7de87a'; ctx.font = 'bold 14px Arial'; ctx.fillText(p.gols, WIDTH - 138, rowY + 26);
+    ctx.fillStyle = '#e8641a'; ctx.font = 'bold 14px Arial'; ctx.fillText(p.assists, WIDTH - 88, rowY + 26);
+    ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.font = '13px Arial'; ctx.fillText(p.gols+p.assists, WIDTH - 38, rowY + 26);
+    ctx.textAlign = 'left';
+  });
+
+  y += rank.length * ROW_H + 16;
+
+  // ── GOLEIROS TABLE ──────────────────────────────────────────
+  if (grank.length > 0) {
+    ctx.fillStyle = 'rgba(125,232,122,0.15)';
+    ctx.fillRect(0, y - 8, WIDTH, grank.length * ROW_H + 70);
+
+    ctx.fillStyle = '#7de87a';
+    ctx.font = 'bold 15px "Arial Black", Arial, sans-serif';
+    ctx.fillText('🧤  GOLEIROS', PADDING, y + 20);
+    ctx.fillStyle = 'rgba(125,232,122,0.5)';
+    ctx.fillRect(PADDING, y + 28, WIDTH - PADDING*2, 1);
+    y += 40;
+
+    ctx.fillStyle = 'rgba(255,255,255,0.4)'; ctx.font = 'bold 11px Arial';
+    ctx.fillText('#', PADDING, y + 14);
+    ctx.fillText('GOLEIRO', PADDING + 44, y + 14);
+    ctx.fillText('V', WIDTH - 80, y + 14);
+    y += 20;
+
+    grank.forEach(function(g, i) {
+      var rowY = y + i * ROW_H;
+      if (i % 2 === 0) { ctx.fillStyle = 'rgba(255,255,255,0.03)'; ctx.fillRect(PADDING - 8, rowY - 2, WIDTH - PADDING*2 + 16, ROW_H - 4); }
+      ctx.fillStyle = 'rgba(255,255,255,0.4)'; ctx.font = 'bold 13px Arial';
+      ctx.fillText(String(i+1), PADDING + 2, rowY + 26);
+
+      ctx.fillStyle = '#2a6040';
+      ctx.beginPath(); ctx.arc(PADDING + 44, rowY + 20, 14, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#7de87a'; ctx.font = 'bold 13px Arial'; ctx.textAlign = 'center';
+      ctx.fillText(g.nome.charAt(0).toUpperCase(), PADDING + 44, rowY + 25);
+      ctx.textAlign = 'left';
+
+      var displayNome = g.nome.length > 22 ? g.nome.substring(0,21)+'…' : g.nome;
+      ctx.fillStyle = '#ffffff'; ctx.font = '14px Arial';
+      ctx.fillText(displayNome, PADDING + 64, rowY + 26);
+      ctx.fillStyle = '#7de87a'; ctx.font = 'bold 14px Arial'; ctx.textAlign = 'center';
+      ctx.fillText(g.vitorias, WIDTH - 68, rowY + 26);
+      ctx.textAlign = 'left';
+    });
+  }
+
+  // Footer
+  ctx.fillStyle = 'rgba(255,255,255,0.15)';
+  ctx.font = '11px Arial';
+  ctx.textAlign = 'center';
+  ctx.fillText('turma-que-joga.vercel.app', WIDTH/2, totalH - 10);
+  ctx.textAlign = 'left';
+
+  // Download
+  var link = document.createElement('a');
+  link.download = 'ranking-' + (filtroAtivo === 'geral' ? 'geral' : filtroAtivo) + '.png';
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+  toast('IMAGEM GERADA! VERIFICANDO DOWNLOADS...');
 }
 
 function renderAnivMes() {
