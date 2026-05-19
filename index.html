@@ -84,7 +84,8 @@
   .rodada-mini-table tbody tr:last-child td{border-bottom:none;}
   .rodada-header-left{display:flex;flex-direction:column;gap:2px;}
   .admin-only{display:none !important;}
-  .admin-logged .admin-only{display:flex !important;}
+  .admin-logged .admin-only{display:block;}
+  .admin-logged button.admin-only,.admin-logged .admin-only button{display:inline-block !important;}
   .admin-logged .tab-btn.admin-only{display:block !important;}
   .btn-editar,.btn-excluir{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;background:transparent;color:var(--muted);border:1px solid var(--azul-linha);padding:5px 12px;border-radius:6px;cursor:pointer;transition:all .2s;flex-shrink:0;}
   .btn-editar:hover{border-color:var(--azul);color:#4a80e8;}
@@ -322,8 +323,7 @@
   .btn-membro-del:hover{border-color:#c0392b;color:#e74c3c;}
   .btn-add-membro{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;background:var(--laranja);color:#fff;border:none;padding:9px 18px;border-radius:7px;cursor:pointer;transition:background .2s;display:none;}
   .btn-add-membro:hover{background:var(--laranja2);}
-  .admin-logged .btn-add-membro{display:block;}
-  .admin-logged .admin-only.btn-add-membro{display:inline-block;}
+  .admin-logged .btn-add-membro{display:inline-block;}
 
   /* MODAL MEMBRO */
   .modal-membro-box{background:var(--preto-medio);border:1px solid var(--azul-linha);border-top:3px solid var(--laranja);border-radius:14px;width:100%;max-width:400px;padding:28px;}
@@ -690,7 +690,7 @@
     <div class="caixa-section-title">
       MENSALISTAS
       <div class="caixa-section-line"></div>
-      <button class="btn-add-avulso acao-col" style="display:none;white-space:nowrap;" onclick="openModalMensalistaManual()">+ Adicionar</button>
+      <button class="btn-add-avulso admin-only" style="display:none;white-space:nowrap;" onclick="openModalMensalistaManual()">+ Adicionar</button>
     </div>
     <table class="caixa-table">
       <thead><tr>
@@ -707,7 +707,7 @@
     <div class="caixa-section-title" style="margin-top:8px;">
       AVULSOS POR RODADA
       <div class="caixa-section-line"></div>
-      <button class="btn-add-avulso acao-col" style="display:none;" onclick="openModalAvulso()">+ AVULSO</button>
+      <button class="btn-add-avulso admin-only" style="display:none;" onclick="openModalAvulso()">+ AVULSO</button>
     </div>
     <div id="avulsos-rodada-tabs" class="rodada-tabs"></div>
     <table class="caixa-table">
@@ -725,7 +725,7 @@
     <div class="caixa-section-title" style="margin-top:8px;">
       GASTOS DO MES
       <div class="caixa-section-line"></div>
-      <button class="btn-add-gasto acao-col" style="display:none;" onclick="openModalGasto()">+ GASTO</button>
+      <button class="btn-add-gasto admin-only" style="display:none;" onclick="openModalGasto()">+ GASTO</button>
     </div>
     <div id="caixa-gastos-lista"></div>
 
@@ -1967,11 +1967,18 @@ function fmtValor(v) {
 
  function renderCaixa() {
   var mes = (filtroAtivo === 'geral' || !filtroAtivo) ? mesAtualYM() : filtroAtivo;
-  Promise.all([dbGetCaixa(mes), dbGetGastos(mes), dbGetAllCaixa(), dbGetAllGastos()]).then(function(results) {
+
+  // Load month data first (critical), then all-time totals (optional)
+  Promise.all([dbGetCaixa(mes), dbGetGastos(mes)]).then(function(results) {
     caixaItens  = results[0];
     gastosItens = results[1];
-    var allCaixa  = results[2] || [];
-    var allGastos = results[3] || [];
+    _renderCaixaUI(mes);
+  }).catch(function(e){ toast('ERRO AO CARREGAR CAIXA: ' + e.message, 'err'); });
+
+  // Load all-time totals separately (non-blocking)
+  Promise.all([dbGetAllCaixa(), dbGetAllGastos()]).then(function(results) {
+    var allCaixa  = results[0] || [];
+    var allGastos = results[1] || [];
     var totalGeralEntradas = allCaixa.reduce(function(s,c){ return s + (c.pago ? parseFloat(c.valor||0) : 0); }, 0);
     var totalGeralGastos   = allGastos.reduce(function(s,g){ return s + parseFloat(g.valor||0); }, 0);
     var saldoGeral = totalGeralEntradas - totalGeralGastos;
@@ -1979,8 +1986,7 @@ function fmtValor(v) {
     if (sgEl) { sgEl.textContent = fmtValor(saldoGeral); sgEl.className = 'caixa-total-valor' + (saldoGeral < 0 ? ' negativo' : ''); sgEl.style.fontSize = '28px'; }
     var eg = document.getElementById('ck-entradas-geral'); if (eg) eg.textContent = fmtValor(totalGeralEntradas);
     var gg = document.getElementById('ck-gastos-geral');   if (gg) gg.textContent = fmtValor(totalGeralGastos);
-    _renderCaixaUI(mes);
-  }).catch(function(e){ toast('ERRO AO CARREGAR CAIXA: ' + e.message, 'err'); });
+  }).catch(function(){ /* totais gerais indisponiveis */ });
 }
 
 function _renderCaixaUI(mes) {
