@@ -1473,8 +1473,15 @@ function renderAnivMes() {
     var parts = m.aniversario.split('-');
     return parts[1]+'-'+parts[2] === hoje;
   });
-  document.getElementById('aniv-mes-titulo').textContent =
-    nAniv.length ? '🎉 ' + nAniv.map(function(m){return m.nome;}).join(', ') + ' fazem aniversário HOJE!' : 'Quem faz aniversário este mês';
+  var tituloAniv;
+  if (nAniv.length === 1) {
+    tituloAniv = '🎉 ' + nAniv[0].nome + ' faz aniversário HOJE!';
+  } else if (nAniv.length > 1) {
+    tituloAniv = '🎉 ' + nAniv.map(function(m){return m.nome;}).join(', ') + ' fazem aniversário HOJE!';
+  } else {
+    tituloAniv = 'Quem faz aniversário este mês';
+  }
+  document.getElementById('aniv-mes-titulo').textContent = tituloAniv;
 
   var listaEl = document.getElementById('aniv-mes-lista');
   listaEl.innerHTML = '';
