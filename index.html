@@ -244,6 +244,12 @@
   .aviso-empty{text-align:center;padding:48px 24px;color:var(--muted);}
   .aviso-empty .icon{font-size:40px;margin-bottom:12px;}
   .aviso-oculto{opacity:0.55;border-style:dashed;}
+  .check-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:6px;cursor:pointer;transition:background .15s;}
+  .check-item:hover{background:rgba(255,255,255,0.05);}
+  .check-item input[type=checkbox]{width:16px;height:16px;accent-color:var(--azul);cursor:pointer;flex-shrink:0;}
+  .check-item label{font-family:'Barlow Condensed',sans-serif;font-size:14px;color:var(--branco);cursor:pointer;flex:1;}
+  .check-item.checked{background:rgba(26,79,189,0.15);}
+  .check-item.checked label{color:#7ab3ff;}
   .aviso-badge.oculto-badge{background:rgba(150,150,150,0.12);color:var(--muted);border:1px solid rgba(150,150,150,0.3);}
   .ocultar-btn{color:var(--muted);}
   .ocultar-btn:hover{color:#f0c040;}
@@ -646,7 +652,16 @@
 <div class="page" id="page-caixa">
   <div class="wrap">
 
-    <!-- TOTAL EM CAIXA -->
+    <!-- CAIXA GERAL ACUMULADO -->
+    <div class="caixa-total-box" id="ck-geral-box" style="margin-bottom:16px;background:rgba(26,79,189,0.08);border-color:rgba(26,79,189,0.35);">
+      <div style="flex:1;">
+        <div class="caixa-total-label" style="font-size:11px;">&#127381; CAIXA TOTAL ACUMULADO (TODOS OS MESES)</div>
+        <div class="caixa-total-valor" id="ck-saldo-geral" style="font-size:28px;">R$ 0</div>
+        <div class="caixa-total-detail">ENTRADAS TOTAIS: <span id="ck-entradas-geral">R$ 0</span> &nbsp;|&nbsp; GASTOS TOTAIS: <span id="ck-gastos-geral">R$ 0</span></div>
+      </div>
+    </div>
+
+    <!-- SALDO DO MÊS -->
     <div class="caixa-total-box">
       <div>
         <div class="caixa-total-label">SALDO DO MÊS</div>
@@ -658,15 +673,6 @@
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;min-width:0;width:100%;">
         <div class="caixa-card pago" style="margin:0;"><div class="ck-num" id="ck-pago">0</div><div class="ck-label">PAGARAM</div></div>
         <div class="caixa-card pendente" style="margin:0;"><div class="ck-num" id="ck-pendente">0</div><div class="ck-label">PENDENTES</div></div>
-      </div>
-    </div>
-
-    <!-- CAIXA GERAL ACUMULADO -->
-    <div class="caixa-total-box" id="ck-geral-box" style="margin-bottom:24px;background:rgba(26,79,189,0.08);border-color:rgba(26,79,189,0.35);">
-      <div style="flex:1;">
-        <div class="caixa-total-label" style="font-size:11px;">&#127381; CAIXA TOTAL ACUMULADO (TODOS OS MESES)</div>
-        <div class="caixa-total-valor" id="ck-saldo-geral" style="font-size:28px;">R$ 0</div>
-        <div class="caixa-total-detail">ENTRADAS TOTAIS: <span id="ck-entradas-geral">R$ 0</span> &nbsp;|&nbsp; GASTOS TOTAIS: <span id="ck-gastos-geral">R$ 0</span></div>
       </div>
     </div>
 
@@ -734,22 +740,17 @@
 
 <!-- MODAL AVULSO -->
 <div class="modal-overlay" id="modal-avulso" onclick="if(event.target===this)fecharModalAvulso()">
-  <div class="modal-avulso-box">
-    <h2>ADICIONAR AVULSO</h2>
+  <div class="modal-avulso-box" style="max-width:480px;">
+    <h2>ADICIONAR AVULSOS</h2>
     <div class="form-group">
-      <label>SELECIONAR MEMBRO AVULSO</label>
-      <select id="avulso-membro-sel" style="width:100%;background:var(--preto);border:1px solid var(--azul-linha);border-radius:8px;color:var(--branco);font-family:'Barlow Condensed',sans-serif;font-size:15px;padding:10px 14px;outline:none;">
-        <option value="">-- Selecione --</option>
-      </select>
+      <label>SELECIONAR AVULSOS <span style="color:var(--muted);font-size:11px;">(pode marcar vários)</span></label>
+      <div id="avulso-check-list" style="max-height:220px;overflow-y:auto;border:1px solid var(--azul-linha);border-radius:8px;padding:6px 4px;margin-top:4px;display:flex;flex-direction:column;gap:2px;"></div>
     </div>
-    <div class="form-group" id="avulso-nome-group" style="display:none;">
-      <label>OU DIGITE O NOME</label>
+    <div class="form-group" id="avulso-nome-group">
+      <label>OU DIGITAR NOME AVULSO (não cadastrado)</label>
       <input type="text" id="avulso-nome" placeholder="NOME COMPLETO">
     </div>
-    <div class="form-group"><label>VALOR (R$)</label><input type="number" id="avulso-valor" placeholder="0.00" min="0" step="0.01" class="valor-input"></div>
-    <div style="margin-bottom:14px;">
-      <button type="button" style="background:transparent;border:none;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-size:13px;cursor:pointer;padding:0;text-decoration:underline;" onclick="toggleAvulsoNome()">+ digitar nome manualmente</button>
-    </div>
+    <div class="form-group"><label>VALOR POR PESSOA (R$)</label><input type="number" id="avulso-valor" min="0" step="0.01" class="valor-input"></div>
     <div class="modal-actions">
       <button class="btn-cancel" onclick="fecharModalAvulso()">CANCELAR</button>
       <button class="btn-save" onclick="salvarAvulso()">ADICIONAR</button>
@@ -758,23 +759,18 @@
 </div>
 
 <!-- MODAL MENSALISTA MANUAL -->
-<div class="modal-overlay" id="modal-mensalista-manual" onclick="if(event.target===this)fecharModalMensalistaManual()">
-  <div class="modal-avulso-box">
-    <h2>Adicionar Mensalista</h2>
+ <div class="modal-overlay" id="modal-mensalista-manual" onclick="if(event.target===this)fecharModalMensalistaManual()">
+  <div class="modal-avulso-box" style="max-width:480px;">
+    <h2>Adicionar Mensalistas</h2>
     <div class="form-group">
-      <label>SELECIONAR MEMBRO</label>
-      <select id="mens-manual-membro-sel" style="width:100%;background:var(--preto);border:1px solid var(--azul-linha);border-radius:8px;color:var(--branco);font-family:'Barlow Condensed',sans-serif;font-size:15px;padding:10px 14px;outline:none;">
-        <option value="">-- Selecione um membro --</option>
-      </select>
+      <label>SELECIONAR MEMBROS <span style="color:var(--muted);font-size:11px;">(pode marcar vários)</span></label>
+      <div id="mens-check-list" style="max-height:220px;overflow-y:auto;border:1px solid var(--azul-linha);border-radius:8px;padding:6px 4px;margin-top:4px;display:flex;flex-direction:column;gap:2px;"></div>
     </div>
-    <div class="form-group" id="mens-manual-nome-group" style="display:none;">
-      <label>OU DIGITE O NOME</label>
+    <div class="form-group" id="mens-manual-nome-group">
+      <label>OU DIGITAR NOME (não cadastrado)</label>
       <input type="text" id="mens-manual-nome" placeholder="Nome completo">
     </div>
-    <div class="form-group"><label>Valor (R$)</label><input type="number" id="mens-manual-valor" placeholder="0.00" min="0" step="0.01" class="valor-input"></div>
-    <div style="margin-bottom:14px;">
-      <button type="button" style="background:transparent;border:none;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-size:13px;cursor:pointer;padding:0;text-decoration:underline;" onclick="toggleMensManualNome()">+ digitar nome manualmente</button>
-    </div>
+    <div class="form-group"><label>Valor por pessoa (R$)</label><input type="number" id="mens-manual-valor" min="0" step="0.01" class="valor-input"></div>
     <div class="modal-actions">
       <button class="btn-cancel" onclick="fecharModalMensalistaManual()">CANCELAR</button>
       <button class="btn-save" onclick="salvarMensalistaManual()">ADICIONAR</button>
@@ -1721,7 +1717,7 @@ function dbGetCaixa(mes) {
   return fetch(API_CAIXA + '?mes=eq.' + mes, { headers: H_GET }).then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); });
 }
 function dbGetAllCaixa() {
-  return fetch(API_CAIXA + '?select=valor,pago', { headers: H_GET }).then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); });
+  return fetch(API_CAIXA + '?select=valor,pago&limit=10000', { headers: Object.assign({},H_GET,{'Prefer':'count=none'}) }).then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); });
 }
 function dbUpsertCaixa(item) {
   return fetch(API_CAIXA, { method:'POST', headers: Object.assign({}, H, {'Prefer':'resolution=merge-duplicates'}), body:JSON.stringify(item) }).then(function(r){ if(!r.ok) throw new Error(r.status); });
@@ -1737,7 +1733,7 @@ function dbGetGastos(mes) {
 function dbSaveGasto(g) {
   return fetch(API_GASTOS, { method:'POST', headers:H, body:JSON.stringify(g) }).then(function(r){ if(!r.ok) throw new Error(r.status); });
 function dbGetAllGastos() {
-  return fetch(API_GASTOS + '?select=valor', { headers: H_GET }).then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); });
+  return fetch(API_GASTOS + '?select=valor&limit=10000', { headers: Object.assign({},H_GET,{'Prefer':'count=none'}) }).then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); });
 }
 }
 function dbDeleteGasto(id) {
@@ -2193,114 +2189,98 @@ function atualizarValor(id, valor, mes) {
 }
 
 // Modal avulso
-function toggleMensManualNome() {
-  var g = document.getElementById('mens-manual-nome-group');
-  g.style.display = g.style.display === 'none' ? '' : 'none';
-}
+function getCfgAvulso() { return parseFloat((document.getElementById('cfg-valor-avulso')||{}).value) || 12; }
+function getCfgMens()   { return parseFloat((document.getElementById('cfg-valor-mens')||{}).value)   || 45; }
+
 function openModalMensalistaManual() {
-  // Populate member selector with cupula + mensalistas not already in this month's list
   var mes = (filtroAtivo === 'geral' || !filtroAtivo) ? mesAtualYM() : filtroAtivo;
   var jaAdicionados = caixaItens.filter(function(c){ return c.tipo==='mensalista' && c.mes===mes; }).map(function(c){ return c.membro_id; });
-  var elegíveis = membros.filter(function(m){
-    return (m.tipo === 'mensalista' || m.tipo === 'presidente' || !m.tipo) && jaAdicionados.indexOf(m.id) === -1;
-  }).sort(function(a,b){ return a.nome.localeCompare(b.nome); });
-
-  var sel = document.getElementById('mens-manual-membro-sel');
-  sel.innerHTML = '<option value="">-- Selecione um membro --</option>';
-  // Cupula primeiro
-  var pres = elegíveis.filter(function(m){ return m.tipo==='presidente'; });
-  var mens = elegíveis.filter(function(m){ return m.tipo!=='presidente'; });
-  if (pres.length) {
-    var grp1 = document.createElement('optgroup'); grp1.label = '👑 CUPULA';
-    pres.forEach(function(m){ var o=document.createElement('option'); o.value=m.id; o.textContent=m.nome; grp1.appendChild(o); });
-    sel.appendChild(grp1);
-  }
-  if (mens.length) {
-    var grp2 = document.createElement('optgroup'); grp2.label = '👤 MENSALISTAS';
-    mens.forEach(function(m){ var o=document.createElement('option'); o.value=m.id; o.textContent=m.nome; grp2.appendChild(o); });
-    sel.appendChild(grp2);
-  }
-
+  var lista = membros.filter(function(m){
+    return (m.tipo==='mensalista'||m.tipo==='presidente'||!m.tipo) && jaAdicionados.indexOf(m.id)===-1;
+  }).sort(function(a,b){
+    var ordem={presidente:0,mensalista:1};
+    var oa=ordem[a.tipo||'mensalista']||1, ob=ordem[b.tipo||'mensalista']||1;
+    return oa!==ob ? oa-ob : a.nome.localeCompare(b.nome);
+  });
+  var container = document.getElementById('mens-check-list');
+  container.innerHTML = '';
+  if (!lista.length) { container.innerHTML = '<div style="padding:12px;color:var(--muted);font-size:13px;text-align:center;">Todos já foram adicionados neste mês.</div>'; }
+  lista.forEach(function(m) {
+    var item = document.createElement('div'); item.className = 'check-item';
+    var cb = document.createElement('input'); cb.type='checkbox'; cb.id='mc-'+m.id; cb.value=m.id;
+    var lbl = document.createElement('label'); lbl.htmlFor='mc-'+m.id;
+    lbl.textContent = (m.tipo==='presidente'?'👑 ':'') + m.nome;
+    cb.onchange = function(){ item.classList.toggle('checked',cb.checked); };
+    item.onclick = function(e){ if(e.target!==cb){ cb.checked=!cb.checked; item.classList.toggle('checked',cb.checked); } };
+    item.appendChild(cb); item.appendChild(lbl); container.appendChild(item);
+  });
   document.getElementById('mens-manual-nome').value = '';
   document.getElementById('mens-manual-valor').value = getCfgMens().toFixed(2);
-  document.getElementById('mens-manual-nome-group').style.display = 'none';
   document.getElementById('modal-mensalista-manual').classList.add('open');
 }
 function fecharModalMensalistaManual() { document.getElementById('modal-mensalista-manual').classList.remove('open'); }
 function salvarMensalistaManual() {
-  var sel = document.getElementById('mens-manual-membro-sel');
-  var membroId = sel.value;
-  var nome = '';
-  if (membroId) {
-    var m = membros.find(function(x){ return x.id === membroId; });
-    nome = m ? m.nome : sel.options[sel.selectedIndex].textContent;
-  } else {
-    nome = document.getElementById('mens-manual-nome').value.trim();
-  }
-  var valor = parseFloat(document.getElementById('mens-manual-valor').value) || 0;
-  if (!nome) { alert('SELECIONE OU INFORME O NOME.'); return; }
   var mes = (filtroAtivo === 'geral' || !filtroAtivo) ? mesAtualYM() : filtroAtivo;
-  var item = { id: uid(), mes: mes, tipo: 'mensalista', membro_id: membroId || null, nome: nome, pago: false, forma: null, valor: valor };
-  dbUpsertCaixa(item).then(function(){
-    fecharModalMensalistaManual(); renderCaixa(); toast('ADICIONADO!');
-  }).catch(function(e){ toast('ERRO: ' + e.message, 'err'); });
+  var valor = parseFloat(document.getElementById('mens-manual-valor').value) || getCfgMens();
+  var nomeManual = document.getElementById('mens-manual-nome').value.trim();
+  var checks = document.querySelectorAll('#mens-check-list input[type=checkbox]:checked');
+  var promises = [];
+  checks.forEach(function(cb){
+    var m = membros.find(function(x){ return x.id===cb.value; });
+    if (!m) return;
+    promises.push(dbUpsertCaixa({ id:uid(), mes:mes, tipo:'mensalista', membro_id:m.id, nome:m.nome, pago:false, forma:null, valor:valor }));
+  });
+  if (nomeManual) promises.push(dbUpsertCaixa({ id:uid(), mes:mes, tipo:'mensalista', membro_id:null, nome:nomeManual, pago:false, forma:null, valor:valor }));
+  if (!promises.length) { alert('SELECIONE AO MENOS UM MEMBRO OU INFORME UM NOME.'); return; }
+  var btn = document.querySelector('#modal-mensalista-manual .btn-save');
+  btn.textContent='SALVANDO...'; btn.disabled=true;
+  Promise.all(promises).then(function(){ fecharModalMensalistaManual(); renderCaixa(); toast(promises.length+' MENSALISTA(S) ADICIONADO(S)!'); })
+    .catch(function(e){ toast('ERRO: '+e.message,'err'); })
+    .finally(function(){ btn.textContent='ADICIONAR'; btn.disabled=false; });
 }
-
-function toggleAvulsoNome() {
-  var g = document.getElementById('avulso-nome-group');
-  g.style.display = g.style.display === 'none' ? '' : 'none';
-}
-function getCfgAvulso() { return parseFloat((document.getElementById('cfg-valor-avulso')||{}).value) || 12; }
-function getCfgMens()   { return parseFloat((document.getElementById('cfg-valor-mens')||{}).value)   || 45; }
 
 function openModalAvulso() {
   if (!avulsoRodadaAtiva) { toast('SELECIONE UMA RODADA PRIMEIRO.', 'err'); return; }
-  // Populate avulsos selector
-  var sel = document.getElementById('avulso-membro-sel');
-  sel.innerHTML = '<option value="">-- Selecione --</option>';
-  var avulsosLista = membros.filter(function(m){ return m.tipo === 'avulso'; })
-    .sort(function(a,b){ return a.nome.localeCompare(b.nome); });
-  avulsosLista.forEach(function(m){
-    var o = document.createElement('option'); o.value = m.id; o.textContent = m.nome; sel.appendChild(o);
+  var container = document.getElementById('avulso-check-list');
+  container.innerHTML = '';
+  var lista = membros.filter(function(m){ return m.tipo==='avulso'; }).sort(function(a,b){ return a.nome.localeCompare(b.nome); });
+  if (!lista.length) { container.innerHTML = '<div style="padding:12px;color:var(--muted);font-size:13px;text-align:center;">Nenhum avulso cadastrado.</div>'; }
+  lista.forEach(function(m) {
+    var item = document.createElement('div'); item.className = 'check-item';
+    var cb = document.createElement('input'); cb.type='checkbox'; cb.id='ac-'+m.id; cb.value=m.id;
+    var lbl = document.createElement('label'); lbl.htmlFor='ac-'+m.id; lbl.textContent = '⚡ '+m.nome;
+    cb.onchange = function(){ item.classList.toggle('checked',cb.checked); };
+    item.onclick = function(e){ if(e.target!==cb){ cb.checked=!cb.checked; item.classList.toggle('checked',cb.checked); } };
+    item.appendChild(cb); item.appendChild(lbl); container.appendChild(item);
   });
   document.getElementById('avulso-nome').value = '';
   document.getElementById('avulso-valor').value = getCfgAvulso().toFixed(2);
-  document.getElementById('avulso-nome-group').style.display = 'none';
   document.getElementById('modal-avulso').classList.add('open');
 }
 function fecharModalAvulso() { document.getElementById('modal-avulso').classList.remove('open'); }
 function salvarAvulso() {
-  var sel = document.getElementById('avulso-membro-sel');
-  var membroId = sel.value;
-  var nome = '';
-  if (membroId) {
-    var m = membros.find(function(x){ return x.id===membroId; });
-    nome = m ? m.nome : '';
-  } else {
-    nome = document.getElementById('avulso-nome').value.trim();
-  }
+  var mes = (filtroAtivo === 'geral' || !filtroAtivo) ? mesAtualYM() : filtroAtivo;
   var valor = parseFloat(document.getElementById('avulso-valor').value) || getCfgAvulso();
-  if (!nome) { alert('SELECIONE OU INFORME O NOME.'); return; }
-  var mes = (filtroAtivo === 'geral' || !filtroAtivo) ? mesAtualYM() : filtroAtivo;
-  var item = { id: uid(), mes: mes, tipo: 'avulso', rodada_id: avulsoRodadaAtiva, membro_id: membroId || null, nome: nome, pago: false, forma: null, valor: valor };
-  dbUpsertCaixa(item).then(function(){
-    fecharModalAvulso(); renderCaixa(); toast('AVULSO ADICIONADO!');
-  }).catch(function(e){ toast('ERRO: ' + e.message, 'err'); });
-}
-function salvarAvulso() {
-  var nome = document.getElementById('avulso-nome').value.trim();
-  var valor = parseFloat(document.getElementById('avulso-valor').value) || 0;
-  if (!nome) { alert('INFORME O NOME DO AVULSO.'); return; }
-  var mes = (filtroAtivo === 'geral' || !filtroAtivo) ? mesAtualYM() : filtroAtivo;
-  var item = { id: uid(), mes: mes, tipo: 'avulso', membro_id: null, nome: nome, pago: false, forma: null, valor: valor, rodada_id: avulsoRodadaAtiva };
-  dbUpsertCaixa(item).then(function(){
-    fecharModalAvulso(); renderCaixa(); toast('AVULSO ADICIONADO!');
-  }).catch(function(e){ toast('ERRO: ' + e.message, 'err'); });
+  var nomeManual = document.getElementById('avulso-nome').value.trim();
+  var checks = document.querySelectorAll('#avulso-check-list input[type=checkbox]:checked');
+  var promises = [];
+  checks.forEach(function(cb){
+    var m = membros.find(function(x){ return x.id===cb.value; });
+    if (!m) return;
+    promises.push(dbUpsertCaixa({ id:uid(), mes:mes, tipo:'avulso', rodada_id:avulsoRodadaAtiva, membro_id:m.id, nome:m.nome, pago:false, forma:null, valor:valor }));
+  });
+  if (nomeManual) promises.push(dbUpsertCaixa({ id:uid(), mes:mes, tipo:'avulso', rodada_id:avulsoRodadaAtiva, membro_id:null, nome:nomeManual, pago:false, forma:null, valor:valor }));
+  if (!promises.length) { alert('SELECIONE AO MENOS UM AVULSO OU INFORME UM NOME.'); return; }
+  var btn = document.querySelector('#modal-avulso .btn-save');
+  btn.textContent='SALVANDO...'; btn.disabled=true;
+  Promise.all(promises).then(function(){ fecharModalAvulso(); renderCaixa(); toast(promises.length+' AVULSO(S) ADICIONADO(S)!'); })
+    .catch(function(e){ toast('ERRO: '+e.message,'err'); })
+    .finally(function(){ btn.textContent='ADICIONAR'; btn.disabled=false; });
 }
 function removerAvulso(id, mes) {
   if (!confirm('REMOVER ESTE AVULSO?')) return;
   dbDeleteCaixaItem(id).then(function(){ renderCaixa(); toast('AVULSO REMOVIDO.'); })
-    .catch(function(e){ toast('ERRO: ' + e.message, 'err'); });
+    .catch(function(e){ toast('ERRO: '+e.message,'err'); });
 }
 
 // Modal pagamento
