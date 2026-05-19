@@ -487,6 +487,17 @@
       <div class="section-title" style="margin-bottom:0;">&#128227; AVISOS</div>
       <button class="btn-add-membro admin-only" id="btn-novo-aviso" onclick="openModalAviso()" style="display:none;">+ Novo Aviso</button>
     </div>
+
+    <!-- ANIVERSARIANTES DO MÊS - FIXO -->
+    <div id="aniv-mes-card" class="aviso-card" style="margin-bottom:20px;border-color:rgba(240,192,64,0.4);background:linear-gradient(135deg,rgba(240,192,64,0.07) 0%,transparent 70%);display:none;">
+      <div class="aviso-header">
+        <span class="aviso-badge cupula" style="background:rgba(240,192,64,0.18);color:#f0c040;border-color:rgba(240,192,64,0.4);">&#127874; ANIVERSARIANTES</span>
+        <span id="aniv-mes-label" class="aviso-data"></span>
+      </div>
+      <div class="aviso-titulo-txt" id="aniv-mes-titulo"></div>
+      <div id="aniv-mes-lista" style="display:flex;flex-wrap:wrap;gap:10px;margin-top:10px;"></div>
+    </div>
+
     <div id="avisos-container">
       <div class="loading"><div class="spinner"></div>CARREGANDO...</div>
     </div>
@@ -1394,6 +1405,7 @@ function init() {
       buildMembrosmesSel();
       renderMembros();
       checkAniversarios();
+      renderAnivMes();
       buildCaixaMesSel();
       renderCaixa();
     });
@@ -1442,6 +1454,43 @@ function dbDeleteAviso(id) {
 
 function loadAvisos() {
   return dbGetAvisos().then(function(data){ avisos = data || []; }).catch(function(){ avisos = []; });
+}
+
+function renderAnivMes() {
+  var card = document.getElementById('aniv-mes-card');
+  if (!card) return;
+  var lista = getAniversariantesMes();
+  if (!lista.length) { card.style.display = 'none'; return; }
+
+  var hoje = getDiaMes();
+  var d = new Date();
+  var MESES_FULL = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  var mesFull = MESES_FULL[d.getMonth()];
+
+  document.getElementById('aniv-mes-label').textContent = mesFull + ' ' + d.getFullYear();
+
+  var nAniv = lista.filter(function(m){
+    var parts = m.aniversario.split('-');
+    return parts[1]+'-'+parts[2] === hoje;
+  });
+  document.getElementById('aniv-mes-titulo').textContent =
+    nAniv.length ? '🎉 ' + nAniv.map(function(m){return m.nome;}).join(', ') + ' fazem aniversário HOJE!' : 'Quem faz aniversário este mês';
+
+  var listaEl = document.getElementById('aniv-mes-lista');
+  listaEl.innerHTML = '';
+  lista.forEach(function(m) {
+    var parts = m.aniversario.split('-');
+    var dia = parts[2];
+    var isHoje = parts[1]+'-'+parts[2] === hoje;
+    var chip = document.createElement('div');
+    chip.style.cssText = 'display:flex;align-items:center;gap:8px;background:' + (isHoje ? 'rgba(240,192,64,0.18)' : 'rgba(255,255,255,0.04)') + ';border:1px solid ' + (isHoje ? 'rgba(240,192,64,0.5)' : 'var(--azul-linha)') + ';border-radius:8px;padding:6px 12px;';
+    chip.innerHTML = (isHoje ? '&#127874; ' : '&#127882; ') +
+      '<strong style="font-family:\'Barlow Condensed\',sans-serif;font-size:14px;color:' + (isHoje ? '#f0c040' : 'var(--branco)') + ';">' + m.nome + '</strong>' +
+      '<span style="font-size:12px;color:var(--muted);font-family:\'Barlow Condensed\',sans-serif;">dia ' + parseInt(dia,10) + '</span>';
+    listaEl.appendChild(chip);
+  });
+
+  card.style.display = '';
 }
 
 function renderAvisos() {
@@ -1597,11 +1646,25 @@ function getAniversariantesHoje() {
   var hoje = getDiaMes(); // MM-DD
   return membros.filter(function(m) {
     if (!m.aniversario) return false;
-    // aniversario format: YYYY-MM-DD, we compare MM-DD
     var parts = m.aniversario.split('-');
     if (parts.length < 3) return false;
     var mmdd = parts[1] + '-' + parts[2];
     return mmdd === hoje;
+  });
+}
+
+function getAniversariantesMes() {
+  var mesAtual = new Date().getMonth() + 1; // 1-12
+  return membros.filter(function(m) {
+    if (!m.aniversario) return false;
+    var parts = m.aniversario.split('-');
+    if (parts.length < 3) return false;
+    return parseInt(parts[1], 10) === mesAtual;
+  }).sort(function(a, b) {
+    // Sort by day
+    var diaA = parseInt(a.aniversario.split('-')[2], 10);
+    var diaB = parseInt(b.aniversario.split('-')[2], 10);
+    return diaA - diaB;
   });
 }
 
