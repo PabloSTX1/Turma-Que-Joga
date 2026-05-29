@@ -2397,11 +2397,10 @@ function buildCaixaMesSel() {
 
 
 function openModalAvulso() {
-  if (!avulsoRodadaAtiva) { toast('SELECIONE UMA RODADA PRIMEIRO.', 'err'); return; }
   var container = document.getElementById('avulso-check-list');
   container.innerHTML = '';
   var lista = membros.filter(function(m){ return m.tipo==='avulso'; }).sort(function(a,b){ return a.nome.localeCompare(b.nome); });
-  if (!lista.length) { container.innerHTML = '<div style="padding:12px;color:var(--muted);font-size:13px;text-align:center;">Nenhum avulso cadastrado.</div>'; }
+  if (!lista.length) { container.innerHTML = '<div style="padding:12px;color:var(--muted);font-size:13px;text-align:center;">Nenhum avulso cadastrado na aba de Membros.</div>'; }
   lista.forEach(function(m) {
     var item = document.createElement('div'); item.className = 'check-item';
     var cb = document.createElement('input'); cb.type='checkbox'; cb.id='ac-'+m.id; cb.value=m.id;
@@ -2420,17 +2419,11 @@ function openModalAvulso() {
 function fecharModalAvulso() { document.getElementById('modal-avulso').classList.remove('open'); }
 
 
-function salvarAvulso() {
-  var nome = document.getElementById('avulso-nome').value.trim();
-  var valor = parseFloat(document.getElementById('avulso-valor').value) || 0;
-  if (!nome) { alert('INFORME O NOME DO AVULSO.'); return; }
-  var sel = document.getElementById('caixa-mes-sel');
-  var mes = sel.value;
-  var item = { id: uid(), mes: mes, tipo: 'avulso', membro_id: null, nome: nome, pago: false, forma: null, valor: valor, rodada_id: avulsoRodadaAtiva };
-  dbUpsertCaixa(item).then(function(){
-    fecharModalAvulso(); renderCaixa(); toast('AVULSO ADICIONADO!');
-  }).catch(function(e){ toast('ERRO: ' + e.message, 'err'); });
-}
+
+
+
+
+
 
 
 
@@ -2439,16 +2432,8 @@ function renderAvulsosTabela(mes, avulsos) {
   var tbodyAv = document.getElementById('caixa-avulsos-body');
   tbodyAv.innerHTML = '';
 
-  if (!avulsoRodadaAtiva) {
-    var tr0 = document.createElement('tr');
-    var td0 = document.createElement('td'); td0.colSpan=5;
-    td0.style.cssText='text-align:center;color:var(--muted);font-family:Barlow Condensed,sans-serif;padding:20px;letter-spacing:1px;text-transform:uppercase;';
-    td0.textContent = 'SELECIONE UMA RODADA ACIMA';
-    tr0.appendChild(td0); tbodyAv.appendChild(tr0);
-    return;
-  }
 
-  var filtrados = avulsos.filter(function(a){ return a.rodada_id === avulsoRodadaAtiva; });
+  var filtrados = avulsoRodadaAtiva ? avulsos.filter(function(a){ return a.rodada_id === avulsoRodadaAtiva; }) : avulsos;
 
   if (!filtrados.length) {
     var tr0 = document.createElement('tr');
