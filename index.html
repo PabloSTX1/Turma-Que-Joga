@@ -2228,7 +2228,10 @@ function dbGetGastos(mes) {
 
 
 function dbUpsertCaixa(item) {
-  return fetch(API_CAIXA, { method:'POST', headers: Object.assign({}, H, {'Prefer':'resolution=merge-duplicates'}), body:JSON.stringify(item) }).then(function(r){ if(!r.ok) throw new Error(r.status); });
+  return fetch(API_CAIXA, { method:'POST', headers: Object.assign({}, H, {'Prefer':'resolution=merge-duplicates'}), body:JSON.stringify(item) })
+    .then(function(r){
+      if (!r.ok) return r.text().then(function(t){ throw new Error(r.status + ': ' + t); });
+    });
 }
 
 
@@ -2417,7 +2420,31 @@ function openModalAvulso() {
 
 
 function fecharModalAvulso() { document.getElementById('modal-avulso').classList.remove('open'); }
-
+function salvarAvulso() {
+  var mes = (filtroAtivo === 'geral' || !filtroAtivo) ? mesAtualYM() : filtroAtivo;
+  var valor = parseFloat(document.getElementById('avulso-valor').value) || getCfgAvulso();
+  var nomeManual = document.getElementById('avulso-nome').value.trim();
+  var checks = document.querySelectorAll('#avulso-check-list input[type=checkbox]:checked');
+  var promises = [];
+  function mkAvulso(membroId, nome) {
+    var obj = { id: uid(), mes: mes, tipo: 'avulso', nome: nome, pago: false, forma: null, valor: valor };
+    if (membroId) obj.membro_id = membroId;
+    if (avulsoRodadaAtiva) obj.rodada_id = avulsoRodadaAtiva;
+    return dbUpsertCaixa(obj);
+  }
+  checks.forEach(function(cb) {
+    var m = membros.find(function(x){ return x.id === cb.value; });
+    if (m) promises.push(mkAvulso(m.id, m.nome));
+  });
+  if (nomeManual) promises.push(mkAvulso(null, nomeManual));
+  if (!promises.length) { alert('SELECIONE AO MENOS UM AVULSO OU INFORME UM NOME.'); return; }
+  var btn = document.querySelector('#modal-avulso .btn-save');
+  btn.textContent = 'SALVANDO...'; btn.disabled = true;
+  Promise.all(promises).then(function(){
+    fecharModalAvulso(); renderCaixa(); toast(promises.length + ' AVULSO(S) ADICIONADO(S)!');
+  }).catch(function(e){ toast('ERRO: ' + e.message, 'err'); console.error(e); })
+  .finally(function(){ btn.textContent = 'ADICIONAR'; btn.disabled = false; });
+}
 
 
 
