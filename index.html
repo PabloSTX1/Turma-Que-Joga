@@ -1841,9 +1841,9 @@ function renderAvisos() {
     if (adminLogado) {
       var labelOculto = isOculto ? '&#128065; Mostrar' : '&#128683; Ocultar';
       footer = '<div class="aviso-footer">'
-        +'<button class="aviso-acao" onclick="editarAviso('+a.id+'">&#9998; Editar</button>'
-        +'<button class="aviso-acao ocultar-btn" onclick="toggleOcultarAviso('+a.id+','+isOculto+')">'+labelOculto+'</button>'
-        +'<button class="aviso-acao del" onclick="deletarAviso('+a.id+'">&#215; Excluir</button>'
+        +'<button class="aviso-acao" onclick="editarAviso(\''+a.id+'\')">&#9998; Editar</button>'
+        +'<button class="aviso-acao ocultar-btn" onclick="toggleOcultarAviso(\''+a.id+'\','+isOculto+')">'+labelOculto+'</button>'
+        +'<button class="aviso-acao del" onclick="deletarAviso(\''+a.id+'\')">&#215; Excluir</button>'
         +'</div>';
     }
     card.innerHTML = header+titulo+corpo+footer;
