@@ -2137,61 +2137,67 @@ function renderMembros() {
   var gridG = document.getElementById('membros-grid-goleiro');
   if (!gridM || !gridA || !gridG) return;
   var hoje = getDiaMes();
-  var mesFiltro = (filtroAtivo === 'geral') ? '' : filtroAtivo;
-  gridM.innerHTML = '';
-  gridA.innerHTML = '';
-  gridG.innerHTML = '';
+  gridM.innerHTML = ''; gridA.innerHTML = ''; gridG.innerHTML = '';
 
-  function filtrar(tipo) {
-    return membros.filter(function(m){ return m.tipo===tipo && membroAtivoNoMes(m,mesFiltro); }).sort(function(a,b){ return a.nome.localeCompare(b.nome); });
-  }
-  var presidentes = filtrar('presidente');
-  var mensalistas = membros.filter(function(m){ return (m.tipo==='mensalista'||!m.tipo) && membroAtivoNoMes(m,mesFiltro); }).sort(function(a,b){ return a.nome.localeCompare(b.nome); });
-  var mensGrid = presidentes.concat(mensalistas);
-  var avulsos = filtrar('avulso');
-  var goleiros = filtrar('goleiro');
+  var presidentes = membros.filter(function(m){ return m.tipo==='presidente'; }).sort(function(a,b){ return a.nome.localeCompare(b.nome); });
+  var mensalistas = membros.filter(function(m){ return m.tipo==='mensalista'||!m.tipo; }).sort(function(a,b){ return a.nome.localeCompare(b.nome); });
+  var mensGrid    = presidentes.concat(mensalistas);
+  var avulsos     = membros.filter(function(m){ return m.tipo==='avulso'; }).sort(function(a,b){ return a.nome.localeCompare(b.nome); });
+  var goleiros    = membros.filter(function(m){ return m.tipo==='goleiro'; }).sort(function(a,b){ return a.nome.localeCompare(b.nome); });
 
-  function buildCard(m, grid) {
-    var parts = (m.aniversario||'').split('-');
-    var mmdd = parts.length >= 3 ? parts[1]+'-'+parts[2] : '';
-    var isAniv = mmdd === hoje;
-    var isP = m.tipo === 'presidente';
+  // Mensalistas/Cupula: ONLY edit button (no delete)
+  function buildCardMens(m) {
+    var aniv = (m.aniversario||'').split('-');
+    var isAniv = aniv.length>=3 && aniv[1]+'-'+aniv[2]===hoje;
+    var isP = m.tipo==='presidente';
     var card = document.createElement('div');
     card.className = 'membro-card'+(isAniv?' aniversariante':'')+(isP?' presidente-card':'');
-    if (isAniv) { var b=document.createElement('div'); b.className='membro-badge-aniv'; b.textContent='ANIVERSARIO!'; card.appendChild(b); }
     if (isP) { var pb=document.createElement('div'); pb.className='membro-badge-presidente'; pb.innerHTML='&#128081; CUPULA'; card.appendChild(pb); }
-    var avatarClass='membro-avatar'+(isP?' presidente':m.tipo==='avulso'?' avulso':m.tipo==='goleiro'?' goleiro':'');
-    var avatar=document.createElement('div'); avatar.className=avatarClass; avatar.textContent=m.nome.charAt(0).toUpperCase(); card.appendChild(avatar);
+    if (isAniv) { var b=document.createElement('div'); b.className='membro-badge-aniv'; b.textContent='ANIVERSARIO!'; card.appendChild(b); }
+    var av=document.createElement('div'); av.className='membro-avatar'+(isP?' presidente':''); av.textContent=m.nome.charAt(0).toUpperCase(); card.appendChild(av);
     var info=document.createElement('div'); info.className='membro-info';
-    var nEl=document.createElement('div'); nEl.className='membro-nome'; nEl.textContent=m.nome;
-    var aEl=document.createElement('div'); aEl.className='membro-aniv'; aEl.textContent='ANIVERSARIO: '+formatAniv(m.aniversario);
-    info.appendChild(nEl); info.appendChild(aEl);
-    if (m.mes_entrada) { var mEl=document.createElement('div'); mEl.className='membro-aniv'; mEl.style.marginTop='2px'; mEl.textContent='DESDE: '+formatMesAno(m.mes_entrada)+(m.mes_saida?' • ATE: '+formatMesAno(m.mes_saida):''); info.appendChild(mEl); }
+    var nEl=document.createElement('div'); nEl.className='membro-nome'; nEl.textContent=m.nome; info.appendChild(nEl);
+    var aEl=document.createElement('div'); aEl.className='membro-aniv'; aEl.textContent='ANIVERSARIO: '+formatAniv(m.aniversario); info.appendChild(aEl);
     card.appendChild(info);
     if (adminLogado) {
-      var acts=document.createElement('div'); acts.className='membro-actions'; acts.style.cssText='display:flex;gap:6px;';
-      var be=document.createElement('button'); be.className='btn-membro-edit'; be.title='Editar'; be.innerHTML='&#9998;'; be.onclick=(function(id){return function(){editarMembro(id);};})(m.id);
-      var bd=document.createElement('button'); bd.className='btn-membro-del'; bd.title='Excluir'; bd.innerHTML='&times;'; bd.onclick=(function(id){return function(){deletarMembro(id);};})(m.id);
+      var acts=document.createElement('div'); acts.style.cssText='display:flex;gap:6px;';
+      var be=document.createElement('button'); be.className='btn-membro-edit'; be.title='Editar nome'; be.innerHTML='&#9998;';
+      be.onclick=(function(id){ return function(){ editarMembro(id); }; })(m.id);
+      acts.appendChild(be); card.appendChild(acts);
+    }
+    gridM.appendChild(card);
+  }
+
+  // Avulsos/Goleiros: edit + delete
+  function buildCard(m, grid) {
+    var aniv = (m.aniversario||'').split('-');
+    var isAniv = aniv.length>=3 && aniv[1]+'-'+aniv[2]===hoje;
+    var card = document.createElement('div');
+    card.className = 'membro-card'+(isAniv?' aniversariante':'');
+    if (isAniv) { var b=document.createElement('div'); b.className='membro-badge-aniv'; b.textContent='ANIVERSARIO!'; card.appendChild(b); }
+    var av=document.createElement('div'); av.className='membro-avatar'+(m.tipo==='avulso'?' avulso':m.tipo==='goleiro'?' goleiro':''); av.textContent=m.nome.charAt(0).toUpperCase(); card.appendChild(av);
+    var info=document.createElement('div'); info.className='membro-info';
+    var nEl=document.createElement('div'); nEl.className='membro-nome'; nEl.textContent=m.nome; info.appendChild(nEl);
+    var aEl=document.createElement('div'); aEl.className='membro-aniv'; aEl.textContent='ANIVERSARIO: '+formatAniv(m.aniversario); info.appendChild(aEl);
+    card.appendChild(info);
+    if (adminLogado) {
+      var acts=document.createElement('div'); acts.style.cssText='display:flex;gap:6px;';
+      var be=document.createElement('button'); be.className='btn-membro-edit'; be.title='Editar'; be.innerHTML='&#9998;'; be.onclick=(function(id){ return function(){ editarMembro(id); }; })(m.id);
+      var bd=document.createElement('button'); bd.className='btn-membro-del'; bd.title='Excluir'; bd.innerHTML='&times;'; bd.onclick=(function(id){ return function(){ deletarMembro(id); }; })(m.id);
       acts.appendChild(be); acts.appendChild(bd); card.appendChild(acts);
     }
     grid.appendChild(card);
   }
 
-  function emptyState(grid, icon, msg) {
-    var e=document.createElement('div'); e.className='empty-state'; e.style.gridColumn='1 / -1';
-    e.innerHTML='<div class="icon">'+icon+'</div><p>'+msg+'</p>'; grid.appendChild(e);
-  }
+  function emptyState(g,icon,msg){ var e=document.createElement('div'); e.className='empty-state'; e.style.gridColumn='1 / -1'; e.innerHTML='<div class="icon">'+icon+'</div><p>'+msg+'</p>'; g.appendChild(e); }
 
-  if (!mensGrid.length) emptyState(gridM,'&#128100;','Nenhum mensalista'+(mesFiltro?' neste mes':' cadastrado'));
-  else mensGrid.forEach(function(m){ buildCard(m,gridM); });
-  if (!avulsos.length) emptyState(gridA,'&#9889;','Nenhum avulso'+(mesFiltro?' neste mes':' cadastrado'));
+  if (!mensGrid.length) emptyState(gridM,'&#128100;','Nenhum mensalista cadastrado');
+  else mensGrid.forEach(function(m){ buildCardMens(m); });
+  if (!avulsos.length) emptyState(gridA,'&#9889;','Nenhum avulso cadastrado');
   else avulsos.forEach(function(m){ buildCard(m,gridA); });
-  if (!goleiros.length) emptyState(gridG,'&#129508;','Nenhum goleiro'+(mesFiltro?' neste mes':' cadastrado'));
+  if (!goleiros.length) emptyState(gridG,'&#129508;','Nenhum goleiro cadastrado');
   else goleiros.forEach(function(m){ buildCard(m,gridG); });
 }
-
-
-
 
 function dbGetMembros() {
   return fetch(API_MEMBROS + '?order=nome.asc', { headers: H_GET }).then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); });
@@ -2274,52 +2280,43 @@ function fecharModalMembro() { document.getElementById('modal-membro').classList
 
 function salvarMembro() {
   var nome = document.getElementById('membro-nome').value.trim();
-  var aniv = document.getElementById('membro-aniv').value;
+  var aniv = document.getElementById('membro-aniv').value || null;
   var tipo = document.getElementById('membro-tipo').value || 'mensalista';
-  if (!nome) { alert('INFORME O NOME DO MEMBRO.'); return; }
+  if (!nome) { alert('INFORME O NOME.'); return; }
   var btn = document.querySelector('#modal-membro .btn-save');
   btn.textContent = 'SALVANDO...'; btn.disabled = true;
 
-  var obj = editingMembroId
-    ? { id: editingMembroId, nome: nome, aniversario: aniv || null, tipo: tipo }
-    : { id: uid(), nome: nome, aniversario: aniv || null, tipo: tipo };
+  var isMensOuPres = (tipo === 'mensalista' || tipo === 'presidente');
 
-  var isEdit = !!editingMembroId;
-  var url = API_MEMBROS + (isEdit ? '?id=eq.' + editingMembroId : '');
-  var method = isEdit ? 'PATCH' : 'POST';
-  var payload = isEdit
-    ? { nome: nome, tipo: tipo, aniversario: aniv || null }
-    : { id: obj.id, nome: nome, tipo: tipo, aniversario: aniv || null };
-
-  console.log('salvarMembro:', method, url, payload);
-
-  fetch(url, { method: method, headers: H, body: JSON.stringify(payload) })
-    .then(function(r) {
-      console.log('Response status:', r.status);
-      if (!r.ok) {
-        return r.text().then(function(t) {
-          console.error('Supabase error:', t);
-          throw new Error('Erro ' + r.status + ': ' + t);
-        });
-      }
-      return r;
-    })
-    .then(function() {
-      if (isEdit) {
-        var idx = membros.findIndex(function(m){ return m.id === editingMembroId; });
-        if (idx !== -1) membros[idx] = Object.assign(membros[idx], { nome: nome, aniversario: aniv, tipo: tipo });
+  // If editing an existing member: always PATCH
+  if (editingMembroId) {
+    var payload = { nome: nome, tipo: tipo };
+    if (aniv !== null) payload.aniversario = aniv;
+    fetch(API_MEMBROS + '?id=eq.' + editingMembroId, { method: 'PATCH', headers: H, body: JSON.stringify(payload) })
+      .then(function(r) {
+        if (!r.ok) return r.text().then(function(t){ throw new Error(r.status+': '+t); });
+        var idx = membros.findIndex(function(m){ return m.id===editingMembroId; });
+        if (idx !== -1) Object.assign(membros[idx], { nome: nome, tipo: tipo, aniversario: aniv });
         toast('MEMBRO ATUALIZADO!');
-      } else {
-        membros.push(obj);
-        toast('MEMBRO CADASTRADO!');
-      }
+        renderMembros(); checkAniversarios(); fecharModalMembro();
+      })
+      .catch(function(e){ toast('ERRO: '+e.message,'err'); })
+      .finally(function(){ btn.textContent='SALVAR'; btn.disabled=false; });
+    return;
+  }
+
+  // New member: POST (only for avulso and goleiro - mensalistas are pre-created via SQL)
+  var obj = { id: uid(), nome: nome, tipo: tipo };
+  if (aniv) obj.aniversario = aniv;
+  fetch(API_MEMBROS, { method: 'POST', headers: H, body: JSON.stringify(obj) })
+    .then(function(r) {
+      if (!r.ok) return r.text().then(function(t){ throw new Error(r.status+': '+t); });
+      membros.push(obj);
+      toast('MEMBRO ADICIONADO!');
       renderMembros(); checkAniversarios(); fecharModalMembro();
     })
-    .catch(function(e) {
-      console.error('salvarMembro catch:', e);
-      toast('ERRO: ' + e.message, 'err');
-    })
-    .finally(function() { btn.textContent = 'SALVAR'; btn.disabled = false; });
+    .catch(function(e){ toast('ERRO: '+e.message,'err'); })
+    .finally(function(){ btn.textContent='SALVAR'; btn.disabled=false; });
 }
 
 
