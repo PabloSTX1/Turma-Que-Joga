@@ -2279,26 +2279,47 @@ function salvarMembro() {
   if (!nome) { alert('INFORME O NOME DO MEMBRO.'); return; }
   var btn = document.querySelector('#modal-membro .btn-save');
   btn.textContent = 'SALVANDO...'; btn.disabled = true;
-  var promise;
-  if (editingMembroId) {
-    var obj = { id: editingMembroId, nome: nome, aniversario: aniv, tipo: tipo };
-    promise = dbUpdateMembro(obj).then(function(){
-      var idx = membros.findIndex(function(m){ return m.id===editingMembroId; });
-      if (idx !== -1) membros[idx] = Object.assign(membros[idx], obj);
-      toast('MEMBRO ATUALIZADO!');
-    });
-  } else {
-    var obj = { id: uid(), nome: nome, aniversario: aniv, tipo: tipo };
-    promise = dbSaveMembro(obj).then(function(){
-      membros.push(obj);
-      toast('MEMBRO CADASTRADO!');
-    });
-  }
-  promise.then(function(){
-    buildMembrosmesSel();
-    renderMembros(); checkAniversarios(); fecharModalMembro();
-  }).catch(function(e){ toast('ERRO: ' + e.message, 'err'); })
-  .finally(function(){ btn.textContent = 'SALVAR'; btn.disabled = false; });
+
+  var obj = editingMembroId
+    ? { id: editingMembroId, nome: nome, aniversario: aniv || null, tipo: tipo }
+    : { id: uid(), nome: nome, aniversario: aniv || null, tipo: tipo };
+
+  var isEdit = !!editingMembroId;
+  var url = API_MEMBROS + (isEdit ? '?id=eq.' + editingMembroId : '');
+  var method = isEdit ? 'PATCH' : 'POST';
+  var payload = isEdit
+    ? { nome: nome, tipo: tipo, aniversario: aniv || null }
+    : { id: obj.id, nome: nome, tipo: tipo, aniversario: aniv || null };
+
+  console.log('salvarMembro:', method, url, payload);
+
+  fetch(url, { method: method, headers: H, body: JSON.stringify(payload) })
+    .then(function(r) {
+      console.log('Response status:', r.status);
+      if (!r.ok) {
+        return r.text().then(function(t) {
+          console.error('Supabase error:', t);
+          throw new Error('Erro ' + r.status + ': ' + t);
+        });
+      }
+      return r;
+    })
+    .then(function() {
+      if (isEdit) {
+        var idx = membros.findIndex(function(m){ return m.id === editingMembroId; });
+        if (idx !== -1) membros[idx] = Object.assign(membros[idx], { nome: nome, aniversario: aniv, tipo: tipo });
+        toast('MEMBRO ATUALIZADO!');
+      } else {
+        membros.push(obj);
+        toast('MEMBRO CADASTRADO!');
+      }
+      renderMembros(); checkAniversarios(); fecharModalMembro();
+    })
+    .catch(function(e) {
+      console.error('salvarMembro catch:', e);
+      toast('ERRO: ' + e.message, 'err');
+    })
+    .finally(function() { btn.textContent = 'SALVAR'; btn.disabled = false; });
 }
 
 
