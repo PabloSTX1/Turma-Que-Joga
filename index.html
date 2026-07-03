@@ -1470,6 +1470,23 @@ function salvarRodada() {
     });
   }
   promise.then(function() {
+    // Auto-register unknown players as avulsos
+    var nomesExistentes = membros.map(function(m){ return m.nome.toLowerCase(); });
+    var novosAvulsos = stats.filter(function(s){
+      return s.nome && nomesExistentes.indexOf(s.nome.toLowerCase()) === -1;
+    });
+    if (novosAvulsos.length) {
+      var promises = novosAvulsos.map(function(s) {
+        var obj = { id: uid(), nome: s.nome, tipo: 'avulso' };
+        return fetch(API_MEMBROS, { method:'POST', headers:H, body:JSON.stringify(obj) })
+          .then(function(r){ if (r.ok) membros.push(obj); });
+      });
+      Promise.all(promises).then(function(){
+        if (novosAvulsos.length === 1) toast('\"' + novosAvulsos[0].nome + '\" adicionado como avulso!');
+        else toast(novosAvulsos.length + ' jogadores adicionados como avulsos!');
+        renderMembros();
+      });
+    }
     render(); fecharModalRodada();
   }).catch(function(e) {
     toast('ERRO: ' + e.message, 'err');
@@ -1531,6 +1548,11 @@ function buildGlobalPills() {
   var sel = document.getElementById('filtro-select-global');
   if (!pillsDiv || !sel) return;
 
+  // Auto-select most recent month with data if filtroAtivo has no rodadas yet
+  if (meses.length > 0 && !meses.find(function(m){ return m === filtroAtivo; }) && filtroAtivo !== 'geral') {
+    filtroAtivo = meses[0];
+  }
+
   pillsDiv.innerHTML = '';
 
   // Geral button
@@ -1590,7 +1612,9 @@ function init() {
   initTheme();
   dbCarregar().then(function(data) {
     rodadas = data;
-    buildGlobalPills();
+    rodadas = data;
+    var mesesDisp = getMesesDisponiveis();
+    if (mesesDisp.length > 0) filtroAtivo = mesesDisp[0];
     render();
     loadMembros().then(function(){
       buildMembrosmesSel();
