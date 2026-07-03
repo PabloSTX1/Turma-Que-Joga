@@ -577,7 +577,7 @@
 </div>
 
 <!-- MODAL AVISO -->
-<div class="modal-overlay" id="modal-aviso-cupula" onclick="if(event.target===this)fecharModalAviso()">
+<div class="modal-overlay" id="modal-aviso-cupula">
   <div class="modal-membro-box" style="max-width:500px;">
     <h2 id="modal-aviso-titulo" style="color:var(--laranja);">NOVO AVISO</h2>
     <div class="form-group"><label>TITULO</label><input type="text" id="aviso-titulo-input" placeholder="Ex: Pelada confirmada!"></div>
@@ -612,7 +612,7 @@
   </div>
 </div>
 
-<div class="modal-overlay" id="modal-rodada" onclick="fecharRodadaFora(event)">
+<div class="modal-overlay" id="modal-rodada">
   <div class="modal-rodada-box">
     <h2 id="modal-rodada-titulo">NOVA RODADA</h2>
     <div class="form-group"><label>DATA DA PELADA</label><input type="date" id="input-data"></div>
@@ -645,15 +645,11 @@
   </div>
 </div>
 
-<div class="modal-overlay" id="modal-membro" onclick="fecharMembroFora(event)">
+<div class="modal-overlay" id="modal-membro">
   <div class="modal-membro-box">
     <h2 id="modal-membro-titulo">NOVO MEMBRO</h2>
     <div class="form-group"><label>NOME COMPLETO</label><input type="text" id="membro-nome" placeholder="Nome do membro"></div>
     <div class="form-group"><label>DATA DE ANIVERSARIO</label><input type="date" id="membro-aniv"></div>
-    <div class="form-group" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-      <div><label>MÊS DE ENTRADA</label><input type="month" id="membro-mes-entrada" placeholder="YYYY-MM"></div>
-      <div><label>MÊS DE SAÍDA (opcional)</label><input type="month" id="membro-mes-saida" placeholder="YYYY-MM"></div>
-    </div>
     <div class="form-group">
       <label>CATEGORIA</label>
       <div class="tipo-selector" id="tipo-selector" style="grid-template-columns:repeat(4,1fr);">
@@ -761,7 +757,7 @@
 </div>
 
 <!-- MODAL AVULSO -->
-<div class="modal-overlay" id="modal-avulso" onclick="if(event.target===this)fecharModalAvulso()">
+<div class="modal-overlay" id="modal-avulso">
   <div class="modal-avulso-box" style="max-width:480px;">
     <h2>ADICIONAR AVULSOS</h2>
     <div class="form-group">
@@ -781,7 +777,7 @@
 </div>
 
 <!-- MODAL MENSALISTA MANUAL -->
- <div class="modal-overlay" id="modal-mensalista-manual" onclick="if(event.target===this)fecharModalMensalistaManual()">
+ <div class="modal-overlay" id="modal-mensalista-manual">
   <div class="modal-avulso-box" style="max-width:480px;">
     <h2>Adicionar Mensalistas</h2>
     <div class="form-group">
@@ -801,7 +797,7 @@
 </div>
 
 <!-- MODAL PAGAMENTO -->
-<div class="modal-overlay" id="modal-pgto" onclick="if(event.target===this)fecharModalPgto()">
+<div class="modal-overlay" id="modal-pgto">
   <div class="modal-pgto-box">
     <h2>REGISTRAR PAGAMENTO</h2>
     <p id="modal-pgto-nome" style="font-family:Barlow Condensed,sans-serif;font-size:16px;color:var(--branco);font-weight:700;margin-bottom:4px;"></p>
@@ -818,7 +814,7 @@
 </div>
 
 <!-- MODAL GASTO -->
-<div class="modal-overlay" id="modal-gasto" onclick="if(event.target===this)fecharModalGasto()">
+<div class="modal-overlay" id="modal-gasto">
   <div class="modal-gasto-box">
     <h2>NOVO GASTO</h2>
     <div class="form-group"><label>DESCRICAO</label><input type="text" id="gasto-desc" placeholder="EX: COMPRA DE COLETES"></div>
@@ -2272,25 +2268,27 @@ function fecharModalMembro() { document.getElementById('modal-membro').classList
 function salvarMembro() {
   var nome = document.getElementById('membro-nome').value.trim();
   var aniv = document.getElementById('membro-aniv').value;
+  var tipo = document.getElementById('membro-tipo').value || 'mensalista';
   if (!nome) { alert('INFORME O NOME DO MEMBRO.'); return; }
   var btn = document.querySelector('#modal-membro .btn-save');
   btn.textContent = 'SALVANDO...'; btn.disabled = true;
   var promise;
   if (editingMembroId) {
-    var obj = { id: editingMembroId, nome: nome, aniversario: aniv };
+    var obj = { id: editingMembroId, nome: nome, aniversario: aniv, tipo: tipo };
     promise = dbUpdateMembro(obj).then(function(){
       var idx = membros.findIndex(function(m){ return m.id===editingMembroId; });
-      if (idx !== -1) membros[idx] = obj;
+      if (idx !== -1) membros[idx] = Object.assign(membros[idx], obj);
       toast('MEMBRO ATUALIZADO!');
     });
   } else {
-    var obj = { id: uid(), nome: nome, aniversario: aniv };
+    var obj = { id: uid(), nome: nome, aniversario: aniv, tipo: tipo };
     promise = dbSaveMembro(obj).then(function(){
       membros.push(obj);
       toast('MEMBRO CADASTRADO!');
     });
   }
   promise.then(function(){
+    buildMembrosmesSel();
     renderMembros(); checkAniversarios(); fecharModalMembro();
   }).catch(function(e){ toast('ERRO: ' + e.message, 'err'); })
   .finally(function(){ btn.textContent = 'SALVAR'; btn.disabled = false; });
