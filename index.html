@@ -14,50 +14,153 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
+  /* ══════════════════════════════════════
+     TEMA ESCURO — azul profundo + laranja
+     ══════════════════════════════════════ */
   :root {
-    --azul:#1a4fbd; --azul-escuro:#0d1a45; --azul-card:#0a1228;
-    --azul-linha:#112050; --azul-hover:#162060;
-    --laranja:#E8641A; --laranja2:#c4510f;
-    --preto:#0a0c10; --preto-medio:#0e1118;
-    --branco:#eef1fa; --muted:#5a6a9a;
-    --cinza-texto:#a8b5cc;
-    --card-bg:#0e1118; --input-bg:#0a0c10;
-    --section-bg:#060d1f;
+    --azul:        #2563eb;
+    --azul-claro:  #3b82f6;
+    --azul-escuro: #0f172a;
+    --azul-card:   #111827;
+    --azul-linha:  #1e3a5f;
+    --azul-hover:  #1e293b;
+    --laranja:     #f97316;
+    --laranja2:    #ea580c;
+    --preto:       #0a0f1e;
+    --preto-medio: #111827;
+    --branco:      #f1f5f9;
+    --branco-suave:#cbd5e1;
+    --muted:       #64748b;
+    --cinza-texto: #94a3b8;
+    --card-bg:     #111827;
+    --card-border: #1e3a5f;
+    --input-bg:    #0a0f1e;
+    --section-bg:  #0f172a;
+    --success:     #22c55e;
+    --danger:      #ef4444;
+    --gold:        #f59e0b;
   }
+
+  /* ══════════════════════════════════════
+     TEMA CLARO — branco + azul + laranja
+     ══════════════════════════════════════ */
   body.light-mode {
-    --azul:#1a4fbd; --azul-escuro:#dce6ff; --azul-card:#e8eeff;
-    --azul-linha:#b0c4f0; --azul-hover:#c8d8ff;
-    --laranja:#c44a00; --laranja2:#e8641a;
-    --preto:#f0f4ff; --preto-medio:#e4eafc;
-    --branco:#0d1a45; --muted:#5570aa;
-    --cinza-texto:#334477;
-    --card-bg:#ffffff; --input-bg:#f0f4ff;
-    --section-bg:#dce6ff;
+    --azul:        #2563eb;
+    --azul-claro:  #3b82f6;
+    --azul-escuro: #eff6ff;
+    --azul-card:   #f8faff;
+    --azul-linha:  #bfdbfe;
+    --azul-hover:  #dbeafe;
+    --laranja:     #ea580c;
+    --laranja2:    #f97316;
+    --preto:       #f8faff;
+    --preto-medio: #eff6ff;
+    --branco:      #0f172a;
+    --branco-suave:#1e3a5f;
+    --muted:       #64748b;
+    --cinza-texto: #475569;
+    --card-bg:     #ffffff;
+    --card-border: #bfdbfe;
+    --input-bg:    #f8faff;
+    --section-bg:  #eff6ff;
+    --success:     #16a34a;
+    --danger:      #dc2626;
+    --gold:        #d97706;
   }
-  body.light-mode { background:#f0f4ff; color:#0d1a45; }
-  body.light-mode .header { background:#1a4fbd; }
-  body.light-mode .tabs { background:#dce6ff; border-color:#b0c4f0; }
-  body.light-mode .tab-btn { color:#334477; }
-  body.light-mode .tab-btn.active { color:#1a4fbd; }
-  body.light-mode .membro-card,
-  body.light-mode .rodada-card,
-  body.light-mode .aviso-card,
-  body.light-mode .caixa-total-box,
-  body.light-mode .caixa-table { background:#ffffff; border-color:#b0c4f0; }
-  body.light-mode .caixa-table th { background:#dce6ff; color:#0d1a45; }
-  body.light-mode .caixa-table td { color:#0d1a45; }
-  body.light-mode input, body.light-mode select, body.light-mode textarea { background:#f0f4ff !important; color:#0d1a45 !important; border-color:#b0c4f0 !important; }
-  body.light-mode .modal-membro-box, body.light-mode .modal-rodada-box, body.light-mode .modal-avulso-box { background:#ffffff; border-color:#b0c4f0; }
-  body.light-mode .ranking-table tr:nth-child(even) { background:rgba(26,79,189,0.05); }
-  body.light-mode .ranking-table td, body.light-mode .ranking-table th { color:#0d1a45; border-color:#b0c4f0; }
-  body.light-mode .section-title { color:#0d1a45; }
-  body.light-mode .filtro-label { color:#334477; }
-  body.light-mode .pill { background:#dce6ff; color:#1a4fbd; border-color:#b0c4f0; }
-  body.light-mode .pill.active { background:#1a4fbd; color:#fff; }
-  /* Toggle button */
-  .btn-theme{background:transparent;border:1.5px solid rgba(255,255,255,0.3);border-radius:20px;padding:5px 12px;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:6px;}
-  .btn-theme:hover{background:rgba(255,255,255,0.1);}
-  body.light-mode .btn-theme{border-color:rgba(255,255,255,0.5);color:#fff;}
+  body.light-mode { background:#f1f5f9; color:#0f172a; }
+  body.light-mode::before { background-image:repeating-linear-gradient(90deg,transparent 0px,transparent 70px,rgba(37,99,235,0.04) 70px,rgba(37,99,235,0.04) 76px); }
+  body.light-mode .header { background:linear-gradient(135deg,#1d4ed8 0%,#2563eb 100%); box-shadow:0 2px 20px rgba(37,99,235,0.25); }
+  body.light-mode .header-inner .logo-text h1 { color:#fff; }
+  body.light-mode .header-inner .logo-text p  { color:rgba(255,255,255,0.75); }
+  body.light-mode .tabs  { background:#fff; border-color:#bfdbfe; box-shadow:0 1px 8px rgba(37,99,235,0.08); }
+  body.light-mode .tab-btn { color:#64748b; }
+  body.light-mode .tab-btn:hover { color:#2563eb; background:rgba(37,99,235,0.06); }
+  body.light-mode .tab-btn.active { color:#2563eb; border-color:#2563eb; }
+  body.light-mode #filtro-global-bar { background:#fff; border-color:#bfdbfe; }
+  body.light-mode .filtro-label { color:#64748b; }
+  body.light-mode .pill { background:#eff6ff; color:#2563eb; border-color:#bfdbfe; }
+  body.light-mode .pill.active { background:#2563eb; color:#fff; border-color:#2563eb; }
+  body.light-mode .filtro-select { background:#fff; color:#0f172a; border-color:#bfdbfe; }
+  body.light-mode .hero-card { background:#fff; border-color:#bfdbfe; box-shadow:0 2px 12px rgba(37,99,235,0.08); }
+  body.light-mode .hero-card .number { color:#2563eb; }
+  body.light-mode .hero-card .label  { color:#64748b; }
+  body.light-mode .section-title { color:#0f172a; }
+  body.light-mode .ranking-table { background:#fff; }
+  body.light-mode .ranking-table th { background:#eff6ff; color:#1e3a5f; border-color:#bfdbfe; }
+  body.light-mode .ranking-table td { color:#0f172a; border-color:#e2e8f0; }
+  body.light-mode .ranking-table tr:hover td { background:#f0f9ff; }
+  body.light-mode .rank-avatar { background:#eff6ff; color:#2563eb; border-color:#bfdbfe; }
+  body.light-mode .rodada-card { background:#fff; border-color:#bfdbfe; box-shadow:0 2px 8px rgba(37,99,235,0.06); }
+  body.light-mode .rodada-card:hover { border-color:#93c5fd; box-shadow:0 4px 16px rgba(37,99,235,0.12); }
+  body.light-mode .membro-card { background:#fff; border:1px solid #bfdbfe; box-shadow:0 1px 6px rgba(37,99,235,0.06); }
+  body.light-mode .membro-card:hover { border-color:#93c5fd; }
+  body.light-mode .membro-nome { color:#0f172a; }
+  body.light-mode .membro-aniv { color:#64748b; }
+  body.light-mode .membro-avatar { background:#eff6ff; color:#2563eb; border-color:#bfdbfe; }
+  body.light-mode .membro-avatar.avulso { background:#fff7ed; color:#ea580c; border-color:#fed7aa; }
+  body.light-mode .membro-avatar.goleiro { background:#f0fdf4; color:#16a34a; border-color:#bbf7d0; }
+  body.light-mode .membro-avatar.presidente { background:#fffbeb; color:#d97706; border-color:#fde68a; }
+  body.light-mode .membros-secao-titulo { color:#0f172a; }
+  body.light-mode .membros-secao-titulo::after { background:#bfdbfe; }
+  body.light-mode .aviso-card { background:#fff; border-color:#bfdbfe; box-shadow:0 2px 8px rgba(37,99,235,0.06); }
+  body.light-mode .aviso-card.fixado { border-left-color:#d97706; }
+  body.light-mode .aviso-card.urgente { border-left-color:#dc2626; }
+  body.light-mode .aviso-titulo-txt { color:#0f172a; }
+  body.light-mode .aviso-corpo-txt  { color:#475569; }
+  body.light-mode .aviso-data       { color:#94a3b8; }
+  body.light-mode .aviso-footer     { border-color:#e2e8f0; }
+  body.light-mode .aviso-acao       { color:#94a3b8; }
+  body.light-mode .aviso-acao:hover  { color:#0f172a; }
+  body.light-mode .caixa-total-box { background:#fff; border-color:#bfdbfe; box-shadow:0 2px 12px rgba(37,99,235,0.08); }
+  body.light-mode .caixa-total-label { color:#64748b; }
+  body.light-mode .caixa-total-valor { color:#2563eb; }
+  body.light-mode .caixa-total-valor.negativo { color:#dc2626; }
+  body.light-mode .caixa-total-detail { color:#64748b; }
+  body.light-mode .caixa-card { background:#fff; border-color:#bfdbfe; }
+  body.light-mode .caixa-section-title { color:#0f172a; }
+  body.light-mode .caixa-section-line  { background:#bfdbfe; }
+  body.light-mode .caixa-table { background:#fff; }
+  body.light-mode .caixa-table thead th { background:#eff6ff; color:#1e3a5f; border-color:#bfdbfe; }
+  body.light-mode .caixa-table tbody td { color:#0f172a; border-color:#e2e8f0; }
+  body.light-mode .caixa-table tbody tr:hover td { background:#f0f9ff; }
+  body.light-mode .status-badge.status-pago { background:#f0fdf4; color:#16a34a; border-color:#bbf7d0; }
+  body.light-mode .status-badge.status-pendente { background:#fff1f2; color:#dc2626; border-color:#fecdd3; }
+  body.light-mode .modal-overlay { background:rgba(15,23,42,0.5); }
+  body.light-mode .modal-membro-box,
+  body.light-mode .modal-rodada-box,
+  body.light-mode .modal-avulso-box,
+  body.light-mode .modal-pgto-box,
+  body.light-mode .modal-gasto-box { background:#fff; border-color:#bfdbfe; box-shadow:0 20px 60px rgba(37,99,235,0.15); }
+  body.light-mode .form-group label { color:#475569; }
+  body.light-mode input, body.light-mode select, body.light-mode textarea { background:#f8faff !important; color:#0f172a !important; border-color:#bfdbfe !important; }
+  body.light-mode input:focus, body.light-mode select:focus, body.light-mode textarea:focus { border-color:#2563eb !important; }
+  body.light-mode .tipo-btn { background:#f8faff; color:#64748b; border-color:#bfdbfe; }
+  body.light-mode .tipo-btn:hover { border-color:#2563eb; color:#0f172a; }
+  body.light-mode .tipo-btn.active[data-tipo="mensalista"] { background:#eff6ff; color:#2563eb; border-color:#2563eb; }
+  body.light-mode .tipo-btn.active[data-tipo="avulso"]     { background:#fff7ed; color:#ea580c; border-color:#ea580c; }
+  body.light-mode .tipo-btn.active[data-tipo="goleiro"]    { background:#f0fdf4; color:#16a34a; border-color:#16a34a; }
+  body.light-mode .tipo-btn.active[data-tipo="presidente"] { background:#fffbeb; color:#d97706; border-color:#d97706; }
+  body.light-mode .check-item:hover { background:rgba(37,99,235,0.05); }
+  body.light-mode .check-item.checked { background:#eff6ff; }
+  body.light-mode .check-item.checked label { color:#2563eb; }
+  body.light-mode .btn-cancel { background:#f1f5f9; color:#475569; border:1px solid #bfdbfe; }
+  body.light-mode .empty-state { color:#94a3b8; }
+  body.light-mode .presenca-btn { background:#f8faff; border-color:#bfdbfe; color:#64748b; }
+  body.light-mode .presenca-btn.selecionado { background:#eff6ff; border-color:#2563eb; color:#2563eb; }
+  body.light-mode .aniversario-banner { background:linear-gradient(135deg,#fffbeb,#fef3c7); border-color:#f59e0b; }
+  body.light-mode .aniversario-texto h3 { color:#d97706; }
+  body.light-mode .aniversario-texto p  { color:#92400e; }
+  body.light-mode .btn-membro-edit { color:#2563eb; border-color:#bfdbfe; }
+  body.light-mode .btn-membro-del  { color:#dc2626; border-color:#fecdd3; }
+  body.light-mode .btn-membro-edit:hover { background:#eff6ff; }
+  body.light-mode .btn-membro-del:hover  { background:#fff1f2; }
+  body.light-mode .presidente-card { border-color:rgba(217,119,6,0.35); background:rgba(217,119,6,0.04); }
+  body.light-mode .toast { background:#0f172a; color:#f1f5f9; }
+  body.light-mode .toast.err { background:#dc2626; }
+  .btn-theme { background:rgba(255,255,255,0.1); border:1.5px solid rgba(255,255,255,0.25); border-radius:20px; padding:5px 14px; color:#fff; font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700; letter-spacing:1px; cursor:pointer; transition:all .2s; display:flex; align-items:center; gap:6px; }
+  .btn-theme:hover { background:rgba(255,255,255,0.2); border-color:rgba(255,255,255,0.45); }
+  body.light-mode .btn-theme { background:rgba(255,255,255,0.15); border-color:rgba(255,255,255,0.4); }
+  body.light-mode .btn-theme:hover { background:rgba(255,255,255,0.25); }
   *{margin:0;padding:0;box-sizing:border-box;}
   body{font-family:'Barlow',sans-serif;background:var(--preto);color:var(--branco);min-height:100vh;overflow-x:hidden;}
   body::before{content:'';position:fixed;inset:0;background-image:repeating-linear-gradient(90deg,transparent 0px,transparent 70px,rgba(26,79,189,0.05) 70px,rgba(26,79,189,0.05) 76px);pointer-events:none;z-index:0;}
