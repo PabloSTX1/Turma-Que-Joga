@@ -2163,7 +2163,9 @@ function renderMembros() {
       var acts=document.createElement('div'); acts.style.cssText='display:flex;gap:6px;';
       var be=document.createElement('button'); be.className='btn-membro-edit'; be.title='Editar nome'; be.innerHTML='&#9998;';
       be.onclick=(function(id){ return function(){ editarMembro(id); }; })(m.id);
-      acts.appendChild(be); card.appendChild(acts);
+      var bd=document.createElement('button'); bd.className='btn-membro-del'; bd.title='Excluir slot'; bd.innerHTML='&times;';
+      bd.onclick=(function(id){ return function(){ deletarMembro(id); }; })(m.id);
+      acts.appendChild(be); acts.appendChild(bd); card.appendChild(acts);
     }
     gridM.appendChild(card);
   }
