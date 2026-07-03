@@ -2198,14 +2198,21 @@ function dbGetMembros() {
 }
 
 
-function dbSaveMembro(m) {
-  return fetch(API_MEMBROS, { method:'POST', headers:H, body:JSON.stringify(m) }).then(function(r){ if(!r.ok) throw new Error(r.status); });
-}
+ function dbSaveMembro(m) {
+   var payload = { id: m.id, nome: m.nome };
+   if (m.aniversario) payload.aniversario = m.aniversario;
+   if (m.tipo) payload.tipo = m.tipo;
+   return fetch(API_MEMBROS, { method:'POST', headers:H, body:JSON.stringify(payload) })
+     .then(function(r){ if (!r.ok) return r.text().then(function(t){ throw new Error(r.status + ': ' + t); }); });
+ }
 
-
-function dbUpdateMembro(m) {
-  return fetch(API_MEMBROS + '?id=eq.' + m.id, { method:'PATCH', headers:H, body:JSON.stringify({nome:m.nome,aniversario:m.aniversario}) }).then(function(r){ if(!r.ok) throw new Error(r.status); });
-}
+ function dbUpdateMembro(m) {
+   var payload = { nome: m.nome };
+   if (m.aniversario !== undefined) payload.aniversario = m.aniversario || null;
+   if (m.tipo) payload.tipo = m.tipo;
+   return fetch(API_MEMBROS + '?id=eq.' + m.id, { method:'PATCH', headers:H, body:JSON.stringify(payload) })
+     .then(function(r){ if (!r.ok) return r.text().then(function(t){ throw new Error(r.status + ': ' + t); }); });
+ }
 
 
 function dbDeleteMembro(id) {
