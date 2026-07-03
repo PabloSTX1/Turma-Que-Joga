@@ -169,7 +169,7 @@
   body.light-mode .presidente-card { border-color:rgba(217,119,6,0.35); background:rgba(217,119,6,0.04); }
   body.light-mode .toast { background:#0f172a; color:#f1f5f9; }
   body.light-mode .toast.err { background:#dc2626; }
-  .btn-theme { background:rgba(255,255,255,0.1); border:1.5px solid rgba(255,255,255,0.25); border-radius:20px; padding:5px 14px; color:#fff; font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700; letter-spacing:1px; cursor:pointer; transition:all .2s; display:flex; align-items:center; gap:6px; }
+  .filtro-bar-hidden{display:none!important;} background:rgba(255,255,255,0.1); border:1.5px solid rgba(255,255,255,0.25); border-radius:20px; padding:5px 14px; color:#fff; font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700; letter-spacing:1px; cursor:pointer; transition:all .2s; display:flex; align-items:center; gap:6px; }
   .btn-theme:hover { background:rgba(255,255,255,0.2); border-color:rgba(255,255,255,0.45); }
   body.light-mode .btn-theme { background:rgba(255,255,255,0.15); border-color:rgba(255,255,255,0.4); }
   body.light-mode .btn-theme:hover { background:rgba(255,255,255,0.25); }
@@ -632,7 +632,7 @@
 </div>
 
 <!-- FILTRO GLOBAL UNIFICADO -->
-<div class="tabs" id="filtro-global-bar" style="border-top:none;border-bottom:2px solid var(--azul-linha);padding:10px 20px;display:none;">
+<div class="tabs filtro-bar-hidden" id="filtro-global-bar" style="border-top:none;border-bottom:2px solid var(--azul-linha);padding:10px 20px;">
   <div style="max-width:960px;margin:0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
     <span class="filtro-label">PERIODO:</span>
     <div class="filtro-pills" id="filtro-pills-global"></div>
@@ -1301,7 +1301,7 @@ function toggleRodada(id) {
   document.getElementById('page-'+tab).classList.add('active');
   btn.classList.add('active');
   var filtroBar = document.getElementById('filtro-global-bar');
-  if (filtroBar) filtroBar.style.display = tab === 'avisos' ? 'none' : '';
+  if (filtroBar) filtroBar.classList.toggle('filtro-bar-hidden', tab === 'avisos');
   var btnRodada = document.getElementById('btn-nova-rodada');
   if (btnRodada) btnRodada.style.display = (tab === 'rodadas' && adminLogado) ? '' : 'none';
 }
@@ -2834,13 +2834,13 @@ function getAniversariantesMes() {
     return parseInt(a.aniversario.split('-')[2],10) - parseInt(b.aniversario.split('-')[2],10);
   });
 }
-function switchTab(tab, btn) {
+ function switchTab(tab, btn) {
   document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
   document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
   document.getElementById('page-'+tab).classList.add('active');
   btn.classList.add('active');
   var filtroBar = document.getElementById('filtro-global-bar');
-  if (filtroBar) filtroBar.style.display = tab === 'avisos' ? 'none' : '';
+  if (filtroBar) filtroBar.classList.toggle('filtro-bar-hidden', tab === 'avisos');
   var btnRodada = document.getElementById('btn-nova-rodada');
   if (btnRodada) btnRodada.style.display = (tab === 'rodadas' && adminLogado) ? '' : 'none';
 }
