@@ -20,7 +20,44 @@
     --laranja:#E8641A; --laranja2:#c4510f;
     --preto:#0a0c10; --preto-medio:#0e1118;
     --branco:#eef1fa; --muted:#5a6a9a;
+    --cinza-texto:#a8b5cc;
+    --card-bg:#0e1118; --input-bg:#0a0c10;
+    --section-bg:#060d1f;
   }
+  body.light-mode {
+    --azul:#1a4fbd; --azul-escuro:#dce6ff; --azul-card:#e8eeff;
+    --azul-linha:#b0c4f0; --azul-hover:#c8d8ff;
+    --laranja:#c44a00; --laranja2:#e8641a;
+    --preto:#f0f4ff; --preto-medio:#e4eafc;
+    --branco:#0d1a45; --muted:#5570aa;
+    --cinza-texto:#334477;
+    --card-bg:#ffffff; --input-bg:#f0f4ff;
+    --section-bg:#dce6ff;
+  }
+  body.light-mode { background:#f0f4ff; color:#0d1a45; }
+  body.light-mode .header { background:#1a4fbd; }
+  body.light-mode .tabs { background:#dce6ff; border-color:#b0c4f0; }
+  body.light-mode .tab-btn { color:#334477; }
+  body.light-mode .tab-btn.active { color:#1a4fbd; }
+  body.light-mode .membro-card,
+  body.light-mode .rodada-card,
+  body.light-mode .aviso-card,
+  body.light-mode .caixa-total-box,
+  body.light-mode .caixa-table { background:#ffffff; border-color:#b0c4f0; }
+  body.light-mode .caixa-table th { background:#dce6ff; color:#0d1a45; }
+  body.light-mode .caixa-table td { color:#0d1a45; }
+  body.light-mode input, body.light-mode select, body.light-mode textarea { background:#f0f4ff !important; color:#0d1a45 !important; border-color:#b0c4f0 !important; }
+  body.light-mode .modal-membro-box, body.light-mode .modal-rodada-box, body.light-mode .modal-avulso-box { background:#ffffff; border-color:#b0c4f0; }
+  body.light-mode .ranking-table tr:nth-child(even) { background:rgba(26,79,189,0.05); }
+  body.light-mode .ranking-table td, body.light-mode .ranking-table th { color:#0d1a45; border-color:#b0c4f0; }
+  body.light-mode .section-title { color:#0d1a45; }
+  body.light-mode .filtro-label { color:#334477; }
+  body.light-mode .pill { background:#dce6ff; color:#1a4fbd; border-color:#b0c4f0; }
+  body.light-mode .pill.active { background:#1a4fbd; color:#fff; }
+  /* Toggle button */
+  .btn-theme{background:transparent;border:1.5px solid rgba(255,255,255,0.3);border-radius:20px;padding:5px 12px;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:6px;}
+  .btn-theme:hover{background:rgba(255,255,255,0.1);}
+  body.light-mode .btn-theme{border-color:rgba(255,255,255,0.5);color:#fff;}
   *{margin:0;padding:0;box-sizing:border-box;}
   body{font-family:'Barlow',sans-serif;background:var(--preto);color:var(--branco);min-height:100vh;overflow-x:hidden;}
   body::before{content:'';position:fixed;inset:0;background-image:repeating-linear-gradient(90deg,transparent 0px,transparent 70px,rgba(26,79,189,0.05) 70px,rgba(26,79,189,0.05) 76px);pointer-events:none;z-index:0;}
@@ -461,6 +498,7 @@
     </div>
     <div style="display:flex;align-items:center;gap:12px;">
       <button id="btn-instalar-app" onclick="triggerInstall()" style="font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;background:transparent;color:rgba(255,255,255,0.6);border:1px solid rgba(255,255,255,0.2);border-radius:8px;padding:6px 12px;cursor:pointer;transition:all .2s;white-space:nowrap;" onmouseover="this.style.color='#fff';this.style.borderColor='rgba(255,255,255,0.5)'" onmouseout="this.style.color='rgba(255,255,255,0.6)';this.style.borderColor='rgba(255,255,255,0.2)'">&#11015; INSTALAR APP</button>
+      <button class="btn-theme" onclick="toggleTheme()" id="btn-theme" title="Modo claro/escuro">&#127769; ESCURO</button>
       <div class="admin-badge">&#128273; CUPULA <button class="btn-sair" onclick="sair()">SAIR</button></div>
       <button class="btn-nova" id="btn-nova-rodada" onclick="openModalRodada()" style="display:none;">+ NOVA RODADA</button>
     </div>
@@ -899,6 +937,23 @@ function toast(msg, tipo) {
   setTimeout(function(){ t.classList.remove('show'); }, 3000);
 }
 
+function toggleTheme() {
+  var isLight = document.body.classList.toggle('light-mode');
+  var btn = document.getElementById('btn-theme');
+  if (btn) btn.innerHTML = isLight ? '&#127762; ESCURO' : '&#127769; CLARO';
+  try { localStorage.setItem('tqj_theme', isLight ? 'light' : 'dark'); } catch(e){}
+}
+function initTheme() {
+  var saved = '';
+  try { saved = localStorage.getItem('tqj_theme'); } catch(e){}
+  if (saved === 'light') {
+    document.body.classList.add('light-mode');
+    var btn = document.getElementById('btn-theme');
+    if (btn) btn.innerHTML = '&#127762; ESCURO';
+  }
+}
+
+
 function setAdmin(v) {
   adminLogado = v;
   if (v) document.body.classList.add('admin-logged');
@@ -906,7 +961,6 @@ function setAdmin(v) {
 }
 
 function abrirLogin() {
-  if (adminLogado) return;
   document.getElementById('login-user').value = '';
   document.getElementById('login-pass').value = '';
   document.getElementById('login-error').classList.remove('show');
@@ -1418,6 +1472,7 @@ function getRodadasFiltradas(filtro) {
 
 function init() {
   loadAvisos().then(function(){ renderAvisos(); });
+  initTheme();
   dbCarregar().then(function(data) {
     rodadas = data;
     buildGlobalPills();
@@ -2264,13 +2319,18 @@ function dbDeleteGasto(id) {
 function openModalMembro(edit) {
   edit = edit || null;
   editingMembroId = edit;
-  document.getElementById('modal-membro-titulo').textContent = edit ? 'Editar Membro' : 'Novo Membro';
+  document.getElementById('modal-membro-titulo').textContent = edit ? 'EDITAR MEMBRO' : 'NOVO MEMBRO';
   if (edit) {
     var m = membros.find(function(x){ return x.id===edit; });
-    if (m) { document.getElementById('membro-nome').value = m.nome; document.getElementById('membro-aniv').value = m.aniversario || ''; }
+    if (m) {
+      document.getElementById('membro-nome').value = m.nome;
+      document.getElementById('membro-aniv').value = m.aniversario || '';
+      setTipoMembro(m.tipo || 'mensalista');
+    }
   } else {
     document.getElementById('membro-nome').value = '';
     document.getElementById('membro-aniv').value = '';
+    setTipoMembro('avulso'); // default to avulso for new members (mensalistas are pre-created)
   }
   document.getElementById('modal-membro').classList.add('open');
   setTimeout(function(){ document.getElementById('membro-nome').focus(); }, 100);
