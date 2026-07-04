@@ -544,7 +544,19 @@
   .tipo-btn.active[data-tipo="mensalista"]{background:rgba(26,79,189,0.2);color:#7ab3ff;border-color:#1a4fbd;}
   .tipo-btn.active[data-tipo="avulso"]{background:rgba(232,100,26,0.2);color:var(--laranja);border-color:var(--laranja);}
   .tipo-btn.active[data-tipo="goleiro"]{background:rgba(125,232,122,0.2);color:#7de87a;border-color:#7de87a;}
-  .membro-card-add{background:transparent;border:2px dashed var(--azul-linha);border-radius:12px;padding:12px 14px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;min-height:72px;gap:10px;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:1px;font-weight:700;}
+  .perfil-stat{background:var(--preto-medio);border:1px solid var(--azul-linha);border-radius:10px;padding:12px 8px;text-align:center;}
+  .perfil-stat .ps-num{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--laranja);line-height:1;}
+  .perfil-stat .ps-label{font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--muted);margin-top:3px;}
+  .perfil-rodada-row{background:var(--preto-medio);border:1px solid var(--azul-linha);border-radius:8px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+  .perfil-rodada-data{font-family:'Barlow Condensed',sans-serif;font-size:13px;color:var(--muted);}
+  .perfil-rodada-stats{display:flex;gap:14px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;}
+  .perfil-rodada-stats span{display:flex;align-items:center;gap:4px;color:var(--branco);}
+  .perfil-rodada-stats .zero{color:var(--muted);font-weight:400;}
+  body.light-mode .perfil-stat{background:#fff;border-color:#bfdbfe;}
+  body.light-mode .perfil-stat .ps-num{color:#ea580c;}
+  body.light-mode .perfil-rodada-row{background:#fff;border-color:#bfdbfe;}
+  .membro-card{cursor:pointer;}
+  .membro-card:hover{border-color:var(--azul);}background:transparent;border:2px dashed var(--azul-linha);border-radius:12px;padding:12px 14px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;min-height:72px;gap:10px;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:1px;font-weight:700;}
   .membro-card-add:hover{border-color:var(--azul);color:var(--branco);background:rgba(37,99,235,0.06);}
   .membro-card-add .add-icon{width:32px;height:32px;border-radius:50%;border:2px solid currentColor;display:flex;align-items:center;justify-content:center;font-size:20px;line-height:1;flex-shrink:0;}
   .membro-card-add.avulso-add:hover{border-color:var(--laranja);color:var(--laranja);background:rgba(249,115,22,0.06);}
@@ -923,6 +935,33 @@
     <div class="modal-actions">
       <button class="btn-cancel" onclick="fecharModalAviso()">CANCELAR</button>
       <button class="btn-save" onclick="salvarAviso()">PUBLICAR</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL PERFIL MEMBRO -->
+<div class="modal-overlay" id="modal-perfil">
+  <div class="modal-rodada-box" style="max-width:520px;">
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;">
+      <div id="perfil-avatar" class="membro-avatar" style="width:56px;height:56px;font-size:24px;flex-shrink:0;"></div>
+      <div style="flex:1;min-width:0;">
+        <h2 id="perfil-nome" style="font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:1px;color:var(--branco);margin:0;"></h2>
+        <div id="perfil-tipo" style="font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:1.5px;color:var(--muted);margin-top:2px;"></div>
+        <div id="perfil-aniv" style="font-family:'Barlow Condensed',sans-serif;font-size:12px;color:var(--muted);margin-top:2px;"></div>
+      </div>
+      <button onclick="fecharPerfil()" style="background:transparent;border:none;color:var(--muted);font-size:22px;cursor:pointer;padding:4px;line-height:1;flex-shrink:0;">&times;</button>
+    </div>
+
+    <!-- Stats gerais -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;" id="perfil-stats-grid"></div>
+
+    <!-- Histórico de rodadas -->
+    <div class="modal-section-title" style="margin-bottom:10px;">HISTÓRICO DE RODADAS</div>
+    <div id="perfil-historico" style="max-height:280px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;"></div>
+
+    <div class="modal-actions" style="margin-top:16px;">
+      <button class="btn-cancel" onclick="fecharPerfil()">FECHAR</button>
+      <button class="btn-save admin-only" id="perfil-btn-editar" style="display:none;" onclick="editarDoPerfilAtual()">&#9998; EDITAR</button>
     </div>
   </div>
 </div>
@@ -1806,6 +1845,73 @@ function init() {
   });
 }
 
+
+// ── PERFIL DO MEMBRO ──────────────────────────────────────────
+var perfilMembroAtual = null;
+
+function abrirPerfil(membro) {
+  perfilMembroAtual = membro;
+  var tipos = { presidente:'\u{1F451} CUPULA', mensalista:'\u{1F464} MENSALISTA', avulso:'\u26A1 AVULSO', goleiro:'\u{1F9E4} GOLEIRO' };
+  var tipoCls = { presidente:'presidente', mensalista:'', avulso:'avulso', goleiro:'goleiro' };
+  var cls = tipoCls[membro.tipo||'mensalista'] || '';
+  var av = document.getElementById('perfil-avatar');
+  av.textContent = membro.nome.charAt(0).toUpperCase();
+  av.className = 'membro-avatar' + (cls ? ' ' + cls : '');
+  av.style.cssText = 'width:56px;height:56px;font-size:24px;flex-shrink:0;';
+  document.getElementById('perfil-nome').textContent = membro.nome;
+  document.getElementById('perfil-tipo').textContent = tipos[membro.tipo||'mensalista'] || '';
+  document.getElementById('perfil-aniv').textContent = membro.aniversario ? '\uD83C\uDF82 ' + formatAniv(membro.aniversario) : '';
+  var totalGols=0, totalAssists=0, totalRodadas=0;
+  var historico=[];
+  var nomeLower = membro.nome.toLowerCase();
+  rodadas.forEach(function(r) {
+    var stat = r.stats.find(function(s){ return s.nome && s.nome.toLowerCase()===nomeLower; });
+    if (stat) {
+      totalGols += (stat.gols||0);
+      totalAssists += (stat.assists||0);
+      totalRodadas++;
+      historico.push({ data:r.data, gols:stat.gols||0, assists:stat.assists||0 });
+    }
+  });
+  var sg = document.getElementById('perfil-stats-grid');
+  sg.innerHTML = '';
+  [{num:totalRodadas,label:'RODADAS'},{num:totalGols,label:'GOLS'},{num:totalAssists,label:'ASSISTS'},{num:totalGols+totalAssists,label:'PARTICIP.'}]
+  .forEach(function(s) {
+    var d=document.createElement('div'); d.className='perfil-stat';
+    d.innerHTML='<div class="ps-num">'+s.num+'</div><div class="ps-label">'+s.label+'</div>';
+    sg.appendChild(d);
+  });
+  var hist = document.getElementById('perfil-historico');
+  hist.innerHTML = '';
+  if (!historico.length) {
+    hist.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted);font-size:13px;">Nenhuma rodada registrada ainda.</div>';
+  } else {
+    historico.sort(function(a,b){ return (b.data||'').localeCompare(a.data||''); });
+    historico.forEach(function(h) {
+      var row=document.createElement('div'); row.className='perfil-rodada-row';
+      var parts=(h.data||'').split('-');
+      var dataFmt=parts.length===3?parts[2]+'/'+parts[1]+'/'+parts[0]:(h.data||'-');
+      row.innerHTML='<span class="perfil-rodada-data">'+dataFmt+'</span>'
+        +'<div class="perfil-rodada-stats">'
+        +'<span class="'+(h.gols===0?'zero':'')+'">\u26BD '+h.gols+'</span>'
+        +'<span class="'+(h.assists===0?'zero':'')+'">\uD83C\uDFAF '+h.assists+'</span>'
+        +'</div>';
+      hist.appendChild(row);
+    });
+  }
+  var editBtn=document.getElementById('perfil-btn-editar');
+  if (editBtn) editBtn.style.display=adminLogado?'':'none';
+  document.getElementById('modal-perfil').classList.add('open');
+}
+function fecharPerfil() {
+  document.getElementById('modal-perfil').classList.remove('open');
+  perfilMembroAtual = null;
+}
+function editarDoPerfilAtual() {
+  if (!perfilMembroAtual) return;
+  fecharPerfil();
+  setTimeout(function(){ editarMembro(perfilMembroAtual.id); }, 150);
+}
 
 // ── PELADA ────────────────────────────────────────────────────
 var peladaJogadores = []; // { id, membro_id, nome, gols, assists, confirmado }
@@ -2767,6 +2873,12 @@ function renderMembros() {
     var isP = m.tipo==='presidente';
     var card = document.createElement('div');
     card.className = 'membro-card'+(isAniv?' aniversariante':'')+(isP?' presidente-card':'');
+    card.title = 'Ver perfil de ' + m.nome;
+    card.onclick = (function(membro){ return function(e){
+      // Don't open profile if clicking action buttons
+      if (e.target.closest('.membro-actions')) return;
+      abrirPerfil(membro);
+    }; })(m);
     if (isP) { var pb=document.createElement('div'); pb.className='membro-badge-presidente'; pb.innerHTML='&#128081; CUPULA'; card.appendChild(pb); }
     if (isAniv) { var b=document.createElement('div'); b.className='membro-badge-aniv'; b.textContent='ANIVERSARIO!'; card.appendChild(b); }
     var avatarCls = 'membro-avatar'+(isP?' presidente':m.tipo==='avulso'?' avulso':m.tipo==='goleiro'?' goleiro':'');
@@ -2917,15 +3029,43 @@ function salvarMembro() {
   };
 
   if (editingMembroId) {
-    // EDIT: PATCH existing
-    var payload = { nome: nome, tipo: tipo };
-    if (aniv) payload.aniversario = aniv; else payload.aniversario = null;
+    // Get old name for sync
+    var membroAntigo = membros.find(function(m) { return m.id === editingMembroId; });
+    var nomeAntigo = membroAntigo ? membroAntigo.nome : null;
+
+    var payload = { nome: nome, tipo: tipo, aniversario: aniv || null };
     fetch(API_MEMBROS + '?id=eq.' + editingMembroId, {
       method: 'PATCH', headers: headers, body: JSON.stringify(payload)
     }).then(function(r) {
       if (!r.ok) return r.text().then(function(t) { throw new Error(r.status + ': ' + t); });
       var i = membros.findIndex(function(m) { return m.id === editingMembroId; });
       if (i !== -1) Object.assign(membros[i], { nome: nome, tipo: tipo, aniversario: aniv });
+
+      // ── SINCRONIZAR NOME NAS RODADAS ──────────────────────────
+      if (nomeAntigo && nomeAntigo.toLowerCase() !== nome.toLowerCase()) {
+        var rodadasParaAtualizar = rodadas.filter(function(r) {
+          return r.stats.some(function(s) { return s.nome && s.nome.toLowerCase() === nomeAntigo.toLowerCase(); });
+        });
+        rodadasParaAtualizar.forEach(function(r) {
+          r.stats = r.stats.map(function(s) {
+            if (s.nome && s.nome.toLowerCase() === nomeAntigo.toLowerCase()) {
+              return Object.assign({}, s, { nome: nome });
+            }
+            return s;
+          });
+          // Save updated rodada to Supabase
+          fetch(API + '?id=eq.' + r.id, {
+            method: 'PATCH', headers: headers,
+            body: JSON.stringify({ stats: r.stats })
+          }).catch(function(){});
+        });
+        if (rodadasParaAtualizar.length) {
+          render(); // refresh ranking with new name
+          toast('Nome atualizado em ' + rodadasParaAtualizar.length + ' rodada(s)!');
+        }
+      }
+      // ─────────────────────────────────────────────────────────
+
       toast('MEMBRO ATUALIZADO!');
       renderMembros(); checkAniversarios(); fecharModalMembro();
     }).catch(function(e) {
@@ -2935,7 +3075,6 @@ function salvarMembro() {
     });
 
   } else {
-    // NEW: POST
     var obj = { id: uid(), nome: nome, tipo: tipo };
     if (aniv) obj.aniversario = aniv;
     fetch(API_MEMBROS, {
