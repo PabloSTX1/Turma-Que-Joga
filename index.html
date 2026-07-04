@@ -1983,7 +1983,7 @@ function renderPeladaMembros() {
 }
 
 function adicionarPeladaMembro(m) {
-  var item = { id: uid(), membro_id: m.id, nome: m.nome, tipo: m.tipo||'mensalista', gols: 0, assists: 0, confirmado: false };
+  var item = { id: uid(), membro_id: m.id, nome: m.nome, tipo: m.tipo||'mensalista', gols: 0, assists: 0, vitorias: 0, confirmado: false };
   peladaJogadores.push(item);
   renderPelada();
   renderPeladaMembros();
@@ -2060,8 +2060,10 @@ function renderPelada() {
         + '</div>';
     }
 
-    var golsDiv    = statCounter('gols',    'GOLS',   j.gols);
-    var assistsDiv = statCounter('assists', 'ASSISTS', j.assists);
+    var golsDiv    = isGoleiro ? '' : statCounter('gols',    'GOLS',   j.gols);
+    var assistsDiv = isGoleiro
+      ? statCounter('vitorias', 'VITORIAS', j.vitorias||0)
+      : statCounter('assists', 'ASSISTS', j.assists);
 
     // Confirm button
     var confBtn = '<button class="pelada-conf-btn' + (j.confirmado ? ' ativo' : '') + '" '
@@ -2135,12 +2137,15 @@ function salvarPeladaComoRodada() {
   var data = document.getElementById('pelada-data').value;
   if (!data) { alert('INFORME A DATA DA PELADA.'); return; }
   if (!peladaJogadores.length) { alert('ADICIONE AO MENOS UM JOGADOR.'); return; }
-  var stats = peladaJogadores.map(function(j){ return { nome: j.nome, gols: j.gols||0, assists: j.assists||0 }; });
+  var stats = peladaJogadores.filter(function(j){ return j.tipo !== 'goleiro'; })
+    .map(function(j){ return { nome: j.nome, gols: j.gols||0, assists: j.assists||0 }; });
+  var goleiros = peladaJogadores.filter(function(j){ return j.tipo === 'goleiro'; })
+    .map(function(j){ return { nome: j.nome, vitorias: j.vitorias||0 }; });
   var novaId = uid();
   var btn = document.querySelector('[onclick="salvarPeladaComoRodada()"]');
   if (btn) { btn.textContent = 'SALVANDO...'; btn.disabled = true; }
-  dbInserir({ id: novaId, data: data, stats: stats, goleiros: [] }).then(function(){
-    rodadas.unshift({ id: novaId, data: data, stats: stats, goleiros: [] });
+  dbInserir({ id: novaId, data: data, stats: stats, goleiros: goleiros }).then(function(){
+    rodadas.unshift({ id: novaId, data: data, stats: stats, goleiros: goleiros });
     toast('RODADA SALVA COM SUCESSO!');
     // Auto-register unknown players as avulsos
     var nomesExistentes = membros.map(function(m){ return m.nome.toLowerCase(); });
