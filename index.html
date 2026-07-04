@@ -362,6 +362,7 @@
     .aviso-corpo-txt{font-size:13px;}
     /* PRESENCA GRID */
     .presenca-btn{font-size:11px;}
+    #page-pelada [style*="grid-template-columns:1fr 2fr"]{grid-template-columns:1fr !important;}
     /* MES ENTRADA LADO A LADO */
     .form-group [style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr !important;}
   }  /* GOLEIRO */
@@ -390,6 +391,30 @@
   .goleiro-row input:focus{border-color:#7de87a;}
   .btn-add-goleiro{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;background:transparent;color:#7de87a;border:1.5px dashed rgba(125,232,122,.4);padding:7px 14px;border-radius:6px;cursor:pointer;transition:all .2s;margin-top:4px;}
   .btn-add-goleiro:hover{border-color:#7de87a;background:rgba(125,232,122,.08);}
+  /* PELADA */
+  .pelada-membro-btn{display:flex;align-items:center;gap:8px;background:var(--preto-medio);border:1px solid var(--azul-linha);border-radius:8px;padding:8px 12px;cursor:pointer;transition:all .15s;width:100%;text-align:left;}
+  .pelada-membro-btn:hover{border-color:var(--azul);background:var(--azul-hover);}
+  .pelada-membro-btn.ja-adicionado{border-color:var(--success);background:rgba(34,197,94,0.08);cursor:default;opacity:.6;}
+  .pelada-membro-btn .pm-nome{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:var(--branco);flex:1;}
+  .pelada-membro-btn .pm-tipo{font-size:10px;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;color:var(--muted);}
+  .pelada-row{background:var(--preto-medio);border:1px solid var(--azul-linha);border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:12px;transition:border-color .2s;}
+  .pelada-row.confirmado{border-color:var(--success);background:rgba(34,197,94,0.06);}
+  .pelada-row .pr-avatar{width:36px;height:36px;border-radius:50%;background:var(--azul-escuro);border:2px solid var(--azul-linha);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--azul);flex-shrink:0;}
+  .pelada-row .pr-nome{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;color:var(--branco);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .pelada-stat-input{width:52px;background:var(--preto);border:1px solid var(--azul-linha);border-radius:6px;color:var(--branco);font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;padding:5px 6px;text-align:center;outline:none;transition:border-color .2s;}
+  .pelada-stat-input:focus{border-color:var(--azul);}
+  .pelada-stat-label{font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1px;color:var(--muted);text-align:center;margin-top:2px;}
+  .pelada-conf-btn{background:transparent;border:1.5px solid var(--azul-linha);border-radius:8px;padding:6px 10px;color:var(--muted);font-size:16px;cursor:pointer;transition:all .15s;flex-shrink:0;}
+  .pelada-conf-btn.ativo{background:rgba(34,197,94,0.15);border-color:var(--success);color:var(--success);}
+  .pelada-del-btn{background:transparent;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:4px;line-height:1;flex-shrink:0;}
+  .pelada-del-btn:hover{color:var(--danger);}
+  body.light-mode .pelada-membro-btn{background:#fff;border-color:#bfdbfe;}
+  body.light-mode .pelada-membro-btn:hover{border-color:#2563eb;background:#eff6ff;}
+  body.light-mode .pelada-row{background:#fff;border-color:#bfdbfe;}
+  body.light-mode .pelada-row.confirmado{border-color:#16a34a;background:rgba(22,163,74,0.06);}
+  body.light-mode .pelada-stat-input{background:#f8faff;border-color:#bfdbfe;color:#0f172a;}
+  body.light-mode .pr-nome{color:#0f172a !important;}
+  body.light-mode .pr-avatar{background:#eff6ff;color:#2563eb;border-color:#bfdbfe;}
   /* AVISOS */
   .aviso-card{background:var(--preto-medio);border:1px solid var(--azul-linha);border-radius:12px;padding:18px 20px;margin-bottom:14px;position:relative;transition:border-color .2s;}
   .aviso-card.fixado{border-left:3px solid #f0c040;border-radius:0 12px 12px 0;}
@@ -640,6 +665,7 @@
 <div class="tabs">
   <div class="tabs-inner">
     <button class="tab-btn active" onclick="switchTab('avisos',this)">AVISOS</button>
+    <button class="tab-btn" onclick="switchTab('pelada',this)">⚽ PELADA</button>
     <button class="tab-btn" onclick="switchTab('ranking',this)">RANKING GERAL</button>
     <button class="tab-btn" onclick="switchTab('rodadas',this)">RODADAS</button>
     <button class="tab-btn" onclick="switchTab('goleiros',this)">GOLEIROS</button>
@@ -685,6 +711,81 @@
     </div>
     <div id="avisos-container">
       <div class="loading"><div class="spinner"></div>CARREGANDO...</div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE PELADA -->
+<div class="page" id="page-pelada">
+  <div class="wrap">
+
+    <!-- Header -->
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px;">
+      <div>
+        <div class="section-title" style="margin-bottom:4px;">&#9917; PELADA DO DIA</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;color:var(--muted);letter-spacing:.5px;">
+          Pré-registre quem vai e anote gols e assistências em tempo real
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <input type="date" id="pelada-data" style="background:var(--preto-medio);border:1px solid var(--azul-linha);border-radius:8px;color:var(--branco);font-family:'Barlow Condensed',sans-serif;font-size:15px;padding:8px 12px;outline:none;">
+        <button class="btn-save admin-only" style="display:none;padding:9px 18px;font-size:14px;" onclick="salvarPeladaComoRodada()">&#10003; SALVAR COMO RODADA</button>
+      </div>
+    </div>
+
+    <!-- Stats rápidas -->
+    <div id="pelada-stats-bar" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px;">
+      <div class="hero-card" style="text-align:center;padding:16px;">
+        <div class="number" style="font-size:36px;" id="pelada-count-total">0</div>
+        <div class="label">JOGADORES</div>
+      </div>
+      <div class="hero-card" style="text-align:center;padding:16px;">
+        <div class="number" style="font-size:36px;" id="pelada-count-conf">0</div>
+        <div class="label">CONFIRMADOS</div>
+      </div>
+      <div class="hero-card" style="text-align:center;padding:16px;">
+        <div class="number" style="font-size:36px;color:var(--laranja);" id="pelada-count-gols">0</div>
+        <div class="label">GOLS</div>
+      </div>
+    </div>
+
+    <!-- Dois painéis: seleção de membros + lista da pelada -->
+    <div style="display:grid;grid-template-columns:1fr 2fr;gap:20px;align-items:start;">
+
+      <!-- Painel esquerdo: membros para adicionar -->
+      <div>
+        <div class="caixa-section-title" style="margin-bottom:12px;">
+          MEMBROS
+          <div class="caixa-section-line"></div>
+        </div>
+        <input type="text" id="pelada-busca" placeholder="Buscar membro..." oninput="renderPeladaMembros()"
+          style="width:100%;background:var(--preto-medio);border:1px solid var(--azul-linha);border-radius:8px;color:var(--branco);font-family:'Barlow Condensed',sans-serif;font-size:14px;padding:8px 12px;outline:none;margin-bottom:10px;box-sizing:border-box;">
+        <div id="pelada-membros-lista" style="display:flex;flex-direction:column;gap:6px;max-height:420px;overflow-y:auto;padding-right:4px;"></div>
+        <div style="margin-top:12px;">
+          <div class="caixa-section-title" style="margin-bottom:8px;font-size:14px;">
+            AVULSO MANUAL
+            <div class="caixa-section-line"></div>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <input type="text" id="pelada-nome-manual" placeholder="Nome do jogador"
+              style="flex:1;background:var(--preto-medio);border:1px solid var(--azul-linha);border-radius:8px;color:var(--branco);font-family:'Barlow Condensed',sans-serif;font-size:14px;padding:8px 12px;outline:none;">
+            <button onclick="adicionarPeladaManual()" class="btn-save" style="padding:8px 14px;font-size:13px;">+</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Painel direito: lista da pelada -->
+      <div>
+        <div class="caixa-section-title" style="margin-bottom:12px;">
+          LISTA DA PELADA
+          <div class="caixa-section-line"></div>
+          <button class="admin-only" id="pelada-limpar-btn" onclick="limparPelada()" style="display:none;background:transparent;border:1px solid var(--danger);color:var(--danger);font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1px;padding:4px 10px;border-radius:6px;cursor:pointer;white-space:nowrap;">&#215; LIMPAR TUDO</button>
+        </div>
+        <div id="pelada-lista" style="display:flex;flex-direction:column;gap:8px;"></div>
+        <div id="pelada-empty" style="text-align:center;padding:40px;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-size:15px;letter-spacing:1px;">
+          Nenhum jogador adicionado ainda.<br>Selecione à esquerda ou adicione manualmente.
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -1617,7 +1718,11 @@ function getRodadasFiltradas(filtro) {
 
 function init() {
   loadAvisos().then(function(){ renderAvisos(); });
+  loadPelada();
   initTheme();
+  // Set today's date on pelada input
+  var pd = document.getElementById('pelada-data');
+  if (pd) pd.value = todayISO();
   // Start on avisos tab - hide filtro bar
   var fb = document.getElementById('filtro-global-bar');
   if (fb) fb.classList.add('filtro-bar-hidden');
@@ -1630,6 +1735,7 @@ function init() {
     loadMembros().then(function(){
       buildMembrosmesSel();
       renderMembros();
+      renderPeladaMembros();
       checkAniversarios();
       renderAnivMes();
       buildCaixaMesSel();
@@ -1643,7 +1749,218 @@ function init() {
 }
 
 
-// ── AVISOS ────────────────────────────────────────────────────
+// ── PELADA ────────────────────────────────────────────────────
+var peladaJogadores = []; // { id, membro_id, nome, gols, assists, confirmado }
+var API_PELADA = SB_URL + '/rest/v1/pelada_atual';
+
+function dbGetPelada() {
+  return fetch(API_PELADA + '?order=created_at.asc', { headers: H_GET })
+    .then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); });
+}
+function dbAddPelada(item) {
+  return fetch(API_PELADA, { method:'POST', headers:H, body:JSON.stringify(item) })
+    .then(function(r){ if(!r.ok) return r.text().then(function(t){ throw new Error(r.status+': '+t); }); });
+}
+function dbUpdatePelada(id, fields) {
+  return fetch(API_PELADA + '?id=eq.' + id, { method:'PATCH', headers:H, body:JSON.stringify(fields) })
+    .then(function(r){ if(!r.ok) throw new Error(r.status); });
+}
+function dbDeletePelada(id) {
+  return fetch(API_PELADA + '?id=eq.' + id, { method:'DELETE', headers:H_GET })
+    .then(function(r){ if(!r.ok) throw new Error(r.status); });
+}
+function dbClearPelada() {
+  return fetch(API_PELADA + '?id=neq.none', { method:'DELETE', headers:H_GET })
+    .then(function(r){ if(!r.ok) throw new Error(r.status); });
+}
+
+function loadPelada() {
+  return dbGetPelada().then(function(data){
+    peladaJogadores = data || [];
+    renderPelada();
+    renderPeladaMembros();
+  }).catch(function(){ peladaJogadores = []; renderPelada(); renderPeladaMembros(); });
+}
+
+function renderPeladaMembros() {
+  var container = document.getElementById('pelada-membros-lista');
+  if (!container) return;
+  var busca = (document.getElementById('pelada-busca') || {}).value || '';
+  busca = busca.toLowerCase().trim();
+  var idsAdicionados = peladaJogadores.map(function(j){ return j.membro_id; }).filter(Boolean);
+
+  var lista = membros.slice().sort(function(a,b){
+    var ordem = {presidente:0, mensalista:1, avulso:2, goleiro:3};
+    var oa = ordem[a.tipo||'mensalista']||1, ob = ordem[b.tipo||'mensalista']||1;
+    return oa!==ob ? oa-ob : a.nome.localeCompare(b.nome);
+  });
+  if (busca) lista = lista.filter(function(m){ return m.nome.toLowerCase().indexOf(busca) !== -1; });
+
+  container.innerHTML = '';
+  lista.forEach(function(m) {
+    var jaAdicionado = idsAdicionados.indexOf(m.id) !== -1 ||
+      peladaJogadores.some(function(j){ return j.nome.toLowerCase() === m.nome.toLowerCase() && !j.membro_id; });
+    var tipos = { presidente:'👑 CUPULA', mensalista:'👤 MENSALISTA', avulso:'⚡ AVULSO', goleiro:'🧤 GOLEIRO' };
+    var btn = document.createElement('button');
+    btn.className = 'pelada-membro-btn' + (jaAdicionado ? ' ja-adicionado' : '');
+    btn.innerHTML = '<span class="pr-avatar" style="width:28px;height:28px;font-size:13px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;background:var(--azul-escuro);border:1.5px solid var(--azul-linha);flex-shrink:0;">' + m.nome.charAt(0) + '</span>'
+      + '<span class="pm-nome">' + m.nome + '</span>'
+      + '<span class="pm-tipo">' + (tipos[m.tipo||'mensalista']||'') + '</span>'
+      + (jaAdicionado ? '<span style="color:var(--success);font-size:14px;">&#10003;</span>' : '<span style="color:var(--azul);font-size:16px;">+</span>');
+    if (!jaAdicionado) {
+      btn.onclick = (function(membro){ return function(){ adicionarPeladaMembro(membro); }; })(m);
+    }
+    container.appendChild(btn);
+  });
+  if (!lista.length) {
+    container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);font-size:13px;">Nenhum membro encontrado</div>';
+  }
+}
+
+function adicionarPeladaMembro(m) {
+  var item = { id: uid(), membro_id: m.id, nome: m.nome, gols: 0, assists: 0, confirmado: false };
+  peladaJogadores.push(item);
+  renderPelada();
+  renderPeladaMembros();
+  dbAddPelada(item).catch(function(e){ toast('ERRO AO SALVAR: '+e.message,'err'); });
+}
+
+function adicionarPeladaManual() {
+  var input = document.getElementById('pelada-nome-manual');
+  var nome = (input.value || '').trim();
+  if (!nome) { input.focus(); return; }
+  // Check if already in list
+  if (peladaJogadores.some(function(j){ return j.nome.toLowerCase() === nome.toLowerCase(); })) {
+    toast('JOGADOR JA NA LISTA.', 'err'); return;
+  }
+  var item = { id: uid(), membro_id: null, nome: nome, gols: 0, assists: 0, confirmado: false };
+  peladaJogadores.push(item);
+  input.value = '';
+  renderPelada();
+  renderPeladaMembros();
+  dbAddPelada(item).catch(function(e){ toast('ERRO: '+e.message,'err'); });
+}
+
+function renderPelada() {
+  var lista = document.getElementById('pelada-lista');
+  var empty = document.getElementById('pelada-empty');
+  if (!lista) return;
+  lista.innerHTML = '';
+
+  var total = peladaJogadores.length;
+  var conf  = peladaJogadores.filter(function(j){ return j.confirmado; }).length;
+  var gols  = peladaJogadores.reduce(function(s,j){ return s + (parseInt(j.gols)||0); }, 0);
+  var el1 = document.getElementById('pelada-count-total'); if(el1) el1.textContent = total;
+  var el2 = document.getElementById('pelada-count-conf');  if(el2) el2.textContent = conf;
+  var el3 = document.getElementById('pelada-count-gols');  if(el3) el3.textContent = gols;
+
+  if (empty) empty.style.display = total ? 'none' : '';
+
+  peladaJogadores.forEach(function(j, idx) {
+    var row = document.createElement('div');
+    row.className = 'pelada-row' + (j.confirmado ? ' confirmado' : '');
+    row.id = 'pelada-row-' + j.id;
+
+    var avatar = '<div class="pr-avatar">' + j.nome.charAt(0).toUpperCase() + '</div>';
+    var nome   = '<div class="pr-nome">' + j.nome + '</div>';
+
+    // Gols input
+    var golsDiv = '<div style="display:flex;flex-direction:column;align-items:center;">'
+      + '<input type="number" class="pelada-stat-input" min="0" value="' + (j.gols||0) + '" '
+      + 'onchange="updatePeladaStat(\'' + j.id + '\',\'gols\',this.value)" onfocus="this.select()">'
+      + '<div class="pelada-stat-label">GOLS</div></div>';
+
+    // Assists input
+    var assistsDiv = '<div style="display:flex;flex-direction:column;align-items:center;">'
+      + '<input type="number" class="pelada-stat-input" min="0" value="' + (j.assists||0) + '" '
+      + 'onchange="updatePeladaStat(\'' + j.id + '\',\'assists\',this.value)" onfocus="this.select()">'
+      + '<div class="pelada-stat-label">ASSISTS</div></div>';
+
+    // Confirm button
+    var confBtn = '<button class="pelada-conf-btn' + (j.confirmado ? ' ativo' : '') + '" '
+      + 'onclick="togglePeladaConf(\'' + j.id + '\')" title="' + (j.confirmado ? 'Presente' : 'Confirmar presença') + '">'
+      + (j.confirmado ? '&#10003;' : '&#9711;') + '</button>';
+
+    // Delete button
+    var delBtn = '<button class="pelada-del-btn" onclick="removerPeladaJogador(\'' + j.id + '\')" title="Remover">&times;</button>';
+
+    row.innerHTML = avatar + nome + golsDiv + assistsDiv + confBtn + delBtn;
+    lista.appendChild(row);
+  });
+}
+
+function updatePeladaStat(id, campo, valor) {
+  var j = peladaJogadores.find(function(x){ return x.id===id; });
+  if (!j) return;
+  j[campo] = parseInt(valor) || 0;
+  // Update gols counter
+  var el3 = document.getElementById('pelada-count-gols');
+  if (el3) el3.textContent = peladaJogadores.reduce(function(s,x){ return s+(parseInt(x.gols)||0); }, 0);
+  var patch = {}; patch[campo] = j[campo];
+  dbUpdatePelada(id, patch).catch(function(){});
+}
+
+function togglePeladaConf(id) {
+  var j = peladaJogadores.find(function(x){ return x.id===id; });
+  if (!j) return;
+  j.confirmado = !j.confirmado;
+  var row = document.getElementById('pelada-row-'+id);
+  if (row) {
+    row.className = 'pelada-row' + (j.confirmado ? ' confirmado' : '');
+    var btn = row.querySelector('.pelada-conf-btn');
+    if (btn) { btn.className = 'pelada-conf-btn'+(j.confirmado?' ativo':''); btn.innerHTML = j.confirmado?'&#10003;':'&#9711;'; btn.title = j.confirmado?'Presente':'Confirmar presença'; }
+  }
+  var el2 = document.getElementById('pelada-count-conf');
+  if (el2) el2.textContent = peladaJogadores.filter(function(x){ return x.confirmado; }).length;
+  dbUpdatePelada(id, {confirmado: j.confirmado}).catch(function(){});
+}
+
+function removerPeladaJogador(id) {
+  peladaJogadores = peladaJogadores.filter(function(j){ return j.id !== id; });
+  renderPelada();
+  renderPeladaMembros();
+  dbDeletePelada(id).catch(function(){});
+}
+
+function limparPelada() {
+  if (!confirm('LIMPAR TODA A LISTA DA PELADA?')) return;
+  peladaJogadores = [];
+  renderPelada();
+  renderPeladaMembros();
+  dbClearPelada().then(function(){ toast('LISTA LIMPA.'); }).catch(function(e){ toast('ERRO: '+e.message,'err'); });
+}
+
+function salvarPeladaComoRodada() {
+  var data = document.getElementById('pelada-data').value;
+  if (!data) { alert('INFORME A DATA DA PELADA.'); return; }
+  if (!peladaJogadores.length) { alert('ADICIONE AO MENOS UM JOGADOR.'); return; }
+  var stats = peladaJogadores.map(function(j){ return { nome: j.nome, gols: j.gols||0, assists: j.assists||0 }; });
+  var novaId = uid();
+  var btn = document.querySelector('[onclick="salvarPeladaComoRodada()"]');
+  if (btn) { btn.textContent = 'SALVANDO...'; btn.disabled = true; }
+  dbInserir({ id: novaId, data: data, stats: stats, goleiros: [] }).then(function(){
+    rodadas.unshift({ id: novaId, data: data, stats: stats, goleiros: [] });
+    toast('RODADA SALVA COM SUCESSO!');
+    // Auto-register unknown players as avulsos
+    var nomesExistentes = membros.map(function(m){ return m.nome.toLowerCase(); });
+    var novos = stats.filter(function(s){ return nomesExistentes.indexOf(s.nome.toLowerCase()) === -1; });
+    if (novos.length) {
+      Promise.all(novos.map(function(s){
+        var obj = { id: uid(), nome: s.nome, tipo: 'avulso' };
+        return fetch(API_MEMBROS, { method:'POST', headers:H, body:JSON.stringify(obj) })
+          .then(function(r){ if(r.ok) membros.push(obj); });
+      })).then(function(){ if(novos.length) { renderMembros(); toast(novos.length+' avulso(s) cadastrado(s)!'); } });
+    }
+    var mesesDisp = getMesesDisponiveis();
+    if (mesesDisp.length > 0) filtroAtivo = mesesDisp[0];
+    buildGlobalPills(); render();
+    // Ask if want to clear pelada list
+    if (confirm('Rodada salva! Deseja limpar a lista da pelada?')) { limparPelada(); }
+  }).catch(function(e){ toast('ERRO: '+e.message,'err'); })
+  .finally(function(){ if(btn){ btn.textContent='✓ SALVAR COMO RODADA'; btn.disabled=false; } });
+}
+
+
 var avisos = [];
 var editingAvisoId = null;
 var API_AVISOS = SB_URL + '/rest/v1/avisos';
@@ -2851,9 +3168,15 @@ function getAniversariantesMes() {
   document.getElementById('page-'+tab).classList.add('active');
   btn.classList.add('active');
   var filtroBar = document.getElementById('filtro-global-bar');
-  if (filtroBar) filtroBar.classList.toggle('filtro-bar-hidden', tab === 'avisos');
+  if (filtroBar) filtroBar.classList.toggle('filtro-bar-hidden', tab === 'avisos' || tab === 'pelada');
   var btnRodada = document.getElementById('btn-nova-rodada');
   if (btnRodada) btnRodada.style.display = (tab === 'rodadas' && adminLogado) ? '' : 'none';
+  // Show/hide pelada admin controls
+  if (tab === 'pelada') {
+    document.querySelectorAll('#page-pelada .admin-only').forEach(function(el){
+      el.style.display = adminLogado ? '' : 'none';
+    });
+  }
 }
 
 window.onload = init;
