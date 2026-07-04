@@ -728,6 +728,8 @@
     <div style="display:flex;align-items:center;gap:12px;">
       <button id="btn-instalar-app" onclick="triggerInstall()" style="font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;background:transparent;color:rgba(255,255,255,0.6);border:1px solid rgba(255,255,255,0.2);border-radius:8px;padding:6px 12px;cursor:pointer;transition:all .2s;white-space:nowrap;" onmouseover="this.style.color='#fff';this.style.borderColor='rgba(255,255,255,0.5)'" onmouseout="this.style.color='rgba(255,255,255,0.6)';this.style.borderColor='rgba(255,255,255,0.2)'" class="btn-instalar-app">&#11015; INSTALAR APP</button>
       <button class="btn-theme" onclick="toggleTheme()" id="btn-theme" title="Modo claro/escuro">&#127769; ESCURO</button>
+      <div class="admin-badge" id="pelada-badge" style="display:none;background:rgba(249,115,22,0.15);border-color:var(--laranja);color:var(--laranja);">&#9917; PELADA <button class="btn-sair" onclick="sairPelada()" style="border-color:var(--laranja);color:var(--laranja);">SAIR</button></div>
+      <button class="btn-theme" id="btn-pelada-login" onclick="abrirModalPeladaLogin()" style="border-color:var(--laranja);color:var(--laranja);display:none;" title="Login pelada">&#9917; PELADA</button>
       <div class="admin-badge">&#128273; CUPULA <button class="btn-sair" onclick="sair()">SAIR</button></div>
       <button class="btn-nova" id="btn-nova-rodada" onclick="openModalRodada()" style="display:none;">+ NOVA RODADA</button>
     </div>
@@ -967,6 +969,19 @@
   </div>
 </div>
 
+<!-- MODAL LOGIN PELADA -->
+<div class="modal-overlay" id="modal-pelada-login" onclick="fecharLoginFora(event)">
+  <div class="modal-login-box">
+    <h2 style="color:var(--laranja);">&#9917; ACESSO PELADA</h2>
+    <p class="modal-sub">ACESSO PARA LANÇAR ESTATÍSTICAS DA PELADA</p>
+    <div class="form-group"><label>USUARIO</label><input type="text" id="pelada-login-user" placeholder="USUARIO" autocomplete="off"></div>
+    <div class="form-group"><label>SENHA</label><input type="password" id="pelada-login-pass" placeholder="SENHA" onkeydown="if(event.key==='Enter')fazerLoginPelada()"></div>
+    <div class="login-error" id="pelada-login-error">USUARIO OU SENHA INCORRETOS</div>
+    <button class="btn-save" style="width:100%;margin-top:8px;" onclick="fazerLoginPelada()">ENTRAR</button>
+    <button class="btn-cancel" style="width:100%;margin-top:8px;" onclick="fecharModalPeladaLogin()">CANCELAR</button>
+  </div>
+</div>
+
 <div class="modal-overlay" id="modal-login" onclick="fecharLoginFora(event)">
   <div class="modal-login-box">
     <h2>AREA DA CUPULA</h2>
@@ -1201,6 +1216,9 @@ var SB_URL = 'https://jtrhojcznxsxmakrtqrx.supabase.co';
 var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp0cmhvamN6bnhzeG1ha3J0cXJ4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4MDExMjQsImV4cCI6MjA5NDM3NzEyNH0.yGjYbUCv0E2hscZQKN5Vr0N6CwOHkc4j46m9uX1cmlo';
 var ADMIN_USER = '01';
 var ADMIN_PASS = '01';
+var PELADA_USER = 'est';
+var PELADA_PASS = 'tqj';
+var peladaLogado = false;
 
 var API         = SB_URL + '/rest/v1/rodadas';
 var API_MEMBROS = SB_URL + '/rest/v1/membros';
@@ -1282,6 +1300,57 @@ function initTheme() {
     var btn = document.getElementById('btn-theme');
     if (btn) btn.innerHTML = '&#127762; ESCURO';
   }
+}
+
+
+function abrirModalPeladaLogin() {
+  document.getElementById('pelada-login-user').value = '';
+  document.getElementById('pelada-login-pass').value = '';
+  document.getElementById('pelada-login-error').classList.remove('show');
+  document.getElementById('modal-pelada-login').classList.add('open');
+  setTimeout(function(){ document.getElementById('pelada-login-user').focus(); }, 100);
+}
+function fecharModalPeladaLogin() {
+  document.getElementById('modal-pelada-login').classList.remove('open');
+}
+function fazerLoginPelada() {
+  var u = document.getElementById('pelada-login-user').value.trim();
+  var p = document.getElementById('pelada-login-pass').value;
+  if (u === PELADA_USER && p === PELADA_PASS) {
+    peladaLogado = true;
+    fecharModalPeladaLogin();
+    document.getElementById('pelada-badge').style.display = 'flex';
+    document.getElementById('btn-pelada-login').style.display = 'none';
+    // Show admin controls on pelada tab
+    document.querySelectorAll('#page-pelada .admin-only').forEach(function(el){
+      el.style.display = '';
+    });
+    toast('BEM-VINDO! ACESSO PELADA LIBERADO.');
+    // Switch to pelada tab
+    var peladaBtn = document.querySelector('.tab-btn[onclick*="pelada"]');
+    if (peladaBtn) switchTab('pelada', peladaBtn);
+  } else {
+    document.getElementById('pelada-login-error').classList.add('show');
+    document.getElementById('pelada-login-pass').value = '';
+    document.getElementById('pelada-login-pass').focus();
+  }
+}
+function sairPelada() {
+  peladaLogado = false;
+  document.getElementById('pelada-badge').style.display = 'none';
+  // Show pelada login button again if on pelada tab
+  var abaAtiva = document.querySelector('.tab-btn.active');
+  var tabAtual = abaAtiva ? (abaAtiva.getAttribute('onclick').match(/'(\w+)'/) || [])[1] : '';
+  if (tabAtual === 'pelada') {
+    document.getElementById('btn-pelada-login').style.display = '';
+  }
+  // Hide admin controls on pelada tab if not admin
+  if (!adminLogado) {
+    document.querySelectorAll('#page-pelada .admin-only').forEach(function(el){
+      el.style.display = 'none';
+    });
+  }
+  toast('SESSAO PELADA ENCERRADA.');
 }
 
 
@@ -3421,10 +3490,16 @@ function getAniversariantesMes() {
   if (filtroBar) filtroBar.classList.toggle('filtro-bar-hidden', tab === 'avisos' || tab === 'pelada');
   var btnRodada = document.getElementById('btn-nova-rodada');
   if (btnRodada) btnRodada.style.display = (tab === 'rodadas' && adminLogado) ? '' : 'none';
+  // Pelada login button: show on pelada tab when not logged in as admin or pelada user
+  var btnPeladaLogin = document.getElementById('btn-pelada-login');
+  if (btnPeladaLogin) {
+    btnPeladaLogin.style.display = (tab === 'pelada' && !adminLogado && !peladaLogado) ? '' : 'none';
+  }
   // Show/hide pelada admin controls
   if (tab === 'pelada') {
+    var canEdit = adminLogado || peladaLogado;
     document.querySelectorAll('#page-pelada .admin-only').forEach(function(el){
-      el.style.display = adminLogado ? '' : 'none';
+      el.style.display = canEdit ? '' : 'none';
     });
   }
 }
