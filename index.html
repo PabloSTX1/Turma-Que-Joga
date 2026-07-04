@@ -408,7 +408,9 @@
   .pelada-conf-btn.ativo{background:rgba(34,197,94,0.15);border-color:var(--success);color:var(--success);}
   .pelada-del-btn{background:transparent;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:4px;line-height:1;flex-shrink:0;}
   .pelada-del-btn:hover{color:var(--danger);}
-  body.light-mode .pelada-membro-btn{background:#fff;border-color:#bfdbfe;}
+  .pelada-row.goleiro-row{border:2px solid #7de87a;background:rgba(125,232,122,0.05);}
+  .pelada-row.goleiro-row.confirmado{border-color:#7de87a;background:rgba(125,232,122,0.1);}
+  body.light-mode .pelada-row.goleiro-row{border-color:#16a34a;background:rgba(22,163,74,0.05);}
   body.light-mode .pelada-membro-btn:hover{border-color:#2563eb;background:#eff6ff;}
   body.light-mode .pelada-row{background:#fff;border-color:#bfdbfe;}
   body.light-mode .pelada-row.confirmado{border-color:#16a34a;background:rgba(22,163,74,0.06);}
@@ -1818,7 +1820,7 @@ function renderPeladaMembros() {
 }
 
 function adicionarPeladaMembro(m) {
-  var item = { id: uid(), membro_id: m.id, nome: m.nome, gols: 0, assists: 0, confirmado: false };
+  var item = { id: uid(), membro_id: m.id, nome: m.nome, tipo: m.tipo||'mensalista', gols: 0, assists: 0, confirmado: false };
   peladaJogadores.push(item);
   renderPelada();
   renderPeladaMembros();
@@ -1856,29 +1858,51 @@ function renderPelada() {
 
   if (empty) empty.style.display = total ? 'none' : '';
 
-  peladaJogadores.forEach(function(j, idx) {
+  // Sort: non-goleiros first, goleiros at the end
+  var ordenados = peladaJogadores.slice().sort(function(a, b) {
+    var ag = (a.tipo === 'goleiro') ? 1 : 0;
+    var bg = (b.tipo === 'goleiro') ? 1 : 0;
+    return ag - bg;
+  });
+
+  ordenados.forEach(function(j) {
+    var isGoleiro = j.tipo === 'goleiro';
     var row = document.createElement('div');
-    row.className = 'pelada-row' + (j.confirmado ? ' confirmado' : '');
+    row.className = 'pelada-row' + (j.confirmado ? ' confirmado' : '') + (isGoleiro ? ' goleiro-row' : '');
     row.id = 'pelada-row-' + j.id;
 
-    var avatar = '<div class="pr-avatar">' + j.nome.charAt(0).toUpperCase() + '</div>';
-    var nome   = '<div class="pr-nome">' + j.nome + '</div>';
+    // Avatar
+    var avatarColor = isGoleiro ? 'border-color:#7de87a;color:#7de87a;' : '';
+    var avatar = '<div class="pr-avatar" style="' + avatarColor + '">' + j.nome.charAt(0).toUpperCase() + '</div>';
 
-    // Gols input
-    var golsDiv = '<div style="display:flex;flex-direction:column;align-items:center;">'
-      + '<input type="number" class="pelada-stat-input" min="0" value="' + (j.gols||0) + '" '
-      + 'onchange="updatePeladaStat(\'' + j.id + '\',\'gols\',this.value)" onfocus="this.select()">'
-      + '<div class="pelada-stat-label">GOLS</div></div>';
+    // Nome + tipo badge
+    var tipoBadge = isGoleiro ? '<span style="font-size:10px;font-family:\'Barlow Condensed\',sans-serif;letter-spacing:1px;color:#7de87a;margin-left:6px;">&#129508; GOLEIRO</span>' : '';
+    var nome = '<div class="pr-nome" style="display:flex;align-items:center;min-width:0;">'
+      + '<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + j.nome + '</span>'
+      + tipoBadge + '</div>';
 
-    // Assists input
-    var assistsDiv = '<div style="display:flex;flex-direction:column;align-items:center;">'
-      + '<input type="number" class="pelada-stat-input" min="0" value="' + (j.assists||0) + '" '
-      + 'onchange="updatePeladaStat(\'' + j.id + '\',\'assists\',this.value)" onfocus="this.select()">'
-      + '<div class="pelada-stat-label">ASSISTS</div></div>';
+    // Stat counter with +/- buttons
+    function statCounter(campo, label, val) {
+      return '<div style="display:flex;flex-direction:column;align-items:center;gap:2px;">'
+        + '<div style="display:flex;align-items:center;gap:4px;">'
+        + '<button onclick="stepPeladaStat(\'' + j.id + '\',\'' + campo + '\',-1)" '
+        + 'style="width:24px;height:24px;border-radius:6px;border:1px solid var(--azul-linha);background:var(--preto);color:var(--muted);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;padding:0;transition:all .15s;" '
+        + 'onmouseover="this.style.borderColor=\'var(--azul)\'" onmouseout="this.style.borderColor=\'var(--azul-linha)\'">&minus;</button>'
+        + '<span id="pelada-' + campo + '-' + j.id + '" style="min-width:28px;text-align:center;font-family:\'Bebas Neue\',sans-serif;font-size:22px;color:var(--branco);line-height:1;">' + (val||0) + '</span>'
+        + '<button onclick="stepPeladaStat(\'' + j.id + '\',\'' + campo + '\',1)" '
+        + 'style="width:24px;height:24px;border-radius:6px;border:1px solid var(--azul-linha);background:var(--preto);color:var(--muted);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;padding:0;transition:all .15s;" '
+        + 'onmouseover="this.style.borderColor=\'var(--azul)\'" onmouseout="this.style.borderColor=\'var(--azul-linha)\'">&plus;</button>'
+        + '</div>'
+        + '<div class="pelada-stat-label">' + label + '</div>'
+        + '</div>';
+    }
+
+    var golsDiv    = statCounter('gols',    'GOLS',   j.gols);
+    var assistsDiv = statCounter('assists', 'ASSISTS', j.assists);
 
     // Confirm button
     var confBtn = '<button class="pelada-conf-btn' + (j.confirmado ? ' ativo' : '') + '" '
-      + 'onclick="togglePeladaConf(\'' + j.id + '\')" title="' + (j.confirmado ? 'Presente' : 'Confirmar presença') + '">'
+      + 'onclick="togglePeladaConf(\'' + j.id + '\')" title="' + (j.confirmado ? 'Presente' : 'Confirmar') + '">'
       + (j.confirmado ? '&#10003;' : '&#9711;') + '</button>';
 
     // Delete button
@@ -1887,6 +1911,20 @@ function renderPelada() {
     row.innerHTML = avatar + nome + golsDiv + assistsDiv + confBtn + delBtn;
     lista.appendChild(row);
   });
+}
+
+ function stepPeladaStat(id, campo, delta) {
+  var j = peladaJogadores.find(function(x){ return x.id===id; });
+  if (!j) return;
+  j[campo] = Math.max(0, (parseInt(j[campo])||0) + delta);
+  var el = document.getElementById('pelada-' + campo + '-' + id);
+  if (el) el.textContent = j[campo];
+  if (campo === 'gols') {
+    var el3 = document.getElementById('pelada-count-gols');
+    if (el3) el3.textContent = peladaJogadores.reduce(function(s,x){ return s+(parseInt(x.gols)||0); }, 0);
+  }
+  var patch = {}; patch[campo] = j[campo];
+  dbUpdatePelada(id, patch).catch(function(){});
 }
 
 function updatePeladaStat(id, campo, valor) {
