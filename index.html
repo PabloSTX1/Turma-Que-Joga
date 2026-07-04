@@ -791,7 +791,15 @@
 
 <!-- PAGE PELADA -->
 <div class="page" id="page-pelada">
-  <div class="wrap">
+  <!-- OVERLAY DE BLOQUEIO para não logados -->
+  <div id="pelada-lock-overlay" style="position:absolute;inset:0;z-index:10;background:rgba(10,15,30,0.85);backdrop-filter:blur(4px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;min-height:400px;">
+    <div style="font-size:48px;">⚽</div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;color:var(--branco);text-align:center;">ACESSO RESTRITO</div>
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;color:var(--muted);text-align:center;max-width:280px;line-height:1.5;">Esta aba é exclusiva para a equipe da pelada.<br>Faça login para continuar.</div>
+    <button onclick="abrirModalPeladaLogin()" style="background:var(--laranja);color:#fff;border:none;border-radius:10px;padding:12px 32px;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;cursor:pointer;transition:opacity .2s;" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">⚽ ENTRAR</button>
+  </div>
+
+  <div class="wrap" style="position:relative;">
 
     <!-- Header -->
     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px;">
@@ -1321,6 +1329,9 @@ function fazerLoginPelada() {
     fecharModalPeladaLogin();
     document.getElementById('pelada-badge').style.display = 'flex';
     document.getElementById('btn-pelada-login').style.display = 'none';
+    // Hide lock overlay
+    var overlay = document.getElementById('pelada-lock-overlay');
+    if (overlay) overlay.style.display = 'none';
     // Show admin controls on pelada tab
     document.querySelectorAll('#page-pelada .admin-only').forEach(function(el){
       el.style.display = '';
@@ -1338,13 +1349,14 @@ function fazerLoginPelada() {
 function sairPelada() {
   peladaLogado = false;
   document.getElementById('pelada-badge').style.display = 'none';
-  // Show pelada login button again if on pelada tab
+  // Show lock overlay again
+  var overlay = document.getElementById('pelada-lock-overlay');
+  if (overlay) overlay.style.display = 'flex';
+  // Show pelada login button in header if on pelada tab
   var abaAtiva = document.querySelector('.tab-btn.active');
   var tabAtual = abaAtiva ? (abaAtiva.getAttribute('onclick').match(/'(\w+)'/) || [])[1] : '';
-  if (tabAtual === 'pelada') {
-    document.getElementById('btn-pelada-login').style.display = '';
-  }
-  // Hide admin controls on pelada tab if not admin
+  var btnPL = document.getElementById('btn-pelada-login');
+  if (btnPL) btnPL.style.display = (tabAtual === 'pelada' && !adminLogado) ? '' : 'none';
   if (!adminLogado) {
     document.querySelectorAll('#page-pelada .admin-only').forEach(function(el){
       el.style.display = 'none';
@@ -3490,14 +3502,14 @@ function getAniversariantesMes() {
   if (filtroBar) filtroBar.classList.toggle('filtro-bar-hidden', tab === 'avisos' || tab === 'pelada');
   var btnRodada = document.getElementById('btn-nova-rodada');
   if (btnRodada) btnRodada.style.display = (tab === 'rodadas' && adminLogado) ? '' : 'none';
-  // Pelada login button: show on pelada tab when not logged in as admin or pelada user
+  // Pelada login button in header
   var btnPeladaLogin = document.getElementById('btn-pelada-login');
-  if (btnPeladaLogin) {
-    btnPeladaLogin.style.display = (tab === 'pelada' && !adminLogado && !peladaLogado) ? '' : 'none';
-  }
-  // Show/hide pelada admin controls
+  if (btnPeladaLogin) btnPeladaLogin.style.display = (tab === 'pelada' && !adminLogado && !peladaLogado) ? '' : 'none';
+  // Pelada lock overlay
   if (tab === 'pelada') {
     var canEdit = adminLogado || peladaLogado;
+    var overlay = document.getElementById('pelada-lock-overlay');
+    if (overlay) overlay.style.display = canEdit ? 'none' : 'flex';
     document.querySelectorAll('#page-pelada .admin-only').forEach(function(el){
       el.style.display = canEdit ? '' : 'none';
     });
