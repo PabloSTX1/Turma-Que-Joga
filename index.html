@@ -1533,16 +1533,39 @@ function confirmarFinalizarPelada() {
   dbInserir({ id: novaId, data: data, stats: stats, goleiros: goleiros }).then(function() {
     rodadas.unshift({ id: novaId, data: data, stats: stats, goleiros: goleiros });
 
-    // Auto-register unknown players as avulsos
-    var nomesExistentes = membros.map(function(m){ return m.nome.toLowerCase(); });
-    var novos = stats.filter(function(s){ return nomesExistentes.indexOf(s.nome.toLowerCase()) === -1; });
-    if (novos.length) {
-      Promise.all(novos.map(function(s) {
-        var obj = { id: uid(), nome: s.nome, tipo: 'avulso' };
+    // ── AUTO-CADASTRO DE NOVATOS ─────────────────────────────────
+    // Collect ALL players from this pelada (campo + goleiros)
+    var todosNomes = peladaJogadores.map(function(j){ return { nome: j.nome, tipo: j.tipo||'avulso' }; });
+
+    // Find those not in membros (by name, case-insensitive)
+    var nomesExistentes = membros.map(function(m){ return m.nome.toLowerCase().trim(); });
+    var novatos = todosNomes.filter(function(j){
+      return nomesExistentes.indexOf(j.nome.toLowerCase().trim()) === -1;
+    });
+
+    if (novatos.length) {
+      // Save all novatos to Supabase
+      Promise.all(novatos.map(function(j) {
+        var tipoFinal = j.tipo === 'goleiro' ? 'goleiro' : 'avulso';
+        var obj = { id: uid(), nome: j.nome, tipo: tipoFinal };
         return fetch(API_MEMBROS, { method:'POST', headers:H, body:JSON.stringify(obj) })
-          .then(function(r){ if(r.ok) membros.push(obj); });
-      })).then(function(){ if(novos.length) renderMembros(); });
+          .then(function(r){
+            if (r.ok) {
+              membros.push(obj);
+              return obj.nome;
+            }
+            return null;
+          });
+      })).then(function(resultados) {
+        var cadastrados = resultados.filter(Boolean);
+        if (cadastrados.length) {
+          renderMembros();
+          renderSorteioLista();
+          toast('&#9889; ' + cadastrados.length + ' novo(s) cadastrado(s): ' + cadastrados.join(', '));
+        }
+      });
     }
+    // ─────────────────────────────────────────────────────────────
 
     var mesesDisp = getMesesDisponiveis();
     if (mesesDisp.length > 0) filtroAtivo = mesesDisp[0];
@@ -1551,7 +1574,6 @@ function confirmarFinalizarPelada() {
     fecharFinalizarPelada();
     toast('&#9989; RODADA SALVA COM SUCESSO!');
 
-    // Ask to clear pelada list
     setTimeout(function() {
       if (confirm('Pelada finalizada e salva!\n\nDeseja limpar a lista para a próxima pelada?')) {
         limparPelada();
