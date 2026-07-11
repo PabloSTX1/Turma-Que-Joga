@@ -928,7 +928,7 @@
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start;" id="sorteio-main-grid">
 
       <!-- Painel esquerdo: seleção — APENAS ADMIN -->
-      <div class="admin-only" id="sorteio-painel-esquerdo" style="display:none;">
+      <div id="sorteio-painel-esquerdo" style="display:none;">
         <div class="caixa-section-title" style="margin-bottom:10px;">
           JOGADORES
           <div class="caixa-section-line"></div>
@@ -1651,14 +1651,14 @@ function atualizarSorteioAcesso() {
   var ctrls   = document.getElementById('sorteio-controles');
   var sub     = document.getElementById('sorteio-subtitulo');
   if (adminLogado) {
-    if (painelE) painelE.style.display = '';
-    if (ctrls)   ctrls.style.display   = 'flex';
-    if (painelR) painelR.style.gridColumn = 'auto';
+    if (painelE) { painelE.style.cssText = 'display:block;'; }
+    if (ctrls)   { ctrls.style.cssText   = 'display:flex;gap:10px;flex-wrap:wrap;align-items:center;'; }
+    if (painelR) { painelR.style.gridColumn = 'auto'; }
     if (sub) sub.textContent = 'Selecione os jogadores, defina as estrelas e sorteie times equilibrados';
   } else {
-    if (painelE) painelE.style.display = 'none';
-    if (ctrls)   ctrls.style.display   = 'none';
-    if (painelR) painelR.style.gridColumn = '1 / -1';
+    if (painelE) { painelE.style.cssText = 'display:none;'; }
+    if (ctrls)   { ctrls.style.cssText   = 'display:none;'; }
+    if (painelR) { painelR.style.gridColumn = '1 / -1'; }
     if (sub) sub.textContent = 'Times definidos pela cúpula';
   }
 }
