@@ -913,7 +913,7 @@
         <div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;color:var(--muted);letter-spacing:.5px;" id="sorteio-subtitulo">Aguardando sorteio da cúpula...</div>
       </div>
       <!-- Controles: apenas admin -->
-      <div class="admin-only" style="display:none;display:flex;gap:10px;flex-wrap:wrap;align-items:center;" id="sorteio-controles">
+      <div style="display:none;gap:10px;flex-wrap:wrap;align-items:center;" id="sorteio-controles">
         <select id="sorteio-num-times" style="background:var(--preto-medio);border:1px solid var(--azul-linha);border-radius:8px;color:var(--branco);font-family:'Barlow Condensed',sans-serif;font-size:14px;padding:8px 12px;outline:none;">
           <option value="2">2 Times</option>
           <option value="3">3 Times</option>
@@ -1645,10 +1645,29 @@ function sairPelada() {
 }
 
 
+function atualizarSorteioAcesso() {
+  var painelE = document.getElementById('sorteio-painel-esquerdo');
+  var painelR = document.getElementById('sorteio-painel-resultado');
+  var ctrls   = document.getElementById('sorteio-controles');
+  var sub     = document.getElementById('sorteio-subtitulo');
+  if (adminLogado) {
+    if (painelE) painelE.style.display = '';
+    if (ctrls)   ctrls.style.display   = 'flex';
+    if (painelR) painelR.style.gridColumn = 'auto';
+    if (sub) sub.textContent = 'Selecione os jogadores, defina as estrelas e sorteie times equilibrados';
+  } else {
+    if (painelE) painelE.style.display = 'none';
+    if (ctrls)   ctrls.style.display   = 'none';
+    if (painelR) painelR.style.gridColumn = '1 / -1';
+    if (sub) sub.textContent = 'Times definidos pela cúpula';
+  }
+}
+
 function setAdmin(v) {
   adminLogado = v;
   if (v) document.body.classList.add('admin-logged');
   else document.body.classList.remove('admin-logged');
+  atualizarSorteioAcesso();
 }
 
 function abrirLogin() {
@@ -4120,19 +4139,7 @@ function getAniversariantesMes() {
   var btnPeladaLogin = document.getElementById('btn-pelada-login');
   if (btnPeladaLogin) btnPeladaLogin.style.display = (tab === 'pelada' && !adminLogado && !peladaLogado) ? '' : 'none';
   if (tab === 'sorteio') {
-    var painelE = document.getElementById('sorteio-painel-esquerdo');
-    var painelR = document.getElementById('sorteio-painel-resultado');
-    var ctrls   = document.getElementById('sorteio-controles');
-    if (adminLogado) {
-      if (painelE) painelE.style.display = '';
-      if (ctrls)   ctrls.style.display   = 'flex';
-      if (painelR) painelR.style.gridColumn = 'auto';
-    } else {
-      if (painelE) painelE.style.display = 'none';
-      if (ctrls)   ctrls.style.display   = 'none';
-      if (painelR) painelR.style.gridColumn = '1 / -1';
-    }
-    // Load saved sorteio result from Supabase
+    atualizarSorteioAcesso();
     carregarSorteioSalvo();
   }
   if (tab === 'pelada') {
