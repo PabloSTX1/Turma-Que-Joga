@@ -811,7 +811,7 @@
       </div>
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
         <input type="date" id="pelada-data" style="background:var(--preto-medio);border:1px solid var(--azul-linha);border-radius:8px;color:var(--branco);font-family:'Barlow Condensed',sans-serif;font-size:15px;padding:8px 12px;outline:none;">
-        <button class="btn-save admin-only" style="display:none;padding:9px 18px;font-size:14px;" onclick="salvarPeladaComoRodada()">&#10003; SALVAR COMO RODADA</button>
+        <button class="btn-save admin-only" style="display:none;padding:9px 20px;font-size:15px;background:linear-gradient(135deg,#16a34a,#15803d);letter-spacing:1px;" onclick="abrirFinalizarPelada()">&#9989; FINALIZAR PELADA</button>
       </div>
     </div>
 
@@ -973,6 +973,43 @@
     <div class="modal-actions" style="margin-top:16px;">
       <button class="btn-cancel" onclick="fecharPerfil()">FECHAR</button>
       <button class="btn-save admin-only" id="perfil-btn-editar" style="display:none;" onclick="editarDoPerfilAtual()">&#9998; EDITAR</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL FINALIZAR PELADA -->
+<div class="modal-overlay" id="modal-finalizar-pelada">
+  <div class="modal-rodada-box" style="max-width:560px;">
+    <!-- Header -->
+    <div style="text-align:center;margin-bottom:20px;">
+      <div style="font-size:36px;margin-bottom:6px;">&#9989;</div>
+      <h2 style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;color:#22c55e;margin:0;">FINALIZAR PELADA</h2>
+      <p style="font-family:'Barlow Condensed',sans-serif;font-size:14px;color:var(--muted);margin-top:4px;">Confirme os dados antes de salvar como rodada oficial</p>
+    </div>
+
+    <!-- Data -->
+    <div class="form-group">
+      <label>DATA DA PELADA</label>
+      <input type="date" id="finalizar-data" style="width:100%;background:var(--preto-medio);border:1px solid var(--azul-linha);border-radius:8px;color:var(--branco);font-family:'Barlow Condensed',sans-serif;font-size:16px;padding:10px 14px;outline:none;">
+    </div>
+
+    <!-- Resumo rápido -->
+    <div id="finalizar-resumo" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px;"></div>
+
+    <!-- Lista de jogadores -->
+    <div class="modal-section-title" style="margin-bottom:10px;">JOGADORES E ESTATÍSTICAS</div>
+    <div id="finalizar-lista" style="max-height:300px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;margin-bottom:16px;"></div>
+
+    <!-- Goleiros -->
+    <div id="finalizar-goleiros-section" style="display:none;">
+      <div class="modal-section-title" style="margin-bottom:10px;color:#7de87a;">&#129508; GOLEIROS</div>
+      <div id="finalizar-goleiros-lista" style="display:flex;flex-direction:column;gap:4px;margin-bottom:16px;"></div>
+    </div>
+
+    <!-- Botões -->
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="fecharFinalizarPelada()">CANCELAR</button>
+      <button class="btn-save" id="btn-confirmar-pelada" style="background:linear-gradient(135deg,#16a34a,#15803d);font-size:15px;padding:10px 24px;" onclick="confirmarFinalizarPelada()">&#9989; CONFIRMAR E SALVAR</button>
     </div>
   </div>
 </div>
@@ -1308,6 +1345,124 @@ function initTheme() {
     var btn = document.getElementById('btn-theme');
     if (btn) btn.innerHTML = '&#127762; ESCURO';
   }
+}
+
+
+function abrirFinalizarPelada() {
+  if (!peladaJogadores.length) { toast('ADICIONE AO MENOS UM JOGADOR.', 'err'); return; }
+
+  // Set date
+  var dataInput = document.getElementById('pelada-data');
+  document.getElementById('finalizar-data').value = dataInput ? dataInput.value : todayISO();
+
+  // Resumo
+  var jogadores = peladaJogadores.filter(function(j){ return j.tipo !== 'goleiro'; });
+  var goleiros  = peladaJogadores.filter(function(j){ return j.tipo === 'goleiro'; });
+  var totalGols    = jogadores.reduce(function(s,j){ return s+(parseInt(j.gols)||0); }, 0);
+  var totalAssists = jogadores.reduce(function(s,j){ return s+(parseInt(j.assists)||0); }, 0);
+
+  var resumo = document.getElementById('finalizar-resumo');
+  resumo.innerHTML = [
+    { num: peladaJogadores.length, label: 'JOGADORES', color: 'var(--azul-claro)' },
+    { num: totalGols,    label: 'GOLS',    color: 'var(--laranja)' },
+    { num: totalAssists, label: 'ASSISTS', color: '#7ab3ff' }
+  ].map(function(s) {
+    return '<div style="background:var(--preto-medio);border:1px solid var(--azul-linha);border-radius:10px;padding:12px;text-align:center;">'
+      + '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:28px;color:'+s.color+';line-height:1;">'+s.num+'</div>'
+      + '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--muted);margin-top:3px;">'+s.label+'</div>'
+      + '</div>';
+  }).join('');
+
+  // Lista jogadores (sorted by gols desc)
+  var listaEl = document.getElementById('finalizar-lista');
+  listaEl.innerHTML = '';
+  var sorted = jogadores.slice().sort(function(a,b){ return (b.gols||0)-(a.gols||0)||(b.assists||0)-(a.assists||0); });
+  sorted.forEach(function(j, i) {
+    var mb = membros.find(function(m){ return m.nome && m.nome.toLowerCase() === j.nome.toLowerCase(); });
+    var tipoBadge = '';
+    if (mb && mb.tipo === 'avulso') tipoBadge = '<span style="font-size:9px;color:var(--laranja);font-family:\'Barlow Condensed\',sans-serif;letter-spacing:1px;background:rgba(249,115,22,0.12);border:1px solid rgba(249,115,22,0.3);border-radius:3px;padding:1px 5px;margin-left:6px;">AVULSO</span>';
+    var conf = j.confirmado ? '<span style="color:#22c55e;font-size:12px;">&#10003;</span>' : '<span style="color:var(--muted);font-size:11px;">&#9675;</span>';
+    var row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--preto-medio);border:1px solid var(--azul-linha);border-radius:8px;';
+    row.innerHTML = '<span style="font-family:\'Bebas Neue\',sans-serif;font-size:14px;color:var(--muted);width:18px;text-align:center;">'+(i+1)+'</span>'
+      + conf
+      + '<span style="flex:1;font-family:\'Barlow Condensed\',sans-serif;font-size:14px;font-weight:700;color:var(--branco);">'+j.nome+tipoBadge+'</span>'
+      + '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:13px;color:var(--laranja);min-width:40px;text-align:center;">&#9917; '+(j.gols||0)+'</span>'
+      + '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:13px;color:#7ab3ff;min-width:40px;text-align:center;">&#127919; '+(j.assists||0)+'</span>';
+    listaEl.appendChild(row);
+  });
+
+  // Goleiros
+  var secGol = document.getElementById('finalizar-goleiros-section');
+  var listaGol = document.getElementById('finalizar-goleiros-lista');
+  if (goleiros.length) {
+    secGol.style.display = '';
+    listaGol.innerHTML = '';
+    goleiros.forEach(function(j) {
+      var row = document.createElement('div');
+      row.style.cssText = 'display:flex;align-items:center;gap:10px;padding:8px 12px;background:rgba(125,232,122,0.06);border:1px solid rgba(125,232,122,0.25);border-radius:8px;';
+      row.innerHTML = '<span style="font-size:16px;">&#129508;</span>'
+        + '<span style="flex:1;font-family:\'Barlow Condensed\',sans-serif;font-size:14px;font-weight:700;color:var(--branco);">'+j.nome+'</span>'
+        + '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:13px;color:#7de87a;min-width:60px;text-align:center;">&#9733; '+(j.vitorias||0)+' VIT</span>';
+      listaGol.appendChild(row);
+    });
+  } else {
+    secGol.style.display = 'none';
+  }
+
+  document.getElementById('modal-finalizar-pelada').classList.add('open');
+}
+
+function fecharFinalizarPelada() {
+  document.getElementById('modal-finalizar-pelada').classList.remove('open');
+}
+
+function confirmarFinalizarPelada() {
+  var data = document.getElementById('finalizar-data').value;
+  if (!data) { alert('INFORME A DATA DA PELADA.'); return; }
+
+  var stats = peladaJogadores.filter(function(j){ return j.tipo !== 'goleiro'; })
+    .map(function(j){ return { nome: j.nome, gols: j.gols||0, assists: j.assists||0 }; });
+  var goleiros = peladaJogadores.filter(function(j){ return j.tipo === 'goleiro'; })
+    .map(function(j){ return { nome: j.nome, vitorias: j.vitorias||0 }; });
+
+  var novaId = uid();
+  var btn = document.getElementById('btn-confirmar-pelada');
+  if (btn) { btn.textContent = 'SALVANDO...'; btn.disabled = true; }
+
+  dbInserir({ id: novaId, data: data, stats: stats, goleiros: goleiros }).then(function() {
+    rodadas.unshift({ id: novaId, data: data, stats: stats, goleiros: goleiros });
+
+    // Auto-register unknown players as avulsos
+    var nomesExistentes = membros.map(function(m){ return m.nome.toLowerCase(); });
+    var novos = stats.filter(function(s){ return nomesExistentes.indexOf(s.nome.toLowerCase()) === -1; });
+    if (novos.length) {
+      Promise.all(novos.map(function(s) {
+        var obj = { id: uid(), nome: s.nome, tipo: 'avulso' };
+        return fetch(API_MEMBROS, { method:'POST', headers:H, body:JSON.stringify(obj) })
+          .then(function(r){ if(r.ok) membros.push(obj); });
+      })).then(function(){ if(novos.length) renderMembros(); });
+    }
+
+    var mesesDisp = getMesesDisponiveis();
+    if (mesesDisp.length > 0) filtroAtivo = mesesDisp[0];
+    buildGlobalPills(); render();
+
+    fecharFinalizarPelada();
+    toast('&#9989; RODADA SALVA COM SUCESSO!');
+
+    // Ask to clear pelada list
+    setTimeout(function() {
+      if (confirm('Pelada finalizada e salva!\n\nDeseja limpar a lista para a próxima pelada?')) {
+        limparPelada();
+      }
+    }, 300);
+
+  }).catch(function(e) {
+    toast('ERRO: ' + e.message, 'err');
+  }).finally(function() {
+    if (btn) { btn.textContent = '✅ CONFIRMAR E SALVAR'; btn.disabled = false; }
+  });
 }
 
 
