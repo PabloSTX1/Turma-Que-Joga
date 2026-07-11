@@ -384,7 +384,7 @@
     #pelada-stats-bar .number{font-size:24px;}
     #pelada-stats-bar .label{font-size:8px;letter-spacing:0;}
     /* Main grid: coluna única */
-    #pelada-main-grid{display:flex !important;flex-direction:column !important;gap:16px !important;}
+    #sorteio-main-grid{grid-template-columns:1fr !important;}
     /* Membros lista */
     .pelada-membro-btn{padding:7px 10px;gap:6px;}
     .pelada-membro-btn .pm-nome{font-size:13px;}
@@ -440,7 +440,36 @@
   .goleiro-row input:focus{border-color:#7de87a;}
   .btn-add-goleiro{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;background:transparent;color:#7de87a;border:1.5px dashed rgba(125,232,122,.4);padding:7px 14px;border-radius:6px;cursor:pointer;transition:all .2s;margin-top:4px;}
   .btn-add-goleiro:hover{border-color:#7de87a;background:rgba(125,232,122,.08);}
-  /* PELADA */
+  /* SORTEIO */
+  .sorteio-jogador{display:flex;align-items:center;gap:10px;background:var(--preto-medio);border:1.5px solid var(--azul-linha);border-radius:10px;padding:10px 12px;cursor:pointer;transition:all .15s;user-select:none;}
+  .sorteio-jogador:hover{border-color:var(--azul);}
+  .sorteio-jogador.selecionado{border-color:var(--azul);background:rgba(37,99,235,0.12);}
+  .sorteio-jogador .sj-avatar{width:34px;height:34px;border-radius:50%;background:var(--azul-escuro);border:2px solid var(--azul-linha);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:15px;color:var(--azul);flex-shrink:0;}
+  .sorteio-jogador.selecionado .sj-avatar{border-color:var(--azul);color:var(--azul-claro);}
+  .sorteio-jogador .sj-nome{flex:1;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:var(--branco);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .estrelas-ctrl{display:flex;align-items:center;gap:3px;flex-shrink:0;}
+  .estrela-btn{background:none;border:none;padding:1px;cursor:pointer;font-size:14px;line-height:1;opacity:.35;transition:opacity .1s;}
+  .estrela-btn.ativa{opacity:1;}
+  .estrela-btn.meia{opacity:.65;}
+  .sj-estrelas-val{font-family:'Bebas Neue',sans-serif;font-size:13px;color:var(--gold);min-width:24px;text-align:center;}
+  .sj-check{width:20px;height:20px;border-radius:50%;border:2px solid var(--azul-linha);display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;transition:all .15s;}
+  .sorteio-jogador.selecionado .sj-check{background:var(--azul);border-color:var(--azul);color:#fff;}
+  /* Times resultado */
+  .time-card{background:var(--preto-medio);border:2px solid var(--azul-linha);border-radius:12px;padding:14px;margin-bottom:14px;}
+  .time-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--azul-linha);}
+  .time-nome{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;}
+  .time-forca{font-family:'Barlow Condensed',sans-serif;font-size:12px;color:var(--muted);display:flex;align-items:center;gap:4px;}
+  .time-jogador{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(30,58,95,.4);}
+  .time-jogador:last-child{border-bottom:none;}
+  .time-jogador-nome{flex:1;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:var(--branco);}
+  .time-jogador-stars{font-size:11px;color:var(--gold);}
+  body.light-mode .sorteio-jogador{background:#fff;border-color:#bfdbfe;}
+  body.light-mode .sorteio-jogador.selecionado{background:#eff6ff;border-color:#2563eb;}
+  body.light-mode .sj-nome{color:#0f172a;}
+  body.light-mode .time-card{background:#fff;border-color:#bfdbfe;}
+  body.light-mode .time-jogador-nome{color:#0f172a;}
+  body.light-mode .time-card-header{border-color:#e2e8f0;}
+  body.light-mode .time-jogador{border-color:#e2e8f0;}
   .pelada-membro-btn{display:flex;align-items:center;gap:8px;background:var(--preto-medio);border:1px solid var(--azul-linha);border-radius:8px;padding:8px 12px;cursor:pointer;transition:all .15s;width:100%;text-align:left;}
   .pelada-membro-btn:hover{border-color:var(--azul);background:var(--azul-hover);}
   .pelada-membro-btn.ja-adicionado{border-color:var(--success);background:rgba(34,197,94,0.08);cursor:default;opacity:.6;}
@@ -740,6 +769,7 @@
   <div class="tabs-inner">
     <button class="tab-btn active" onclick="switchTab('avisos',this)">AVISOS</button>
     <button class="tab-btn" onclick="switchTab('pelada',this)">⚽ PELADA</button>
+    <button class="tab-btn" onclick="switchTab('sorteio',this)">&#127922; SORTEIO</button>
     <button class="tab-btn" onclick="switchTab('ranking',this)">RANKING GERAL</button>
     <button class="tab-btn" onclick="switchTab('rodadas',this)">RODADAS</button>
     <button class="tab-btn" onclick="switchTab('goleiros',this)">GOLEIROS</button>
@@ -811,7 +841,7 @@
       </div>
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
         <input type="date" id="pelada-data" style="background:var(--preto-medio);border:1px solid var(--azul-linha);border-radius:8px;color:var(--branco);font-family:'Barlow Condensed',sans-serif;font-size:15px;padding:8px 12px;outline:none;">
-        <button class="btn-save admin-only" style="display:none;padding:9px 20px;font-size:15px;background:linear-gradient(135deg,#16a34a,#15803d);letter-spacing:1px;" onclick="abrirFinalizarPelada()">&#9989; FINALIZAR PELADA</button>
+        <button class="btn-save pelada-ctrl" style="display:none;padding:9px 20px;font-size:15px;background:linear-gradient(135deg,#16a34a,#15803d);letter-spacing:1px;" onclick="abrirFinalizarPelada()">&#9989; FINALIZAR PELADA</button>
       </div>
     </div>
 
@@ -869,6 +899,58 @@
         </div>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- PAGE SORTEIO -->
+<div class="page" id="page-sorteio">
+  <div class="wrap">
+
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px;">
+      <div>
+        <div class="section-title" style="margin-bottom:4px;">&#127922; SORTEIO DE TIMES</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;color:var(--muted);letter-spacing:.5px;">Selecione os jogadores, defina as estrelas e sorteie times equilibrados</div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+        <select id="sorteio-num-times" style="background:var(--preto-medio);border:1px solid var(--azul-linha);border-radius:8px;color:var(--branco);font-family:'Barlow Condensed',sans-serif;font-size:14px;padding:8px 12px;outline:none;">
+          <option value="2">2 Times</option>
+          <option value="3">3 Times</option>
+          <option value="4">4 Times</option>
+        </select>
+        <button class="btn-save" onclick="executarSorteio()" style="padding:9px 20px;font-size:15px;letter-spacing:1px;">&#127922; SORTEAR</button>
+      </div>
+    </div>
+
+    <!-- Dois painéis -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start;" id="sorteio-main-grid">
+
+      <!-- Painel esquerdo: seleção de jogadores -->
+      <div>
+        <div class="caixa-section-title" style="margin-bottom:10px;">
+          JOGADORES
+          <div class="caixa-section-line"></div>
+          <span id="sorteio-count" style="font-size:13px;color:var(--muted);white-space:nowrap;font-family:'Barlow Condensed',sans-serif;font-weight:400;">0 selecionados</span>
+        </div>
+        <input type="text" id="sorteio-busca" placeholder="Buscar jogador..." oninput="renderSorteioLista()"
+          style="width:100%;background:var(--preto-medio);border:1px solid var(--azul-linha);border-radius:8px;color:var(--branco);font-family:'Barlow Condensed',sans-serif;font-size:14px;padding:8px 12px;outline:none;margin-bottom:10px;box-sizing:border-box;">
+        <div id="sorteio-lista" style="display:flex;flex-direction:column;gap:6px;max-height:500px;overflow-y:auto;padding-right:2px;"></div>
+      </div>
+
+      <!-- Painel direito: resultado do sorteio -->
+      <div>
+        <div class="caixa-section-title" style="margin-bottom:10px;">
+          TIMES SORTEADOS
+          <div class="caixa-section-line"></div>
+        </div>
+        <div id="sorteio-resultado">
+          <div class="aviso-empty" style="padding:40px 20px;">
+            <div class="icon">&#127922;</div>
+            <p>Selecione os jogadores ao lado e clique em SORTEAR</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -2075,6 +2157,7 @@ function init() {
     loadMembros().then(function(){
       buildMembrosmesSel();
       renderMembros();
+      renderSorteioLista();
       renderPeladaMembros();
       checkAniversarios();
       renderAnivMes();
@@ -2156,7 +2239,193 @@ function editarDoPerfilAtual() {
   setTimeout(function(){ editarMembro(perfilMembroAtual.id); }, 150);
 }
 
-// ── PELADA ────────────────────────────────────────────────────
+// ── SORTEIO ───────────────────────────────────────────────────
+var sorteioSelecionados = {}; // { membroId: { nome, estrelas, tipo } }
+var CORES_TIMES = [
+  { nome:'TIME A', cor:'#2563eb', bg:'rgba(37,99,235,0.12)' },
+  { nome:'TIME B', cor:'#ea580c', bg:'rgba(234,88,12,0.12)' },
+  { nome:'TIME C', cor:'#16a34a', bg:'rgba(22,163,74,0.12)' },
+  { nome:'TIME D', cor:'#9333ea', bg:'rgba(147,51,234,0.12)' },
+];
+
+function getEstrelasStr(val) {
+  val = parseFloat(val) || 3;
+  var full = Math.floor(val);
+  var half = (val - full) >= 0.4;
+  var str = '';
+  for (var i=0;i<full;i++) str += '★';
+  if (half) str += '½';
+  return str;
+}
+
+function renderSorteioLista() {
+  var container = document.getElementById('sorteio-lista');
+  if (!container) return;
+  var busca = ((document.getElementById('sorteio-busca')||{}).value||'').toLowerCase().trim();
+
+  // Only mensalistas, cupula, avulsos (not goleiros)
+  var lista = membros.filter(function(m){
+    return m.tipo !== 'goleiro';
+  }).sort(function(a,b){
+    var ordem = {presidente:0,mensalista:1,avulso:2};
+    var oa=ordem[a.tipo||'mensalista']||1, ob=ordem[b.tipo||'mensalista']||1;
+    return oa!==ob ? oa-ob : a.nome.localeCompare(b.nome);
+  });
+
+  if (busca) lista = lista.filter(function(m){ return m.nome.toLowerCase().indexOf(busca)!==-1; });
+
+  container.innerHTML = '';
+  lista.forEach(function(m) {
+    var isSel = !!sorteioSelecionados[m.id];
+    var estrelas = isSel ? sorteioSelecionados[m.id].estrelas : (parseFloat(m.estrelas)||3.0);
+    var tipoCor = {presidente:'#f0c040', mensalista:'var(--muted)', avulso:'var(--laranja)'};
+    var tipoLabel = {presidente:'👑', mensalista:'👤', avulso:'⚡'};
+
+    var row = document.createElement('div');
+    row.className = 'sorteio-jogador' + (isSel ? ' selecionado' : '');
+    row.id = 'sj-' + m.id;
+
+    // Checkbox
+    var chk = '<div class="sj-check">' + (isSel ? '✓' : '') + '</div>';
+    // Avatar
+    var av = '<div class="sj-avatar">' + m.nome.charAt(0).toUpperCase() + '</div>';
+    // Nome + tipo
+    var nome = '<div class="sj-nome">'
+      + '<span style="font-size:10px;color:'+tipoCor[m.tipo||'mensalista']+';">'+(tipoLabel[m.tipo||'mensalista']||'')+'</span> '
+      + m.nome + '</div>';
+
+    // Stars control
+    var starsHtml = '<div class="estrelas-ctrl" onclick="event.stopPropagation();">';
+    var vals = [0.5,1,1.5,2,2.5,3,3.5,4,4.5,5];
+    // Show as 5 star positions, each clickable for full or half
+    for (var s=1; s<=5; s++) {
+      var full = s <= Math.floor(estrelas);
+      var half = !full && (estrelas - Math.floor(estrelas) >= 0.4) && s === Math.ceil(estrelas);
+      var cls = full ? 'estrela-btn ativa' : half ? 'estrela-btn meia' : 'estrela-btn';
+      starsHtml += '<button class="'+cls+'" onclick="setSorteioEstrelas(\''+m.id+'\','+m.nome.replace(/'/g,'').substring(0,20)+','+s+',event)"'
+        + ' oncontextmenu="setSorteioEstrelas(\''+m.id+'\',\''+m.nome.replace(/'/g,'')+'\','+(s-0.5)+',event);return false;"'
+        + ' title="'+s+' ★ (clique direito = '+s+'.5)">★</button>';
+    }
+    starsHtml += '<span class="sj-estrelas-val">'+estrelas.toFixed(1)+'</span>';
+    starsHtml += '</div>';
+
+    row.innerHTML = chk + av + nome + starsHtml;
+    row.onclick = function() { toggleSorteioJogador(m); };
+    container.appendChild(row);
+  });
+
+  // Update counter
+  var count = Object.keys(sorteioSelecionados).length;
+  var countEl = document.getElementById('sorteio-count');
+  if (countEl) countEl.textContent = count + ' selecionado' + (count!==1?'s':'');
+}
+
+function toggleSorteioJogador(m) {
+  if (sorteioSelecionados[m.id]) {
+    delete sorteioSelecionados[m.id];
+  } else {
+    sorteioSelecionados[m.id] = { nome: m.nome, estrelas: parseFloat(m.estrelas)||3.0, tipo: m.tipo||'mensalista', id: m.id };
+  }
+  renderSorteioLista();
+}
+
+function setSorteioEstrelas(id, nome, val, event) {
+  event.stopPropagation();
+  val = parseFloat(val);
+  if (val < 0.5) val = 0.5;
+  if (val > 5)   val = 5;
+  // Round to nearest 0.5
+  val = Math.round(val * 2) / 2;
+  // Update member estrelas locally
+  var m = membros.find(function(x){ return x.id===id; });
+  if (m) {
+    m.estrelas = val;
+    // Save to Supabase
+    fetch(API_MEMBROS + '?id=eq.' + id, { method:'PATCH', headers:H, body:JSON.stringify({estrelas:val}) }).catch(function(){});
+  }
+  if (sorteioSelecionados[id]) sorteioSelecionados[id].estrelas = val;
+  renderSorteioLista();
+}
+
+function executarSorteio() {
+  var jogadores = Object.values(sorteioSelecionados);
+  if (jogadores.length < 2) { toast('SELECIONE AO MENOS 2 JOGADORES.', 'err'); return; }
+
+  var numTimes = parseInt(document.getElementById('sorteio-num-times').value) || 2;
+  if (numTimes > jogadores.length) { toast('JOGADORES INSUFICIENTES PARA '+numTimes+' TIMES.', 'err'); return; }
+
+  // Sort by estrelas desc
+  var sorted = jogadores.slice().sort(function(a,b){ return (b.estrelas||3)-(a.estrelas||3); });
+  var times = [];
+  for (var t=0;t<numTimes;t++) times.push({ jogadores:[], forca:0 });
+
+  // Snake draft: 1,2,3,3,2,1,1,2,3... balances teams
+  var dir = 1;
+  var idx = 0;
+  sorted.forEach(function(j) {
+    // Pick the team with lowest forca to balance
+    var minForca = Infinity;
+    var targetTime = 0;
+    times.forEach(function(time, i){
+      if (time.forca < minForca) { minForca = time.forca; targetTime = i; }
+    });
+    times[targetTime].jogadores.push(j);
+    times[targetTime].forca += parseFloat(j.estrelas)||3;
+  });
+
+  // Shuffle within same-strength groups for randomness
+  times.forEach(function(time){
+    for (var i=time.jogadores.length-1;i>0;i--){
+      var j=Math.floor(Math.random()*(i+1));
+      var tmp=time.jogadores[i]; time.jogadores[i]=time.jogadores[j]; time.jogadores[j]=tmp;
+    }
+  });
+
+  renderSorteioResultado(times);
+}
+
+function renderSorteioResultado(times) {
+  var res = document.getElementById('sorteio-resultado');
+  if (!res) return;
+  res.innerHTML = '';
+
+  times.forEach(function(time, idx) {
+    var cor = CORES_TIMES[idx] || { nome:'TIME '+(idx+1), cor:'#64748b', bg:'rgba(100,116,139,0.1)' };
+    var avgForca = times[idx].jogadores.length ? (time.forca / time.jogadores.length).toFixed(1) : '0';
+    var stars = getEstrelasStr(parseFloat(avgForca));
+
+    var card = document.createElement('div');
+    card.className = 'time-card';
+    card.style.borderColor = cor.cor;
+    card.style.background = cor.bg;
+
+    var header = '<div class="time-card-header">'
+      + '<div class="time-nome" style="color:'+cor.cor+';">'+cor.nome+'</div>'
+      + '<div class="time-forca"><span style="color:var(--gold);">'+stars+'</span>&nbsp;força média: '+avgForca+'</div>'
+      + '</div>';
+
+    var jogadoresHtml = time.jogadores.map(function(j) {
+      var tipoIcon = {presidente:'👑',mensalista:'',avulso:'⚡'}[j.tipo||'mensalista']||'';
+      return '<div class="time-jogador">'
+        + '<div class="time-jogador-nome">'+(tipoIcon?tipoIcon+' ':'')+j.nome+'</div>'
+        + '<div class="time-jogador-stars">'+getEstrelasStr(j.estrelas)+'</div>'
+        + '</div>';
+    }).join('');
+
+    card.innerHTML = header + jogadoresHtml;
+    res.appendChild(card);
+  });
+
+  // Re-sort button
+  var rebtn = document.createElement('button');
+  rebtn.className = 'btn-save';
+  rebtn.style.cssText = 'width:100%;margin-top:4px;background:rgba(37,99,235,0.15);border:1px solid var(--azul);color:var(--azul-claro);';
+  rebtn.innerHTML = '&#8635; RESSORTEAR';
+  rebtn.onclick = executarSorteio;
+  res.appendChild(rebtn);
+}
+
+
 var peladaJogadores = []; // { id, membro_id, nome, gols, assists, confirmado }
 var API_PELADA = SB_URL + '/rest/v1/pelada_atual';
 
@@ -3660,7 +3929,7 @@ function getAniversariantesMes() {
   document.getElementById('page-'+tab).classList.add('active');
   btn.classList.add('active');
   var filtroBar = document.getElementById('filtro-global-bar');
-  if (filtroBar) filtroBar.classList.toggle('filtro-bar-hidden', tab === 'avisos' || tab === 'pelada');
+  if (filtroBar) filtroBar.classList.toggle('filtro-bar-hidden', tab === 'avisos' || tab === 'pelada' || tab === 'sorteio');
   var btnRodada = document.getElementById('btn-nova-rodada');
   if (btnRodada) btnRodada.style.display = (tab === 'rodadas' && adminLogado) ? '' : 'none';
   // Pelada login button in header
