@@ -906,12 +906,14 @@
 <div class="page" id="page-sorteio">
   <div class="wrap">
 
+    <!-- Header: título sempre visível, controles só para admin -->
     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px;">
       <div>
         <div class="section-title" style="margin-bottom:4px;">&#127922; SORTEIO DE TIMES</div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;color:var(--muted);letter-spacing:.5px;">Selecione os jogadores, defina as estrelas e sorteie times equilibrados</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;color:var(--muted);letter-spacing:.5px;" id="sorteio-subtitulo">Aguardando sorteio da cúpula...</div>
       </div>
-      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+      <!-- Controles: apenas admin -->
+      <div class="admin-only" style="display:none;display:flex;gap:10px;flex-wrap:wrap;align-items:center;" id="sorteio-controles">
         <select id="sorteio-num-times" style="background:var(--preto-medio);border:1px solid var(--azul-linha);border-radius:8px;color:var(--branco);font-family:'Barlow Condensed',sans-serif;font-size:14px;padding:8px 12px;outline:none;">
           <option value="2">2 Times</option>
           <option value="3">3 Times</option>
@@ -922,11 +924,11 @@
       </div>
     </div>
 
-    <!-- Dois painéis -->
+    <!-- Layout grid: painel esquerdo (admin only) + resultado (todos) -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start;" id="sorteio-main-grid">
 
-      <!-- Painel esquerdo: seleção de jogadores -->
-      <div>
+      <!-- Painel esquerdo: seleção — APENAS ADMIN -->
+      <div class="admin-only" id="sorteio-painel-esquerdo" style="display:none;">
         <div class="caixa-section-title" style="margin-bottom:10px;">
           JOGADORES
           <div class="caixa-section-line"></div>
@@ -937,8 +939,8 @@
         <div id="sorteio-lista" style="display:flex;flex-direction:column;gap:6px;max-height:500px;overflow-y:auto;padding-right:2px;"></div>
       </div>
 
-      <!-- Painel direito: resultado do sorteio -->
-      <div>
+      <!-- Painel direito: resultado — TODOS VEEM -->
+      <div id="sorteio-painel-resultado" style="grid-column: 1 / -1;">
         <div class="caixa-section-title" style="margin-bottom:10px;">
           TIMES SORTEADOS
           <div class="caixa-section-line"></div>
@@ -946,7 +948,7 @@
         <div id="sorteio-resultado">
           <div class="aviso-empty" style="padding:40px 20px;">
             <div class="icon">&#127922;</div>
-            <p>Selecione os jogadores ao lado e clique em SORTEAR</p>
+            <p>Nenhum sorteio realizado ainda.</p>
           </div>
         </div>
       </div>
@@ -2390,6 +2392,34 @@ function salvarEstrelas(id, val) {
 
 
 var sorteioSelecionados = {}; // { membroId: { nome, estrelas, tipo } }
+var API_SORTEIO = SB_URL + '/rest/v1/sorteio_atual';
+var sorteioTimesAtual = [];
+
+function salvarSorteio(times) {
+  var payload = { id: 'atual', times: JSON.stringify(times), updated_at: new Date().toISOString() };
+  fetch(API_SORTEIO, {
+    method: 'POST',
+    headers: Object.assign({}, H, { 'Prefer': 'resolution=merge-duplicates' }),
+    body: JSON.stringify(payload)
+  }).catch(function(){});
+}
+
+function carregarSorteioSalvo() {
+  fetch(API_SORTEIO + '?id=eq.atual', { headers: H_GET })
+    .then(function(r){ return r.ok ? r.json() : []; })
+    .then(function(data) {
+      if (data && data.length && data[0].times) {
+        try {
+          var times = JSON.parse(data[0].times);
+          if (times && times.length) {
+            sorteioTimesAtual = times;
+            renderSorteioResultado(times);
+          }
+        } catch(e){}
+      }
+    }).catch(function(){});
+}
+
 var CORES_TIMES = [
   { nome:'TIME A', cor:'#2563eb', bg:'rgba(37,99,235,0.12)' },
   { nome:'TIME B', cor:'#ea580c', bg:'rgba(234,88,12,0.12)' },
@@ -2521,7 +2551,9 @@ function executarSorteio() {
     }
   });
 
+  sorteioTimesAtual = times;
   renderSorteioResultado(times);
+  salvarSorteio(times);
 }
 
 function renderSorteioResultado(times) {
@@ -2529,10 +2561,14 @@ function renderSorteioResultado(times) {
   if (!res) return;
   res.innerHTML = '';
 
+  // When admin: grid has 2 cols (left=selection, right=result)
+  // When visitor: result takes full width
+  var painelRes = document.getElementById('sorteio-painel-resultado');
+  if (painelRes) painelRes.style.gridColumn = adminLogado ? 'auto' : '1 / -1';
+
   times.forEach(function(time, idx) {
     var cor = CORES_TIMES[idx] || { nome:'TIME '+(idx+1), cor:'#64748b', bg:'rgba(100,116,139,0.1)' };
-    var avgForca = times[idx].jogadores.length ? (time.forca / time.jogadores.length).toFixed(1) : '0';
-    var stars = getEstrelasStr(parseFloat(avgForca));
+    var avgForca = time.jogadores.length ? (time.forca / time.jogadores.length).toFixed(1) : '0';
 
     var card = document.createElement('div');
     card.className = 'time-card';
@@ -2541,7 +2577,7 @@ function renderSorteioResultado(times) {
 
     var header = '<div class="time-card-header">'
       + '<div class="time-nome" style="color:'+cor.cor+';">'+cor.nome+'</div>'
-      + '<div class="time-forca"><span style="color:var(--gold);">'+stars+'</span>&nbsp;força média: '+avgForca+'</div>'
+      + '<div class="time-forca"><span style="color:var(--gold);">'+getEstrelasStr(parseFloat(avgForca))+'</span>&nbsp;média: '+avgForca+'</div>'
       + '</div>';
 
     var jogadoresHtml = time.jogadores.map(function(j) {
@@ -2556,13 +2592,21 @@ function renderSorteioResultado(times) {
     res.appendChild(card);
   });
 
-  // Re-sort button
-  var rebtn = document.createElement('button');
-  rebtn.className = 'btn-save';
-  rebtn.style.cssText = 'width:100%;margin-top:4px;background:rgba(37,99,235,0.15);border:1px solid var(--azul);color:var(--azul-claro);';
-  rebtn.innerHTML = '&#8635; RESSORTEAR';
-  rebtn.onclick = executarSorteio;
-  res.appendChild(rebtn);
+  // Ressortear button — admin only
+  if (adminLogado) {
+    var rebtn = document.createElement('button');
+    rebtn.className = 'btn-save';
+    rebtn.style.cssText = 'width:100%;margin-top:4px;background:rgba(37,99,235,0.15);border:1px solid var(--azul);color:var(--azul-claro);';
+    rebtn.innerHTML = '&#8635; RESSORTEAR';
+    rebtn.onclick = executarSorteio;
+    res.appendChild(rebtn);
+  }
+
+  // Update subtitle for visitors
+  var sub = document.getElementById('sorteio-subtitulo');
+  if (sub) sub.textContent = adminLogado
+    ? 'Selecione os jogadores, defina as estrelas e sorteie times equilibrados'
+    : 'Times definidos pela cúpula';
 }
 
 
@@ -4075,7 +4119,22 @@ function getAniversariantesMes() {
   // Pelada login button in header
   var btnPeladaLogin = document.getElementById('btn-pelada-login');
   if (btnPeladaLogin) btnPeladaLogin.style.display = (tab === 'pelada' && !adminLogado && !peladaLogado) ? '' : 'none';
-  // Pelada lock overlay
+  if (tab === 'sorteio') {
+    var painelE = document.getElementById('sorteio-painel-esquerdo');
+    var painelR = document.getElementById('sorteio-painel-resultado');
+    var ctrls   = document.getElementById('sorteio-controles');
+    if (adminLogado) {
+      if (painelE) painelE.style.display = '';
+      if (ctrls)   ctrls.style.display   = 'flex';
+      if (painelR) painelR.style.gridColumn = 'auto';
+    } else {
+      if (painelE) painelE.style.display = 'none';
+      if (ctrls)   ctrls.style.display   = 'none';
+      if (painelR) painelR.style.gridColumn = '1 / -1';
+    }
+    // Load saved sorteio result from Supabase
+    carregarSorteioSalvo();
+  }
   if (tab === 'pelada') {
     var canEdit = adminLogado || peladaLogado;
     var overlay = document.getElementById('pelada-lock-overlay');
