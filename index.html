@@ -917,6 +917,7 @@
           <option value="3">3 Times</option>
           <option value="4">4 Times</option>
         </select>
+        <button onclick="abrirModalEstrelas()" style="background:rgba(245,158,11,0.12);border:1.5px solid var(--gold);border-radius:8px;color:var(--gold);font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;padding:8px 16px;cursor:pointer;">&#11088; ESTRELAS</button>
         <button class="btn-save" onclick="executarSorteio()" style="padding:9px 20px;font-size:15px;letter-spacing:1px;">&#127922; SORTEAR</button>
       </div>
     </div>
@@ -1092,6 +1093,23 @@
     <div class="modal-actions">
       <button class="btn-cancel" onclick="fecharFinalizarPelada()">CANCELAR</button>
       <button class="btn-save" id="btn-confirmar-pelada" style="background:linear-gradient(135deg,#16a34a,#15803d);font-size:15px;padding:10px 24px;" onclick="confirmarFinalizarPelada()">&#9989; CONFIRMAR E SALVAR</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ESTRELAS -->
+<div class="modal-overlay" id="modal-estrelas">
+  <div class="modal-rodada-box" style="max-width:500px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+      <h2 style="font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:1.5px;color:var(--gold);margin:0;">&#11088; ESTRELAS DOS JOGADORES</h2>
+      <button onclick="fecharModalEstrelas()" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;line-height:1;">&times;</button>
+    </div>
+    <p style="font-family:'Barlow Condensed',sans-serif;font-size:13px;color:var(--muted);margin-bottom:16px;letter-spacing:.5px;">Clique nas estrelas para definir o nível de cada jogador. Salvo automaticamente.</p>
+    <input type="text" id="estrelas-busca" placeholder="Buscar jogador..." oninput="renderModalEstrelas()"
+      style="width:100%;background:var(--preto-medio);border:1px solid var(--azul-linha);border-radius:8px;color:var(--branco);font-family:'Barlow Condensed',sans-serif;font-size:14px;padding:8px 12px;outline:none;margin-bottom:12px;box-sizing:border-box;">
+    <div id="modal-estrelas-lista" style="max-height:420px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;padding-right:2px;"></div>
+    <div class="modal-actions" style="margin-top:16px;">
+      <button class="btn-cancel" onclick="fecharModalEstrelas()">FECHAR</button>
     </div>
   </div>
 </div>
@@ -2239,7 +2257,116 @@ function editarDoPerfilAtual() {
   setTimeout(function(){ editarMembro(perfilMembroAtual.id); }, 150);
 }
 
-// ── SORTEIO ───────────────────────────────────────────────────
+function abrirModalEstrelas() {
+  document.getElementById('estrelas-busca').value = '';
+  renderModalEstrelas();
+  document.getElementById('modal-estrelas').classList.add('open');
+}
+function fecharModalEstrelas() {
+  document.getElementById('modal-estrelas').classList.remove('open');
+}
+function renderModalEstrelas() {
+  var container = document.getElementById('modal-estrelas-lista');
+  if (!container) return;
+  var busca = ((document.getElementById('estrelas-busca')||{}).value||'').toLowerCase().trim();
+  var lista = membros.filter(function(m){ return m.tipo !== 'goleiro'; })
+    .sort(function(a,b){
+      var o={presidente:0,mensalista:1,avulso:2};
+      var oa=o[a.tipo||'mensalista']||1, ob=o[b.tipo||'mensalista']||1;
+      return oa!==ob?oa-ob:a.nome.localeCompare(b.nome);
+    });
+  if (busca) lista = lista.filter(function(m){ return m.nome.toLowerCase().indexOf(busca)!==-1; });
+
+  container.innerHTML = '';
+  lista.forEach(function(m) {
+    var estrelas = parseFloat(m.estrelas)||3.0;
+    var tipoCor = {presidente:'#f0c040',mensalista:'var(--muted)',avulso:'var(--laranja)'};
+    var tipoLabel = {presidente:'👑',mensalista:'👤',avulso:'⚡'};
+
+    var row = document.createElement('div');
+    row.id = 'me-row-' + m.id;
+    row.style.cssText = 'display:flex;align-items:center;gap:10px;background:var(--preto-medio);border:1px solid var(--azul-linha);border-radius:10px;padding:10px 14px;';
+
+    // Avatar
+    var av = document.createElement('div');
+    av.className = 'sj-avatar';
+    av.style.cssText = 'width:34px;height:34px;border-radius:50%;background:var(--azul-escuro);border:2px solid var(--azul-linha);display:flex;align-items:center;justify-content:center;font-family:Bebas Neue,sans-serif;font-size:15px;color:var(--azul);flex-shrink:0;';
+    av.textContent = m.nome.charAt(0).toUpperCase();
+
+    // Nome
+    var nome = document.createElement('div');
+    nome.style.cssText = 'flex:1;min-width:0;';
+    nome.innerHTML = '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:14px;font-weight:700;color:var(--branco);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'
+      + '<span style="font-size:11px;color:'+tipoCor[m.tipo||'mensalista']+';">'+(tipoLabel[m.tipo||'mensalista']||'')+'</span> '+m.nome+'</div>'
+      + '<div id="me-val-'+m.id+'" style="font-family:\'Bebas Neue\',sans-serif;font-size:12px;color:var(--gold);">'+getEstrelasStr(estrelas)+' ('+estrelas.toFixed(1)+')</div>';
+
+    // Stars: 10 buttons (0.5 increments via two clicks per star)
+    var starsDiv = document.createElement('div');
+    starsDiv.style.cssText = 'display:flex;align-items:center;gap:2px;flex-shrink:0;';
+
+    // Render as 5 star slots, each with left-half (x.5) and right-half (x.0) zones
+    for (var s=1; s<=5; s++) {
+      (function(star) {
+        var btn = document.createElement('button');
+        btn.style.cssText = 'background:none;border:none;padding:2px 3px;cursor:pointer;font-size:20px;line-height:1;transition:transform .1s;';
+        var full = star <= Math.floor(estrelas);
+        var half = !full && (estrelas - Math.floor(estrelas) >= 0.4) && star === Math.ceil(estrelas);
+        btn.innerHTML = full ? '<span style="color:#f59e0b;">★</span>'
+          : half ? '<span style="color:#f59e0b;opacity:.55;">★</span>'
+          : '<span style="color:var(--azul-linha);">★</span>';
+        btn.title = star + ' estrelas (clique = '+star+', duplo clique = '+(star-0.5)+')';
+        btn.onclick = function(e) {
+          e.stopPropagation();
+          var newVal = (parseFloat(m.estrelas)||3) === star ? star - 0.5 : star;
+          if (newVal < 0.5) newVal = 0.5;
+          salvarEstrelas(m.id, newVal);
+        };
+        starsDiv.appendChild(btn);
+      })(s);
+    }
+
+    // Half star button
+    var btnHalf = document.createElement('button');
+    btnHalf.style.cssText = 'background:none;border:none;padding:2px 6px;cursor:pointer;font-size:11px;color:var(--muted);font-family:Barlow Condensed,sans-serif;letter-spacing:.5px;border:1px solid var(--azul-linha);border-radius:4px;margin-left:4px;transition:all .15s;';
+    btnHalf.textContent = '½';
+    btnHalf.title = 'Adicionar meio ponto';
+    btnHalf.onclick = function(e) {
+      e.stopPropagation();
+      var cur = parseFloat(m.estrelas)||3;
+      var novo = Math.min(5, Math.round((cur + 0.5) * 2) / 2);
+      // Toggle: if already .5, remove it
+      if ((cur * 10) % 10 === 5) novo = Math.floor(cur);
+      salvarEstrelas(m.id, novo);
+    };
+    starsDiv.appendChild(btnHalf);
+
+    row.appendChild(av);
+    row.appendChild(nome);
+    row.appendChild(starsDiv);
+    container.appendChild(row);
+  });
+}
+
+function salvarEstrelas(id, val) {
+  val = Math.max(0.5, Math.min(5, Math.round(val * 2) / 2));
+  var m = membros.find(function(x){ return x.id===id; });
+  if (!m) return;
+  m.estrelas = val;
+  if (sorteioSelecionados[id]) sorteioSelecionados[id].estrelas = val;
+  // Update display in modal
+  var valEl = document.getElementById('me-val-'+id);
+  if (valEl) valEl.innerHTML = getEstrelasStr(val)+' ('+val.toFixed(1)+')';
+  // Re-render star buttons
+  renderModalEstrelas();
+  // Save to Supabase
+  fetch(API_MEMBROS + '?id=eq.' + id, { method:'PATCH', headers:H, body:JSON.stringify({estrelas:val}) })
+    .then(function(r){ if(r.ok) toast('★ '+val.toFixed(1)+' salvo!'); })
+    .catch(function(){});
+  // Refresh sorteio if open
+  renderSorteioLista();
+}
+
+
 var sorteioSelecionados = {}; // { membroId: { nome, estrelas, tipo } }
 var CORES_TIMES = [
   { nome:'TIME A', cor:'#2563eb', bg:'rgba(37,99,235,0.12)' },
@@ -2294,20 +2421,11 @@ function renderSorteioLista() {
       + '<span style="font-size:10px;color:'+tipoCor[m.tipo||'mensalista']+';">'+(tipoLabel[m.tipo||'mensalista']||'')+'</span> '
       + m.nome + '</div>';
 
-    // Stars control
-    var starsHtml = '<div class="estrelas-ctrl" onclick="event.stopPropagation();">';
-    var vals = [0.5,1,1.5,2,2.5,3,3.5,4,4.5,5];
-    // Show as 5 star positions, each clickable for full or half
-    for (var s=1; s<=5; s++) {
-      var full = s <= Math.floor(estrelas);
-      var half = !full && (estrelas - Math.floor(estrelas) >= 0.4) && s === Math.ceil(estrelas);
-      var cls = full ? 'estrela-btn ativa' : half ? 'estrela-btn meia' : 'estrela-btn';
-      starsHtml += '<button class="'+cls+'" onclick="setSorteioEstrelas(\''+m.id+'\','+m.nome.replace(/'/g,'').substring(0,20)+','+s+',event)"'
-        + ' oncontextmenu="setSorteioEstrelas(\''+m.id+'\',\''+m.nome.replace(/'/g,'')+'\','+(s-0.5)+',event);return false;"'
-        + ' title="'+s+' ★ (clique direito = '+s+'.5)">★</button>';
-    }
-    starsHtml += '<span class="sj-estrelas-val">'+estrelas.toFixed(1)+'</span>';
-    starsHtml += '</div>';
+    // Stars display (click to open estrelas modal)
+    var starsHtml = '<div style="display:flex;align-items:center;gap:6px;flex-shrink:0;" onclick="event.stopPropagation();abrirModalEstrelas();">'
+      + '<span style="font-size:13px;color:var(--gold);cursor:pointer;" title="Clique para editar estrelas">'+getEstrelasStr(estrelas)+'</span>'
+      + '<span style="font-family:\'Bebas Neue\',sans-serif;font-size:12px;color:var(--gold);">'+estrelas.toFixed(1)+'</span>'
+      + '</div>';
 
     row.innerHTML = chk + av + nome + starsHtml;
     row.onclick = function() { toggleSorteioJogador(m); };
