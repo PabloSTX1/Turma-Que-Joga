@@ -2469,6 +2469,64 @@ function salvarSorteio(times) {
   }).catch(function(){});
 }
 
+function enviarSorteioPraAba() {
+  if (!sorteioTimesAtual || !sorteioTimesAtual.length) {
+    toast('NENHUM SORTEIO PARA ENVIAR.', 'err'); return;
+  }
+
+  // Collect all players from all teams
+  var totalJogadores = sorteioTimesAtual.reduce(function(s,t){ return s + t.jogadores.length; }, 0);
+
+  if (!confirm('Enviar ' + totalJogadores + ' jogador(es) do sorteio para a aba Pelada?\n\nIsso vai substituir a lista atual da pelada.')) return;
+
+  // Clear current pelada in Supabase then repopulate
+  dbClearPelada().then(function() {
+    peladaJogadores = [];
+    var promises = [];
+    var data = todayISO();
+
+    sorteioTimesAtual.forEach(function(time, timeIdx) {
+      time.jogadores.forEach(function(j) {
+        // Find membro to get full info (tipo, membro_id)
+        var mb = membros.find(function(m){ return m.nome.toLowerCase() === j.nome.toLowerCase(); });
+        var item = {
+          id: uid(),
+          membro_id: mb ? mb.id : null,
+          nome: j.nome,
+          tipo: j.tipo || (mb ? mb.tipo : 'mensalista'),
+          gols: 0,
+          assists: 0,
+          vitorias: 0,
+          confirmado: false
+        };
+        peladaJogadores.push(item);
+        promises.push(dbAddPelada(item));
+      });
+    });
+
+    // Also set today's date on pelada input
+    var pd = document.getElementById('pelada-data');
+    if (pd) pd.value = data;
+
+    return Promise.all(promises);
+  }).then(function() {
+    renderPelada();
+    renderPeladaMembros();
+    toast('&#9917; ' + peladaJogadores.length + ' JOGADORES CARREGADOS NA PELADA!');
+
+    // Switch to pelada tab automatically
+    setTimeout(function() {
+      var peladaBtn = document.querySelector('.tab-btn[onclick*="\'pelada\'"]');
+      if (!peladaBtn) peladaBtn = Array.from(document.querySelectorAll('.tab-btn')).find(function(b){ return b.textContent.includes('PELADA'); });
+      if (peladaBtn) peladaBtn.click();
+    }, 400);
+
+  }).catch(function(e) {
+    toast('ERRO: ' + e.message, 'err');
+  });
+}
+
+
 function carregarSorteioSalvo() {
   fetch(API_SORTEIO + '?id=eq.atual', { headers: H_GET })
     .then(function(r){ return r.ok ? r.json() : []; })
@@ -2657,14 +2715,26 @@ function renderSorteioResultado(times) {
     res.appendChild(card);
   });
 
-  // Ressortear button — admin only
+  // Botões admin
   if (adminLogado) {
+    var btnRow = document.createElement('div');
+    btnRow.style.cssText = 'display:flex;gap:10px;margin-top:6px;';
+
     var rebtn = document.createElement('button');
     rebtn.className = 'btn-save';
-    rebtn.style.cssText = 'width:100%;margin-top:4px;background:rgba(37,99,235,0.15);border:1px solid var(--azul);color:var(--azul-claro);';
+    rebtn.style.cssText = 'flex:1;background:rgba(37,99,235,0.15);border:1px solid var(--azul);color:var(--azul-claro);';
     rebtn.innerHTML = '&#8635; RESSORTEAR';
     rebtn.onclick = executarSorteio;
-    res.appendChild(rebtn);
+
+    var sendBtn = document.createElement('button');
+    sendBtn.className = 'btn-save';
+    sendBtn.style.cssText = 'flex:1;background:linear-gradient(135deg,#16a34a,#15803d);letter-spacing:1px;';
+    sendBtn.innerHTML = '&#9917; ENVIAR PARA PELADA';
+    sendBtn.onclick = enviarSorteioPraAba;
+
+    btnRow.appendChild(rebtn);
+    btnRow.appendChild(sendBtn);
+    res.appendChild(btnRow);
   }
 
   // Update subtitle for visitors
