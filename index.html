@@ -2642,14 +2642,14 @@ function renderSorteioResultado(times) {
 
     var header = '<div class="time-card-header">'
       + '<div class="time-nome" style="color:'+cor.cor+';">'+cor.nome+'</div>'
-      + '<div class="time-forca"><span style="color:var(--gold);">'+getEstrelasStr(parseFloat(avgForca))+'</span>&nbsp;média: '+avgForca+'</div>'
+      + (adminLogado ? '<div class="time-forca"><span style="color:var(--gold);">'+getEstrelasStr(parseFloat(avgForca))+'</span>&nbsp;média: '+avgForca+'</div>' : '')
       + '</div>';
 
     var jogadoresHtml = time.jogadores.map(function(j) {
       var tipoIcon = {presidente:'👑',mensalista:'',avulso:'⚡'}[j.tipo||'mensalista']||'';
       return '<div class="time-jogador">'
         + '<div class="time-jogador-nome">'+(tipoIcon?tipoIcon+' ':'')+j.nome+'</div>'
-        + '<div class="time-jogador-stars">'+getEstrelasStr(j.estrelas)+'</div>'
+        + (adminLogado ? '<div class="time-jogador-stars">'+getEstrelasStr(j.estrelas)+'</div>' : '')
         + '</div>';
     }).join('');
 
