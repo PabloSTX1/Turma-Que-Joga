@@ -888,14 +888,6 @@
 
 <!-- PAGE PELADA -->
 <div class="page" id="page-pelada">
-  <!-- OVERLAY DE BLOQUEIO para não logados -->
-  <div id="pelada-lock-overlay" style="position:absolute;inset:0;z-index:10;background:rgba(10,15,30,0.85);backdrop-filter:blur(4px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;min-height:400px;">
-    <div style="font-size:48px;">⚽</div>
-    <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;color:var(--branco);text-align:center;">ACESSO RESTRITO</div>
-    <div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;color:var(--muted);text-align:center;max-width:280px;line-height:1.5;">Esta aba é exclusiva para a equipe da pelada.<br>Faça login para continuar.</div>
-    <button onclick="abrirModalPeladaLogin()" style="background:var(--laranja);color:#fff;border:none;border-radius:10px;padding:12px 32px;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;cursor:pointer;transition:opacity .2s;" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">⚽ ENTRAR</button>
-  </div>
-
   <div class="wrap" style="position:relative;">
 
     <!-- Header -->
@@ -907,7 +899,7 @@
         </div>
       </div>
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-        <input type="date" id="pelada-data" style="background:var(--preto-medio);border:1px solid var(--azul-linha);border-radius:8px;color:var(--branco);font-family:'Barlow Condensed',sans-serif;font-size:15px;padding:8px 12px;outline:none;">
+        <input type="date" id="pelada-data" class="pelada-ctrl-input" style="background:var(--preto-medio);border:1px solid var(--azul-linha);border-radius:8px;color:var(--branco);font-family:'Barlow Condensed',sans-serif;font-size:15px;padding:8px 12px;outline:none;">
         <button class="btn-save admin-only" style="display:none;padding:9px 20px;font-size:15px;background:linear-gradient(135deg,#16a34a,#15803d);letter-spacing:1px;" onclick="abrirFinalizarPelada()">&#9989; FINALIZAR PELADA</button>
       </div>
     </div>
@@ -932,7 +924,7 @@
     <div id="pelada-main-grid" style="display:grid;grid-template-columns:1fr 2fr;gap:20px;align-items:start;">
 
       <!-- Painel esquerdo: membros para adicionar -->
-      <div>
+      <div class="pelada-ctrl" style="display:none;">
         <div class="caixa-section-title" style="margin-bottom:12px;">
           MEMBROS
           <div class="caixa-section-line"></div>
@@ -1711,6 +1703,14 @@ function initTheme() {
 }
 
 
+function podeEditarPelada() {
+  if (adminLogado || peladaLogado) return true;
+  if (cargoLogado && (
+    (cargoLogado.acoes||[]).indexOf('usar_pelada') !== -1 ||
+    (cargoLogado.acoes||[]).indexOf('finalizar_pelada') !== -1
+  )) return true;
+  return false;
+}
 function abrirFinalizarPelada() {
   if (!peladaJogadores.length) { toast('ADICIONE AO MENOS UM JOGADOR.', 'err'); return; }
 
@@ -1893,9 +1893,6 @@ function fazerLoginPelada() {
     fecharModalPeladaLogin();
     document.getElementById('pelada-badge').style.display = 'flex';
     document.getElementById('btn-pelada-login').style.display = 'none';
-    // Hide lock overlay
-    var overlay = document.getElementById('pelada-lock-overlay');
-    if (overlay) overlay.style.display = 'none';
     // Show admin controls on pelada tab
     document.querySelectorAll('#page-pelada .admin-only').forEach(function(el){
       el.style.display = '';
@@ -1913,9 +1910,6 @@ function fazerLoginPelada() {
 function sairPelada() {
   peladaLogado = false;
   document.getElementById('pelada-badge').style.display = 'none';
-  // Show lock overlay again
-  var overlay = document.getElementById('pelada-lock-overlay');
-  if (overlay) overlay.style.display = 'flex';
   // Show pelada login button in header if on pelada tab
   var abaAtiva = document.querySelector('.tab-btn.active');
   var tabAtual = abaAtiva ? (abaAtiva.getAttribute('onclick').match(/'(\w+)'/) || [])[1] : '';
@@ -3363,20 +3357,29 @@ function renderPelada() {
       + '<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + j.nome + '</span>'
       + tipoBadge + '</div>';
 
-    // Stat counter with +/- buttons
+    var canEdit = podeEditarPelada();
+
+    // Stat counter with +/- buttons (only for editors) or plain number (for visitors)
     function statCounter(campo, label, val) {
-      return '<div style="display:flex;flex-direction:column;align-items:center;gap:2px;">'
-        + '<div style="display:flex;align-items:center;gap:4px;">'
-        + '<button onclick="stepPeladaStat(\'' + j.id + '\',\'' + campo + '\',-1)" '
-        + 'style="width:24px;height:24px;border-radius:6px;border:1px solid var(--azul-linha);background:var(--preto);color:var(--muted);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;padding:0;transition:all .15s;" '
-        + 'onmouseover="this.style.borderColor=\'var(--azul)\'" onmouseout="this.style.borderColor=\'var(--azul-linha)\'">&minus;</button>'
-        + '<span id="pelada-' + campo + '-' + j.id + '" style="min-width:28px;text-align:center;font-family:\'Bebas Neue\',sans-serif;font-size:22px;color:var(--branco);line-height:1;">' + (val||0) + '</span>'
-        + '<button onclick="stepPeladaStat(\'' + j.id + '\',\'' + campo + '\',1)" '
-        + 'style="width:24px;height:24px;border-radius:6px;border:1px solid var(--azul-linha);background:var(--preto);color:var(--muted);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;padding:0;transition:all .15s;" '
-        + 'onmouseover="this.style.borderColor=\'var(--azul)\'" onmouseout="this.style.borderColor=\'var(--azul-linha)\'">&plus;</button>'
-        + '</div>'
-        + '<div class="pelada-stat-label">' + label + '</div>'
-        + '</div>';
+      if (canEdit) {
+        return '<div style="display:flex;flex-direction:column;align-items:center;gap:2px;">'
+          + '<div style="display:flex;align-items:center;gap:4px;">'
+          + '<button onclick="stepPeladaStat(\'' + j.id + '\',\'' + campo + '\',-1)" '
+          + 'style="width:24px;height:24px;border-radius:6px;border:1px solid var(--azul-linha);background:var(--preto);color:var(--muted);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;padding:0;transition:all .15s;" '
+          + 'onmouseover="this.style.borderColor=\'var(--azul)\'" onmouseout="this.style.borderColor=\'var(--azul-linha)\'">&minus;</button>'
+          + '<span id="pelada-' + campo + '-' + j.id + '" style="min-width:28px;text-align:center;font-family:\'Bebas Neue\',sans-serif;font-size:22px;color:var(--branco);line-height:1;">' + (val||0) + '</span>'
+          + '<button onclick="stepPeladaStat(\'' + j.id + '\',\'' + campo + '\',1)" '
+          + 'style="width:24px;height:24px;border-radius:6px;border:1px solid var(--azul-linha);background:var(--preto);color:var(--muted);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;padding:0;transition:all .15s;" '
+          + 'onmouseover="this.style.borderColor=\'var(--azul)\'" onmouseout="this.style.borderColor=\'var(--azul-linha)\'">&plus;</button>'
+          + '</div>'
+          + '<div class="pelada-stat-label">' + label + '</div>'
+          + '</div>';
+      } else {
+        return '<div style="display:flex;flex-direction:column;align-items:center;gap:2px;min-width:44px;">'
+          + '<span style="font-family:\'Bebas Neue\',sans-serif;font-size:22px;color:var(--branco);line-height:1;">' + (val||0) + '</span>'
+          + '<div class="pelada-stat-label">' + label + '</div>'
+          + '</div>';
+      }
     }
 
     var golsDiv    = isGoleiro ? '' : statCounter('gols',    'GOLS',   j.gols);
@@ -3384,13 +3387,17 @@ function renderPelada() {
       ? statCounter('vitorias', 'VITORIAS', j.vitorias||0)
       : statCounter('assists', 'ASSISTS', j.assists);
 
-    // Confirm button
-    var confBtn = '<button class="pelada-conf-btn' + (j.confirmado ? ' ativo' : '') + '" '
-      + 'onclick="togglePeladaConf(\'' + j.id + '\')" title="' + (j.confirmado ? 'Presente' : 'Confirmar') + '">'
-      + (j.confirmado ? '&#10003;' : '&#9711;') + '</button>';
+    // Confirm button — only for editors
+    var confBtn = canEdit
+      ? '<button class="pelada-conf-btn' + (j.confirmado ? ' ativo' : '') + '" '
+        + 'onclick="togglePeladaConf(\'' + j.id + '\')" title="' + (j.confirmado ? 'Presente' : 'Confirmar') + '">'
+        + (j.confirmado ? '&#10003;' : '&#9711;') + '</button>'
+      : (j.confirmado ? '<span style="color:var(--success);font-size:16px;padding:0 6px;">&#10003;</span>' : '');
 
-    // Delete button
-    var delBtn = '<button class="pelada-del-btn" onclick="removerPeladaJogador(\'' + j.id + '\')" title="Remover">&times;</button>';
+    // Delete button — only for editors
+    var delBtn = canEdit
+      ? '<button class="pelada-del-btn" onclick="removerPeladaJogador(\'' + j.id + '\')" title="Remover">&times;</button>'
+      : '';
 
     row.innerHTML = avatar + nome + golsDiv + assistsDiv + confBtn + delBtn;
     lista.appendChild(row);
@@ -4748,17 +4755,20 @@ function getAniversariantesMes() {
     carregarSorteioSalvo();
   }
   if (tab === 'pelada') {
-    var canEdit = adminLogado || peladaLogado;
-    var overlay = document.getElementById('pelada-lock-overlay');
-    if (overlay) overlay.style.display = canEdit ? 'none' : 'flex';
+    var canEdit = podeEditarPelada();
     // admin-only: only for admins
     document.querySelectorAll('#page-pelada .admin-only').forEach(function(el){
       el.style.display = adminLogado ? '' : 'none';
     });
-    // pelada-ctrl: for admin AND pelada user (ex: FINALIZAR PELADA button)
+    // pelada-ctrl: for anyone who can edit pelada
     document.querySelectorAll('#page-pelada .pelada-ctrl').forEach(function(el){
       el.style.display = canEdit ? '' : 'none';
     });
+    // Date input: readonly for visitors
+    var dateInput = document.getElementById('pelada-data');
+    if (dateInput) dateInput.readOnly = !canEdit;
+    // Re-render pelada to show/hide +/- buttons
+    renderPelada();
   }
 
 }
