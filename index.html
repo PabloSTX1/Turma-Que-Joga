@@ -816,7 +816,13 @@
     <div style="display:flex;align-items:center;gap:12px;">
       <button id="btn-instalar-app" onclick="triggerInstall()" style="font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;background:transparent;color:rgba(255,255,255,0.6);border:1px solid rgba(255,255,255,0.2);border-radius:8px;padding:6px 12px;cursor:pointer;transition:all .2s;white-space:nowrap;" onmouseover="this.style.color='#fff';this.style.borderColor='rgba(255,255,255,0.5)'" onmouseout="this.style.color='rgba(255,255,255,0.6)';this.style.borderColor='rgba(255,255,255,0.2)'" class="btn-instalar-app">&#11015; INSTALAR APP</button>
       <button class="btn-theme" onclick="toggleTheme()" id="btn-theme" title="Modo claro/escuro">&#127769; ESCURO</button>
-      <div class="admin-badge" id="pelada-badge" style="display:none;background:rgba(249,115,22,0.15);border-color:var(--laranja);color:var(--laranja);">&#9917; PELADA <button class="btn-sair" onclick="sairPelada()" style="border-color:var(--laranja);color:var(--laranja);">SAIR</button></div>
+      <!-- Cargo badge (shown when logged as cargo) -->
+      <div id="cargo-badge-wrap" style="display:none;align-items:center;gap:6px;background:rgba(147,51,234,0.15);border:1.5px solid #9333ea;border-radius:20px;padding:5px 12px;">
+        <span id="cargo-badge" style="font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;color:#c084fc;"></span>
+        <button onclick="sairCargo()" class="btn-sair" style="border-color:#9333ea;color:#9333ea;font-size:10px;padding:2px 6px;">SAIR</button>
+      </div>
+      <!-- Cargo login button (shown when not logged) -->
+      <button class="btn-theme" id="btn-cargo-login" onclick="abrirModalCargoLogin()" style="border-color:#9333ea;color:#c084fc;display:none;" title="Acesso por cargo">🎖️ ENTRAR</button>
       <button class="btn-theme admin-only" id="btn-cargos" onclick="abrirModalCargos()" style="display:none;border-color:#9333ea;color:#9333ea;" title="Central de Cargos">&#128274; CARGOS</button>
       <button class="btn-theme" id="btn-pelada-login" onclick="abrirModalPeladaLogin()" style="border-color:var(--laranja);color:var(--laranja);display:none;" title="Login pelada">&#9917; PELADA</button>
       <div class="admin-badge">&#128273; CUPULA <button class="btn-sair" onclick="sair()">SAIR</button></div>
@@ -1252,6 +1258,19 @@
     <div class="form-group"><label>SENHA</label><input type="password" id="cargo-login-pass" placeholder="SENHA" onkeydown="if(event.key==='Enter')fazerLoginCargo()"></div>
     <div class="login-error" id="cargo-login-error">USUÁRIO OU SENHA INCORRETOS</div>
     <button class="btn-save" style="width:100%;margin-top:8px;" onclick="fazerLoginCargo()">ENTRAR</button>
+    <button class="btn-cancel" style="width:100%;margin-top:8px;" onclick="document.getElementById('modal-cargo-login').classList.remove('open')">CANCELAR</button>
+  </div>
+</div>
+
+<!-- MODAL LOGIN CARGO -->
+<div class="modal-overlay" id="modal-cargo-login" onclick="fecharLoginFora(event)">
+  <div class="modal-login-box">
+    <h2 style="color:#9333ea;">🎖️ ACESSO POR CARGO</h2>
+    <p class="modal-sub">USE AS CREDENCIAIS DO SEU CARGO</p>
+    <div class="form-group"><label>USUÁRIO</label><input type="text" id="cargo-login-user" placeholder="usuário" autocomplete="off"></div>
+    <div class="form-group"><label>SENHA</label><input type="password" id="cargo-login-pass" placeholder="senha" onkeydown="if(event.key==='Enter')fazerLoginCargo()"></div>
+    <div class="login-error" id="cargo-login-error">USUÁRIO OU SENHA INCORRETOS</div>
+    <button class="btn-save" style="width:100%;margin-top:8px;background:#9333ea;" onclick="fazerLoginCargo()">ENTRAR</button>
     <button class="btn-cancel" style="width:100%;margin-top:8px;" onclick="document.getElementById('modal-cargo-login').classList.remove('open')">CANCELAR</button>
   </div>
 </div>
@@ -1829,6 +1848,30 @@ function confirmarFinalizarPelada() {
   }).finally(function() {
     if (btn) { btn.textContent = '✅ CONFIRMAR E SALVAR'; btn.disabled = false; }
   });
+}
+
+
+function abrirModalCargoLogin() {
+  document.getElementById('cargo-login-user').value = '';
+  document.getElementById('cargo-login-pass').value = '';
+  document.getElementById('cargo-login-error').classList.remove('show');
+  document.getElementById('modal-cargo-login').classList.add('open');
+  setTimeout(function(){ document.getElementById('cargo-login-user').focus(); }, 100);
+}
+
+function fazerLoginCargo() {
+  var u = document.getElementById('cargo-login-user').value.trim().toLowerCase();
+  var p = document.getElementById('cargo-login-pass').value;
+  var cargo = tentarLoginCargo(u, p);
+  if (cargo) {
+    document.getElementById('modal-cargo-login').classList.remove('open');
+    document.getElementById('btn-cargo-login').style.display = 'none';
+    aplicarPermissoesCargo(cargo);
+  } else {
+    document.getElementById('cargo-login-error').classList.add('show');
+    document.getElementById('cargo-login-pass').value = '';
+    document.getElementById('cargo-login-pass').focus();
+  }
 }
 
 
@@ -2444,6 +2487,13 @@ function getRodadasFiltradas(filtro) {
 function init() {
   loadAvisos().then(function(){ renderAvisos(); });
   loadPelada();
+  loadCargos().then(function(){
+    // Show cargo login button if cargos exist and no session active
+    if (cargos.length && !adminLogado && !peladaLogado && !cargoLogado) {
+      var btn = document.getElementById('btn-cargo-login');
+      if (btn) btn.style.display = '';
+    }
+  });
   initTheme();
   // Set today's date on pelada input
   var pd = document.getElementById('pelada-data');
@@ -2475,7 +2525,250 @@ function init() {
 }
 
 
-// ── PERFIL DO MEMBRO ──────────────────────────────────────────
+// ── CENTRAL DE CARGOS ─────────────────────────────────────────
+var API_CARGOS = SB_URL + '/rest/v1/cargos';
+var cargos = [];
+var cargoLogado = null; // { id, nome, usuario, abas:[], acoes:[] }
+
+var TODAS_ABAS = [
+  { id:'avisos',   label:'📢 Avisos' },
+  { id:'pelada',   label:'⚽ Pelada' },
+  { id:'sorteio',  label:'🎲 Sorteio' },
+  { id:'ranking',  label:'🏆 Ranking' },
+  { id:'rodadas',  label:'📋 Rodadas' },
+  { id:'goleiros', label:'🧤 Goleiros' },
+  { id:'membros',  label:'👥 Membros' },
+  { id:'caixa',    label:'💰 Caixa' },
+];
+
+var TODAS_ACOES = [
+  { id:'ver_caixa',        label:'Ver Caixa completa' },
+  { id:'editar_rodada',    label:'Lançar/Editar Rodadas' },
+  { id:'editar_membro',    label:'Editar Membros' },
+  { id:'editar_aviso',     label:'Criar/Editar Avisos' },
+  { id:'usar_pelada',      label:'Anotar Estatísticas (Pelada)' },
+  { id:'finalizar_pelada', label:'Finalizar Pelada' },
+  { id:'usar_sorteio',     label:'Sortear Times' },
+  { id:'editar_caixa',     label:'Lançar Gastos/Pagamentos' },
+];
+
+// ── DB ──
+function dbGetCargos() {
+  return fetch(API_CARGOS + '?order=nome.asc', { headers: H_GET })
+    .then(function(r){ return r.ok ? r.json() : []; });
+}
+function dbSaveCargo(c) {
+  return fetch(API_CARGOS, {
+    method: 'POST',
+    headers: Object.assign({}, H, { 'Prefer': 'resolution=merge-duplicates' }),
+    body: JSON.stringify(c)
+  }).then(function(r){ if (!r.ok) return r.text().then(function(t){ throw new Error(t); }); });
+}
+function dbDeleteCargo(id) {
+  return fetch(API_CARGOS + '?id=eq.' + id, { method: 'DELETE', headers: H_GET })
+    .then(function(r){ if (!r.ok) throw new Error(r.status); });
+}
+
+// ── MODAL OPEN/CLOSE ──
+function abrirModalCargos() {
+  dbGetCargos().then(function(data){
+    cargos = data || [];
+    renderCargoLista();
+    fecharCargForm();
+  });
+  document.getElementById('modal-cargos').classList.add('open');
+  // Build permission grids
+  _buildPermGrids();
+}
+function fecharModalCargos() {
+  document.getElementById('modal-cargos').classList.remove('open');
+}
+
+function _buildPermGrids() {
+  var abasGrid = document.getElementById('perm-abas-grid');
+  var acoesGrid = document.getElementById('perm-acoes-grid');
+  if (!abasGrid || !acoesGrid) return;
+  abasGrid.innerHTML = '';
+  acoesGrid.innerHTML = '';
+  TODAS_ABAS.forEach(function(a) {
+    var lbl = document.createElement('label');
+    lbl.style.cssText = 'display:flex;align-items:center;gap:6px;font-family:Barlow Condensed,sans-serif;font-size:13px;color:var(--branco);background:var(--preto);border:1px solid var(--azul-linha);border-radius:7px;padding:7px 10px;cursor:pointer;user-select:none;';
+    lbl.innerHTML = '<input type="checkbox" id="perm-aba-'+a.id+'" value="'+a.id+'" style="accent-color:var(--azul);width:14px;height:14px;"> '+a.label;
+    abasGrid.appendChild(lbl);
+  });
+  TODAS_ACOES.forEach(function(a) {
+    var lbl = document.createElement('label');
+    lbl.style.cssText = 'display:flex;align-items:center;gap:6px;font-family:Barlow Condensed,sans-serif;font-size:13px;color:var(--branco);background:var(--preto);border:1px solid var(--azul-linha);border-radius:7px;padding:7px 10px;cursor:pointer;user-select:none;';
+    lbl.innerHTML = '<input type="checkbox" id="perm-acao-'+a.id+'" value="'+a.id+'" style="accent-color:var(--laranja);width:14px;height:14px;"> '+a.label;
+    acoesGrid.appendChild(lbl);
+  });
+}
+
+// ── LISTA DE CARGOS ──
+function renderCargoLista() {
+  var lista = document.getElementById('cargos-lista');
+  if (!lista) return;
+  lista.innerHTML = '';
+  if (!cargos.length) {
+    lista.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);font-family:Barlow Condensed,sans-serif;font-size:14px;">Nenhum cargo cadastrado.</div>';
+    return;
+  }
+  cargos.forEach(function(c) {
+    var abas = c.abas || [];
+    var acoes = c.acoes || [];
+    var row = document.createElement('div');
+    row.style.cssText = 'background:var(--preto-medio);border:1px solid var(--azul-linha);border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:12px;';
+    // Badge cargo
+    var badge = '<div style="width:36px;height:36px;border-radius:50%;background:rgba(147,51,234,0.2);border:2px solid #9333ea;display:flex;align-items:center;justify-content:center;font-family:Bebas Neue,sans-serif;font-size:16px;color:#9333ea;flex-shrink:0;">'+c.nome.charAt(0).toUpperCase()+'</div>';
+    // Info
+    var info = '<div style="flex:1;min-width:0;">'
+      + '<div style="font-family:Barlow Condensed,sans-serif;font-size:15px;font-weight:700;color:var(--branco);">'+c.nome
+      + ' <span style="font-size:11px;color:var(--muted);font-weight:400;">@'+c.usuario+'</span></div>'
+      + '<div style="font-family:Barlow Condensed,sans-serif;font-size:11px;color:var(--muted);margin-top:2px;">'
+      + abas.length+' aba(s) · '+acoes.length+' ação(ões)</div>'
+      + '</div>';
+    // Buttons
+    var btns = '<div style="display:flex;gap:6px;">'
+      + '<button onclick="editarCargo(\''+c.id+'\')" style="background:none;border:1px solid var(--azul-linha);border-radius:6px;color:var(--muted);padding:5px 10px;cursor:pointer;font-size:13px;">✏️</button>'
+      + '<button onclick="excluirCargo(\''+c.id+'\')" style="background:none;border:1px solid rgba(239,68,68,0.3);border-radius:6px;color:var(--danger);padding:5px 10px;cursor:pointer;font-size:13px;">✕</button>'
+      + '</div>';
+    row.innerHTML = badge + info + btns;
+    lista.appendChild(row);
+  });
+}
+
+// ── FORM ──
+function novoCargo() {
+  document.getElementById('cargo-edit-id').value = '';
+  document.getElementById('cargo-nome').value = '';
+  document.getElementById('cargo-usuario').value = '';
+  document.getElementById('cargo-senha').value = '';
+  document.getElementById('cargo-form-titulo').textContent = 'NOVO CARGO';
+  // Uncheck all
+  TODAS_ABAS.forEach(function(a){ var el=document.getElementById('perm-aba-'+a.id); if(el) el.checked=false; });
+  TODAS_ACOES.forEach(function(a){ var el=document.getElementById('perm-acao-'+a.id); if(el) el.checked=false; });
+  document.getElementById('cargo-form').style.display = '';
+  setTimeout(function(){ document.getElementById('cargo-nome').focus(); }, 100);
+}
+
+function editarCargo(id) {
+  var c = cargos.find(function(x){ return x.id===id; });
+  if (!c) return;
+  document.getElementById('cargo-edit-id').value = c.id;
+  document.getElementById('cargo-nome').value = c.nome;
+  document.getElementById('cargo-usuario').value = c.usuario;
+  document.getElementById('cargo-senha').value = c.senha || '';
+  document.getElementById('cargo-form-titulo').textContent = 'EDITAR CARGO: '+c.nome.toUpperCase();
+  // Set checkboxes
+  TODAS_ABAS.forEach(function(a){
+    var el=document.getElementById('perm-aba-'+a.id);
+    if (el) el.checked = (c.abas||[]).indexOf(a.id) !== -1;
+  });
+  TODAS_ACOES.forEach(function(a){
+    var el=document.getElementById('perm-acao-'+a.id);
+    if (el) el.checked = (c.acoes||[]).indexOf(a.id) !== -1;
+  });
+  document.getElementById('cargo-form').style.display = '';
+  document.getElementById('cargo-form').scrollIntoView({ behavior: 'smooth' });
+}
+
+function fecharCargForm() {
+  document.getElementById('cargo-form').style.display = 'none';
+}
+
+function salvarCargo() {
+  var nome    = document.getElementById('cargo-nome').value.trim();
+  var usuario = document.getElementById('cargo-usuario').value.trim().toLowerCase();
+  var senha   = document.getElementById('cargo-senha').value;
+  var editId  = document.getElementById('cargo-edit-id').value;
+  if (!nome)    { alert('INFORME O NOME DO CARGO.'); return; }
+  if (!usuario) { alert('INFORME O USUÁRIO.'); return; }
+  if (!editId && !senha) { alert('INFORME A SENHA.'); return; }
+
+  // Collect permissions
+  var abas = TODAS_ABAS.map(function(a){ return a.id; })
+    .filter(function(id){ var el=document.getElementById('perm-aba-'+id); return el && el.checked; });
+  var acoes = TODAS_ACOES.map(function(a){ return a.id; })
+    .filter(function(id){ var el=document.getElementById('perm-acao-'+id); return el && el.checked; });
+
+  // Check duplicate usuario
+  var dupUser = cargos.find(function(c){ return c.usuario===usuario && c.id!==editId; });
+  if (dupUser) { alert('JÁ EXISTE UM CARGO COM ESSE USUÁRIO.'); return; }
+
+  var obj = { id: editId || uid(), nome: nome, usuario: usuario, abas: abas, acoes: acoes };
+  if (senha) obj.senha = senha; // only update senha if provided
+
+  dbSaveCargo(obj).then(function() {
+    var idx = cargos.findIndex(function(c){ return c.id===obj.id; });
+    if (idx !== -1) Object.assign(cargos[idx], obj);
+    else cargos.push(obj);
+    renderCargoLista();
+    fecharCargForm();
+    toast('CARGO SALVO!');
+  }).catch(function(e){ toast('ERRO: '+e.message, 'err'); });
+}
+
+function excluirCargo(id) {
+  if (!confirm('EXCLUIR ESTE CARGO?')) return;
+  dbDeleteCargo(id).then(function() {
+    cargos = cargos.filter(function(c){ return c.id!==id; });
+    renderCargoLista();
+    toast('CARGO EXCLUÍDO.');
+  }).catch(function(e){ toast('ERRO: '+e.message, 'err'); });
+}
+
+// ── LOGIN POR CARGO ──
+function tentarLoginCargo(usuario, senha) {
+  // Check against loaded cargos
+  var cargo = cargos.find(function(c){ return c.usuario===usuario && c.senha===senha; });
+  if (cargo) return cargo;
+  return null;
+}
+
+function aplicarPermissoesCargo(cargo) {
+  cargoLogado = cargo;
+  // Show only allowed tabs
+  document.querySelectorAll('.tab-btn').forEach(function(btn) {
+    var m = btn.getAttribute('onclick') && btn.getAttribute('onclick').match(/'(\w+)'/);
+    var tabId = m ? m[1] : null;
+    if (!tabId || tabId === 'avisos') return; // avisos always visible
+    btn.style.display = (cargo.abas.indexOf(tabId) !== -1) ? '' : 'none';
+  });
+  // Apply action permissions via cargoLogado - checked in JS functions
+  document.getElementById('cargo-badge').textContent = '🎖️ ' + cargo.nome.toUpperCase();
+  document.getElementById('cargo-badge-wrap').style.display = 'flex';
+  toast('BEM-VINDO! CARGO: ' + cargo.nome.toUpperCase());
+}
+
+function sairCargo() {
+  cargoLogado = null;
+  // Restore all tabs
+  document.querySelectorAll('.tab-btn').forEach(function(btn){ btn.style.display = ''; });
+  document.getElementById('cargo-badge-wrap').style.display = 'none';
+  toast('SESSÃO ENCERRADA.');
+}
+
+// ── PERMISSION HELPERS (used throughout the app) ──
+function temAba(aba) {
+  if (adminLogado) return true;
+  if (cargoLogado) return (cargoLogado.abas||[]).indexOf(aba) !== -1;
+  if (peladaLogado && (aba==='pelada'||aba==='sorteio')) return true;
+  return false;
+}
+function temAcao(acao) {
+  if (adminLogado) return true;
+  if (cargoLogado) return (cargoLogado.acoes||[]).indexOf(acao) !== -1;
+  // Legacy pelada user
+  if (peladaLogado && (acao==='usar_pelada'||acao==='finalizar_pelada')) return true;
+  return false;
+}
+
+// Load cargos on init for login validation
+function loadCargos() {
+  return dbGetCargos().then(function(data){ cargos = data || []; }).catch(function(){ cargos = []; });
+}
+
+
 var perfilMembroAtual = null;
 
 function abrirPerfil(membro) {
