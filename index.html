@@ -438,6 +438,19 @@
   .pelada-conf-btn{width:28px;height:28px;font-size:12px;padding:0;}
   .pelada-del-btn{font-size:15px;padding:2px;}
 
+  /* CARGOS */
+  .cargo-card{background:var(--preto-medio);border:1.5px solid var(--azul-linha);border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:12px;}
+  .cargo-avatar{width:36px;height:36px;border-radius:50%;background:rgba(37,99,235,0.2);border:2px solid var(--azul);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--azul);flex-shrink:0;}
+  .cargo-nome{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;color:var(--branco);}
+  .cargo-usuario{font-family:'Barlow Condensed',sans-serif;font-size:12px;color:var(--muted);}
+  .perm-toggle{display:flex;align-items:center;gap:6px;padding:6px 10px;border-radius:8px;border:1.5px solid var(--azul-linha);cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:12px;color:var(--muted);transition:all .15s;user-select:none;}
+  .perm-toggle:hover{border-color:var(--azul);color:var(--branco);}
+  .perm-toggle.ativo{border-color:var(--azul);background:rgba(37,99,235,0.15);color:var(--azul-claro);}
+  .perm-toggle.ativo .perm-check{background:var(--azul);border-color:var(--azul);color:#fff;}
+  .perm-check{width:16px;height:16px;border-radius:4px;border:1.5px solid var(--azul-linha);display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;transition:all .15s;}
+  body.light-mode .cargo-card{background:#fff;border-color:#bfdbfe;}
+  body.light-mode .perm-toggle{border-color:#bfdbfe;color:#64748b;}
+  body.light-mode .perm-toggle.ativo{border-color:#2563eb;background:#eff6ff;color:#2563eb;}
   /* SORTEIO */
   #sorteio-main-grid{display:flex !important;flex-direction:column !important;gap:14px !important;}
   .sorteio-jogador{padding:8px 10px;}
@@ -804,8 +817,10 @@
       <button id="btn-instalar-app" onclick="triggerInstall()" style="font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;background:transparent;color:rgba(255,255,255,0.6);border:1px solid rgba(255,255,255,0.2);border-radius:8px;padding:6px 12px;cursor:pointer;transition:all .2s;white-space:nowrap;" onmouseover="this.style.color='#fff';this.style.borderColor='rgba(255,255,255,0.5)'" onmouseout="this.style.color='rgba(255,255,255,0.6)';this.style.borderColor='rgba(255,255,255,0.2)'" class="btn-instalar-app">&#11015; INSTALAR APP</button>
       <button class="btn-theme" onclick="toggleTheme()" id="btn-theme" title="Modo claro/escuro">&#127769; ESCURO</button>
       <div class="admin-badge" id="pelada-badge" style="display:none;background:rgba(249,115,22,0.15);border-color:var(--laranja);color:var(--laranja);">&#9917; PELADA <button class="btn-sair" onclick="sairPelada()" style="border-color:var(--laranja);color:var(--laranja);">SAIR</button></div>
+      <button class="btn-theme admin-only" id="btn-cargos" onclick="abrirModalCargos()" style="display:none;border-color:#9333ea;color:#9333ea;" title="Central de Cargos">&#128274; CARGOS</button>
       <button class="btn-theme" id="btn-pelada-login" onclick="abrirModalPeladaLogin()" style="border-color:var(--laranja);color:var(--laranja);display:none;" title="Login pelada">&#9917; PELADA</button>
       <div class="admin-badge">&#128273; CUPULA <button class="btn-sair" onclick="sair()">SAIR</button></div>
+      <button class="btn-theme admin-only" id="btn-cargos" onclick="abrirModalCargos()" style="display:none;border-color:var(--gold);color:var(--gold);" title="Central de Cargos">&#128737;</button>
       <button class="btn-nova" id="btn-nova-rodada" onclick="openModalRodada()" style="display:none;">+ NOVA RODADA</button>
     </div>
   </div>
@@ -887,7 +902,7 @@
       </div>
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
         <input type="date" id="pelada-data" style="background:var(--preto-medio);border:1px solid var(--azul-linha);border-radius:8px;color:var(--branco);font-family:'Barlow Condensed',sans-serif;font-size:15px;padding:8px 12px;outline:none;">
-        <button class="btn-save pelada-ctrl" style="display:none;padding:9px 20px;font-size:15px;background:linear-gradient(135deg,#16a34a,#15803d);letter-spacing:1px;" onclick="abrirFinalizarPelada()">&#9989; FINALIZAR PELADA</button>
+        <button class="btn-save admin-only" style="display:none;padding:9px 20px;font-size:15px;background:linear-gradient(135deg,#16a34a,#15803d);letter-spacing:1px;" onclick="abrirFinalizarPelada()">&#9989; FINALIZAR PELADA</button>
       </div>
     </div>
 
@@ -1081,6 +1096,64 @@
   </div>
 </div>
 
+<!-- MODAL CENTRAL DE CARGOS -->
+<div class="modal-overlay" id="modal-cargos">
+  <div class="modal-rodada-box" style="max-width:680px;max-height:90vh;overflow-y:auto;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px;">
+      <div>
+        <h2 style="font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:1.5px;color:var(--branco);margin:0;">&#128737; CENTRAL DE CARGOS</h2>
+        <p style="font-family:'Barlow Condensed',sans-serif;font-size:13px;color:var(--muted);margin:4px 0 0;">Gerencie acessos e permissões de cada cargo</p>
+      </div>
+      <button onclick="fecharModalCargos()" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;">&times;</button>
+    </div>
+
+    <!-- Lista de cargos + botão novo -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+      <div class="modal-section-title" style="margin:0;">CARGOS CADASTRADOS</div>
+      <button onclick="novoCargo()" class="btn-save" style="padding:6px 14px;font-size:13px;">+ NOVO CARGO</button>
+    </div>
+    <div id="cargos-lista" style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px;"></div>
+
+    <!-- Formulário editar/criar cargo -->
+    <div id="cargo-form" style="display:none;background:var(--preto-medio);border:1px solid var(--azul-linha);border-radius:12px;padding:16px;">
+      <div class="modal-section-title" style="margin-bottom:14px;" id="cargo-form-titulo">NOVO CARGO</div>
+      <input type="hidden" id="cargo-edit-id">
+
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px;">
+        <div class="form-group" style="margin:0;">
+          <label>NOME DO CARGO</label>
+          <input type="text" id="cargo-nome" placeholder="Ex: Secretário">
+        </div>
+        <div class="form-group" style="margin:0;">
+          <label>USUÁRIO</label>
+          <input type="text" id="cargo-usuario" placeholder="Ex: sec" autocomplete="off">
+        </div>
+        <div class="form-group" style="margin:0;">
+          <label>SENHA</label>
+          <input type="password" id="cargo-senha" placeholder="Senha de acesso" autocomplete="off">
+        </div>
+      </div>
+
+      <!-- Permissões - Abas -->
+      <div class="modal-section-title" style="margin-bottom:10px;font-size:12px;">ABAS ACESSÍVEIS</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:16px;" id="perm-abas-grid"></div>
+
+      <!-- Permissões - Ações -->
+      <div class="modal-section-title" style="margin-bottom:10px;font-size:12px;">AÇÕES PERMITIDAS</div>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-bottom:16px;" id="perm-acoes-grid"></div>
+
+      <div style="display:flex;gap:8px;justify-content:flex-end;">
+        <button class="btn-cancel" onclick="fecharCargForm()">CANCELAR</button>
+        <button class="btn-save" onclick="salvarCargo()">SALVAR CARGO</button>
+      </div>
+    </div>
+
+    <div class="modal-actions" style="margin-top:16px;">
+      <button class="btn-cancel" onclick="fecharModalCargos()">FECHAR</button>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL PERFIL MEMBRO -->
 <div class="modal-overlay" id="modal-perfil">
   <div class="modal-rodada-box" style="max-width:520px;">
@@ -1105,6 +1178,81 @@
       <button class="btn-cancel" onclick="fecharPerfil()">FECHAR</button>
       <button class="btn-save admin-only" id="perfil-btn-editar" style="display:none;" onclick="editarDoPerfilAtual()">&#9998; EDITAR</button>
     </div>
+  </div>
+</div>
+
+<!-- MODAL CENTRAL DE CARGOS -->
+<div class="modal-overlay" id="modal-cargos">
+  <div class="modal-rodada-box" style="max-width:700px;max-height:90vh;overflow-y:auto;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <h2 style="font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:2px;color:#9333ea;margin:0;">&#128274; CENTRAL DE CARGOS</h2>
+      <button onclick="fecharModalCargos()" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;">&times;</button>
+    </div>
+
+    <!-- Lista de cargos existentes -->
+    <div class="modal-section-title" style="margin-bottom:12px;">CARGOS CADASTRADOS</div>
+    <div id="cargos-lista" style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px;"></div>
+
+    <!-- Formulário novo/editar cargo -->
+    <div id="cargo-form" style="background:var(--preto-medio);border:1px solid #9333ea;border-radius:12px;padding:16px;">
+      <div class="modal-section-title" style="margin-bottom:14px;color:#9333ea;" id="cargo-form-titulo">NOVO CARGO</div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+        <div class="form-group" style="margin:0;">
+          <label>NOME DO CARGO</label>
+          <input type="text" id="cargo-nome" placeholder="Ex: Tesoureiro, Secretário...">
+        </div>
+        <div class="form-group" style="margin:0;">
+          <label>COR</label>
+          <input type="color" id="cargo-cor" value="#9333ea" style="width:100%;height:38px;padding:2px;border-radius:8px;cursor:pointer;">
+        </div>
+        <div class="form-group" style="margin:0;">
+          <label>USUÁRIO</label>
+          <input type="text" id="cargo-usuario" placeholder="usuario" autocomplete="off">
+        </div>
+        <div class="form-group" style="margin:0;">
+          <label>SENHA</label>
+          <input type="password" id="cargo-senha" placeholder="senha" autocomplete="off">
+        </div>
+      </div>
+
+      <!-- Permissões -->
+      <div class="modal-section-title" style="margin-bottom:10px;">PERMISSÕES DE ACESSO</div>
+
+      <!-- Abas visíveis -->
+      <div style="margin-bottom:12px;">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:12px;color:var(--muted);letter-spacing:1px;margin-bottom:8px;">ABAS VISÍVEIS</div>
+        <div id="perm-abas" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;"></div>
+      </div>
+
+      <!-- Ações permitidas -->
+      <div style="margin-bottom:14px;">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:12px;color:var(--muted);letter-spacing:1px;margin-bottom:8px;">AÇÕES PERMITIDAS</div>
+        <div id="perm-acoes" style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px;"></div>
+      </div>
+
+      <div style="display:flex;gap:8px;">
+        <button class="btn-cancel" onclick="cancelarEdicaoCargo()" id="cargo-btn-cancelar" style="display:none;">CANCELAR</button>
+        <button class="btn-save" onclick="salvarCargo()" style="flex:1;background:linear-gradient(135deg,#9333ea,#7c3aed);">&#128274; SALVAR CARGO</button>
+      </div>
+    </div>
+
+    <div class="modal-actions" style="margin-top:16px;">
+      <button class="btn-cancel" onclick="fecharModalCargos()">FECHAR</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CARGO LOGIN -->
+<div class="modal-overlay" id="modal-cargo-login" onclick="fecharLoginFora(event)">
+  <div class="modal-login-box">
+    <h2 id="cargo-login-titulo" style="color:#9333ea;">&#128274; ACESSO</h2>
+    <p class="modal-sub">LOGIN DO CARGO</p>
+    <div class="form-group"><label>USUÁRIO</label><input type="text" id="cargo-login-user" placeholder="USUARIO" autocomplete="off"></div>
+    <div class="form-group"><label>SENHA</label><input type="password" id="cargo-login-pass" placeholder="SENHA" onkeydown="if(event.key==='Enter')fazerLoginCargo()"></div>
+    <div class="login-error" id="cargo-login-error">USUÁRIO OU SENHA INCORRETOS</div>
+    <button class="btn-save" style="width:100%;margin-top:8px;" onclick="fazerLoginCargo()">ENTRAR</button>
+    <button class="btn-cancel" style="width:100%;margin-top:8px;" onclick="document.getElementById('modal-cargo-login').classList.remove('open')">CANCELAR</button>
   </div>
 </div>
 
@@ -1412,6 +1560,54 @@ var ADMIN_PASS = '01';
 var PELADA_USER = 'est';
 var PELADA_PASS = 'tqj';
 var peladaLogado = false;
+
+// ── SISTEMA DE CARGOS ──────────────────────────────────────────
+var API_CARGOS = SB_URL + '/rest/v1/cargos';
+var cargos = []; // loaded from Supabase
+var cargoAtual = null; // { id, nome, usuario, permissoes: { abas:[], acoes:[] } }
+
+var PERMISSOES_LABEL = {
+  abas: {
+    avisos:'Aba Avisos', pelada:'Aba Pelada', sorteio:'Aba Sorteio',
+    ranking:'Aba Ranking', rodadas:'Aba Rodadas', goleiros:'Aba Goleiros',
+    membros:'Aba Membros', caixa:'Aba Caixa'
+  },
+  acoes: {
+    ver_pelada:'Ver aba Pelada', lancar_stats:'Lançar estatísticas',
+    finalizar_pelada:'Finalizar pelada → rodada', ver_sorteio:'Ver sorteio',
+    sortear:'Realizar sorteio', editar_estrelas:'Editar estrelas',
+    editar_avisos:'Criar/editar avisos', nova_rodada:'Lançar nova rodada',
+    editar_membros:'Adicionar/editar membros', ver_caixa:'Ver Caixa',
+    lancar_caixa:'Lançar gastos e pagamentos'
+  }
+};
+
+function temPerm(acao) {
+  if (adminLogado) return true; // superadmin tem tudo
+  if (!cargoAtual) return false;
+  var perms = cargoAtual.permissoes || {};
+  return (perms.acoes || []).indexOf(acao) !== -1;
+}
+function temAba(aba) {
+  if (adminLogado) return true;
+  if (!cargoAtual) return true; // visitantes veem abas públicas (avisos, ranking, etc)
+  var perms = cargoAtual.permissoes || {};
+  return (perms.abas || []).indexOf(aba) !== -1;
+}
+
+function loadCargos() {
+  return fetch(API_CARGOS + '?order=nome.asc', { headers: H_GET })
+    .then(function(r){ return r.ok ? r.json() : []; })
+    .then(function(data){
+      cargos = data || [];
+      // Parse permissoes if it's a string
+      cargos.forEach(function(c){
+        if (typeof c.permissoes === 'string') {
+          try { c.permissoes = JSON.parse(c.permissoes); } catch(e){ c.permissoes = {}; }
+        }
+      });
+    }).catch(function(){ cargos = []; });
+}
 
 var API         = SB_URL + '/rest/v1/rodadas';
 var API_MEMBROS = SB_URL + '/rest/v1/membros';
@@ -4262,10 +4458,16 @@ function getAniversariantesMes() {
     var canEdit = adminLogado || peladaLogado;
     var overlay = document.getElementById('pelada-lock-overlay');
     if (overlay) overlay.style.display = canEdit ? 'none' : 'flex';
+    // admin-only: only for admins
     document.querySelectorAll('#page-pelada .admin-only').forEach(function(el){
+      el.style.display = adminLogado ? '' : 'none';
+    });
+    // pelada-ctrl: for admin AND pelada user (ex: FINALIZAR PELADA button)
+    document.querySelectorAll('#page-pelada .pelada-ctrl').forEach(function(el){
       el.style.display = canEdit ? '' : 'none';
     });
   }
+
 }
 
 window.onload = init;
