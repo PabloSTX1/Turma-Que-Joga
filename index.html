@@ -1929,7 +1929,8 @@ function atualizarSorteioAcesso() {
   var painelR = document.getElementById('sorteio-painel-resultado');
   var ctrls   = document.getElementById('sorteio-controles');
   var sub     = document.getElementById('sorteio-subtitulo');
-  if (adminLogado) {
+  var podeSort = adminLogado || temAcao('usar_sorteio');
+  if (podeSort) {
     if (painelE) { painelE.style.cssText = 'display:block;'; }
     if (ctrls)   { ctrls.style.cssText   = 'display:flex;gap:10px;flex-wrap:wrap;align-items:center;'; }
     if (painelR) { painelR.style.gridColumn = 'auto'; }
@@ -2731,6 +2732,8 @@ function aplicarPermissoesCargo(cargo) {
   // Apply action permissions via cargoLogado - checked in JS functions
   document.getElementById('cargo-badge').textContent = '🎖️ ' + cargo.nome.toUpperCase();
   document.getElementById('cargo-badge-wrap').style.display = 'flex';
+  document.getElementById('btn-cargo-login').style.display = 'none';
+  atualizarSorteioAcesso();
   toast('BEM-VINDO! CARGO: ' + cargo.nome.toUpperCase());
 }
 
@@ -2739,6 +2742,8 @@ function sairCargo() {
   // Restore all tabs
   document.querySelectorAll('.tab-btn').forEach(function(btn){ btn.style.display = ''; });
   document.getElementById('cargo-badge-wrap').style.display = 'none';
+  document.getElementById('btn-cargo-login').style.display = cargos.length ? '' : 'none';
+  atualizarSorteioAcesso();
   toast('SESSÃO ENCERRADA.');
 }
 
